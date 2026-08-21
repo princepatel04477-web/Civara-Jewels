@@ -197,7 +197,7 @@ function seedDatabaseIfNeeded(database: Database.Database) {
         { metal: "Silver", purity: "Silver", rate_inr: 26999 },
       ];
       const insertRate = database.prepare(`
-        INSERT INTO metal_rates (metal, purity, rate_inr, updated_by, last_updated)
+        INSERT INTO metal_rates (metal, purity, rate_inr, updated_by, updated_at)
         VALUES (?, ?, ?, 'System Initializer', datetime('now'))
       `);
       for (const r of initialRates) {
@@ -206,11 +206,11 @@ function seedDatabaseIfNeeded(database: Database.Database) {
     }
 
     // 4. Seed Ring Size Config
-    const ringConfigCount = (database.prepare("SELECT COUNT(*) as c FROM ring_size_config").get() as { c: number })?.c || 0;
+    const ringConfigCount = (database.prepare("SELECT COUNT(*) as c FROM ring_sizes").get() as { c: number })?.c || 0;
     if (ringConfigCount === 0) {
       database.prepare(`
-        INSERT INTO ring_size_config (id, min_size, max_size, increment, pricing_mode, updated_at)
-        VALUES (1, 3.0, 15.0, 0.5, 'same', datetime('now'))
+        INSERT INTO ring_sizes (id, min_size, max_size, increment, pricing_mode, updated_at)
+        VALUES (1, 3.0, 15.0, 0.5, 'SAME_PRICE', datetime('now'))
       `).run();
     }
 
