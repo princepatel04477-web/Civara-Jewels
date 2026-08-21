@@ -18,13 +18,22 @@ import {
 import { Button, Input, Textarea, Select, Switch, ChipInput } from "../../../components/admin/ui";
 import { ImageDropzone, ProductImageItem } from "../../../components/admin/ui/ImageDropzone";
 
+const DEFAULT_COLLECTIONS = [
+  { id: 1, name: "Rings", slug: "rings" },
+  { id: 2, name: "Bracelets", slug: "bracelets" },
+  { id: 3, name: "Necklaces", slug: "necklaces" },
+  { id: 4, name: "Pendants", slug: "pendants" },
+  { id: 5, name: "Bridal", slug: "bridal" },
+  { id: 6, name: "Earrings", slug: "earrings" },
+];
+
 export default function AdminEditProductPage() {
   const router = useRouter();
   const params = useParams();
   const id = params.id as string;
 
   const [activeTab, setActiveTab] = useState<"details" | "photos" | "preview">("details");
-  const [collections, setCollections] = useState<Array<{ id: number; name: string; slug: string }>>([]);
+  const [collections, setCollections] = useState<Array<{ id: number; name: string; slug: string }>>(DEFAULT_COLLECTIONS);
   const [metalRates, setMetalRates] = useState<Array<{ purity: string; rate_inr: number }>>([]);
   const [images, setImages] = useState<ProductImageItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);

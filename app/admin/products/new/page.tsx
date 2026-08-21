@@ -6,9 +6,18 @@ import Link from "next/link";
 import { ArrowLeft, Save, Sparkles, HelpCircle } from "lucide-react";
 import { Button, Input, Textarea, Select, Switch, ChipInput } from "../../../components/admin/ui";
 
+const DEFAULT_COLLECTIONS = [
+  { id: 1, name: "Rings", slug: "rings" },
+  { id: 2, name: "Bracelets", slug: "bracelets" },
+  { id: 3, name: "Necklaces", slug: "necklaces" },
+  { id: 4, name: "Pendants", slug: "pendants" },
+  { id: 5, name: "Bridal", slug: "bridal" },
+  { id: 6, name: "Earrings", slug: "earrings" },
+];
+
 export default function AdminNewProductPage() {
   const router = useRouter();
-  const [collections, setCollections] = useState<Array<{ id: number; name: string; slug: string }>>([]);
+  const [collections, setCollections] = useState<Array<{ id: number; name: string; slug: string }>>(DEFAULT_COLLECTIONS);
   const [metalRates, setMetalRates] = useState<Array<{ purity: string; rate_inr: number }>>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -17,7 +26,7 @@ export default function AdminNewProductPage() {
     name: "",
     slug: "",
     sku: "",
-    collection_id: "",
+    collection_id: "1",
     description: "",
     short_description: "",
     pricing_mode: "MANUAL" as "MANUAL" | "CALCULATED",
@@ -49,13 +58,10 @@ export default function AdminNewProductPage() {
       fetch("/api/admin/pricing/rates").then((r) => r.json()),
     ])
       .then(([colData, rateData]) => {
-        if (colData.collections) {
+        if (colData && colData.collections && colData.collections.length > 0) {
           setCollections(colData.collections);
-          if (colData.collections.length > 0) {
-            setForm((prev) => ({ ...prev, collection_id: String(colData.collections[0].id) }));
-          }
         }
-        if (rateData.rates) {
+        if (rateData && rateData.rates) {
           setMetalRates(rateData.rates);
         }
       })

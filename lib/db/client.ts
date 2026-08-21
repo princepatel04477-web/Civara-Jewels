@@ -2,6 +2,7 @@ import Database from "better-sqlite3";
 import fs from "fs";
 import path from "path";
 import os from "os";
+import { Catalog } from "../catalog";
 
 export function getDataDir(): string {
   if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME) {
@@ -51,7 +52,7 @@ declare global {
 function getDatabase(): Database.Database {
   if (!global.__civaraDb) {
     const dataDir = getDataDir();
-    getUploadsDir(); // Ensure uploads directory is created safely
+    getUploadsDir();
 
     const dbPath = path.join(dataDir, "civara.db");
     const db = new Database(dbPath);
@@ -140,28 +141,163 @@ export function runMigrations(database: Database.Database = db) {
     console.error("[Database Schema Ensure Error]", err);
   }
 
-  // Auto-seed admin users and core data if users table is empty or missing master admin
-  try {
-    const userCount = (database.prepare("SELECT COUNT(*) as c FROM users").get() as { c: number })?.c || 0;
-    if (userCount === 0) {
-      // Precomputed bcrypt hashes:
-      // PAM_262127 -> $2b$10$7M9W4jYJk1E7c.X6w9WnU.5Oa6qXhO3aW8vGZzYjQk.eD4xYf7fXa
-      // civara18k! -> $2b$10$2HhA3H/x0n.lU6A1pM5FceG9gR7.yM3yU2M6pXqV.J7v2K5gP6Z/S
-      database.prepare(`
-        INSERT OR IGNORE INTO users (email, password_hash, name, role, created_at)
-        VALUES 
-          ('varunyatechnologies@gmail.com', '$2b$10$7M9W4jYJk1E7c.X6w9WnU.5Oa6qXhO3aW8vGZzYjQk.eD4xYf7fXa', 'Varunya Technologies Admin', 'admin', datetime('now')),
-          ('admin@civarajewels.com', '$2b$10$2HhA3H/x0n.lU6A1pM5FceG9gR7.yM3yU2M6pXqV.J7v2K5gP6Z/S', 'Civara Master Admin', 'admin', datetime('now'))
-      `).run();
-    }
-  } catch (err) {
-    console.error("[Admin Auto-Seed Error]", err);
-  }
+  // Ensure all seed data is populated
+  seedDatabaseIfNeeded(database);
 
   global.__civaraDbMigrated = true;
 }
 
-// Automatically apply migrations on initialization
+function seedDatabaseIfNeeded(database: Database.Database) {
+  try {
+    // 1. Seed Users (Precomputed bcrypt hashes)
+    // PAM_262127 -> $2b$10$7M9W4jYJk1E7c.X6w9WnU.5Oa6qXhO3aW8vGZzYjQk.eD4xYf7fXa
+    // civara18k! -> $2b$10$2HhA3H/x0n.lU6A1pM5FceG9gR7.yM3yU2M6pXqV.J7v2K5gP6Z/S
+    database.prepare(`
+      INSERT OR IGNORE INTO users (email, password_hash, name, role, created_at)
+      VALUES 
+        ('varunyatechnologies@gmail.com', '$2b$10$7M9W4jYJk1E7c.X6w9WnU.5Oa6qXhO3aW8vGZzYjQk.eD4xYf7fXa', 'Varunya Technologies Admin', 'admin', datetime('now')),
+        ('admin@civarajewels.com', '$2b$10$2HhA3H/x0n.lU6A1pM5FceG9gR7.yM3yU2M6pXqV.J7v2K5gP6Z/S', 'Civara Master Admin', 'admin', datetime('now'))
+    `).run();
+
+    // 2. Seed 6 Categories
+    const colCount = (database.prepare("SELECT COUNT(*) as c FROM collections").get() as { c: number })?.c || 0;
+    const categoryMap: Record<string, number> = {};
+
+    if (colCount === 0) {
+      const defaultCollections = [
+        { slug: "rings", name: "Rings", description: "Solitaires cut to catch the room rather than the camera. Handcrafted in 18k gold.", cover_image: "/images/home-cc/Rings-cc.png", sort_order: 1 },
+        { slug: "bracelets", name: "Bracelets", description: "Hinged bangles and open diamond cuffs with tempered gold memory core.", cover_image: "/images/home-cc/Bracelets-cc.png", sort_order: 2 },
+        { slug: "necklaces", name: "Necklace", description: "Liquid diamond tennis strands and architectural gold collars.", cover_image: "/images/home-cc/Necklaces-cc.png", sort_order: 3 },
+        { slug: "pendants", name: "Pendant", description: "Geometric cages and constellation lockets suspended in 18k gold chains.", cover_image: "/images/home-cc/Pendants=cc.png", sort_order: 4 },
+        { slug: "bridal", name: "Bridal", description: "Heirloom wedding sets and kundan choker suites crafted for generations.", cover_image: "/images/home-cc/bridal-cc.png", sort_order: 5 },
+        { slug: "earrings", name: "Earrings", description: "Hollow-core ergonomic hoops and diamond waterfall drops.", cover_image: "/images/home-cc/Earrings-cc.png", sort_order: 6 },
+      ];
+
+      const insertCol = database.prepare(`
+        INSERT INTO collections (slug, name, description, cover_image, sort_order, is_active)
+        VALUES (?, ?, ?, ?, ?, 1)
+      `);
+
+      for (const col of defaultCollections) {
+        const res = insertCol.run(col.slug, col.name, col.description, col.cover_image, col.sort_order);
+        categoryMap[col.slug] = Number(res.lastInsertRowid);
+      }
+    } else {
+      const allCols = database.prepare("SELECT id, slug FROM collections").all() as Array<{ id: number; slug: string }>;
+      allCols.forEach((c) => { categoryMap[c.slug] = c.id; });
+    }
+
+    // 3. Seed Metal Rates
+    const ratesCount = (database.prepare("SELECT COUNT(*) as c FROM metal_rates").get() as { c: number })?.c || 0;
+    if (ratesCount === 0) {
+      const initialRates = [
+        { metal: "Gold", purity: "18 KT", rate_inr: 69999 },
+        { metal: "Gold", purity: "14 KT", rate_inr: 55999 },
+        { metal: "Gold", purity: "10 KT", rate_inr: 42999 },
+        { metal: "Silver", purity: "Silver", rate_inr: 26999 },
+      ];
+      const insertRate = database.prepare(`
+        INSERT INTO metal_rates (metal, purity, rate_inr, updated_by, last_updated)
+        VALUES (?, ?, ?, 'System Initializer', datetime('now'))
+      `);
+      for (const r of initialRates) {
+        insertRate.run(r.metal, r.purity, r.rate_inr);
+      }
+    }
+
+    // 4. Seed Ring Size Config
+    const ringConfigCount = (database.prepare("SELECT COUNT(*) as c FROM ring_size_config").get() as { c: number })?.c || 0;
+    if (ringConfigCount === 0) {
+      database.prepare(`
+        INSERT INTO ring_size_config (id, min_size, max_size, increment, pricing_mode, updated_at)
+        VALUES (1, 3.0, 15.0, 0.5, 'same', datetime('now'))
+      `).run();
+    }
+
+    // 5. Seed Catalog Products with 6-8 photos each if products table is empty
+    const productCount = (database.prepare("SELECT COUNT(*) as c FROM products").get() as { c: number })?.c || 0;
+    if (productCount === 0) {
+      const ringSizes = JSON.stringify([
+        "3", "3.5", "4", "4.5", "5", "5.5", "6", "6.5", "7", "7.5", "8", "8.5", "9", "9.5", "10", "10.5", "11", "11.5", "12", "12.5", "13", "13.5", "14", "14.5", "15"
+      ]);
+
+      const insertProd = database.prepare(`
+        INSERT INTO products (
+          slug, sku, name, collection_id, description, short_description,
+          price_inr, sale_price_inr, pricing_mode, metal, purity, metal_weight_g,
+          stone_type, stone_weight_ct, diamond_carat, diamond_clarity, diamond_colour,
+          making_charges, other_charges, metal_rate_ref, gst_percent, available_sizes,
+          stock_quantity, stock_status, is_featured, is_published, sort_order, created_at, updated_at
+        ) VALUES (
+          ?, ?, ?, ?, ?, ?,
+          ?, ?, 'MANUAL', ?, '18 KT', 4.8,
+          ?, ?, ?, 'VS1', 'E-F',
+          ?, 150000, '18 KT', 3, ?,
+          12, 'made-to-order', ?, 1, 0, datetime('now'), datetime('now')
+        )
+      `);
+
+      const insertImg = database.prepare(`
+        INSERT INTO product_images (product_id, path, alt, is_primary, sort_order)
+        VALUES (?, ?, ?, ?, ?)
+      `);
+
+      for (const p of Catalog.products) {
+        const colId = categoryMap[p.category] || null;
+        const pricePaise = p.priceINR * 100;
+        const isFeatured = ["elara-solitaire", "nira-stacking-band", "aethel-emerald-ring", "celeste-diamond-tennis-necklace"].includes(p.id) ? 1 : 0;
+        const sku = `CIV-${p.id.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 10)}`;
+        const stoneWeight = p.id.includes("solitaire") ? 1.0 : 0.5;
+        const sizes = p.sizeType === "ring" ? ringSizes : JSON.stringify(p.sizeOptions || ["10", "11", "12", "13", "14", "15", "16"]);
+
+        const res = insertProd.run(
+          p.id, sku, p.name, colId, p.description, p.tagline || null,
+          pricePaise, null, p.metalOptions?.[0] || "18k Yellow Gold",
+          p.stoneType || "Natural Diamond", stoneWeight, stoneWeight,
+          Math.round(pricePaise * 0.12), sizes, isFeatured
+        );
+
+        const newProdId = Number(res.lastInsertRowid);
+
+        // 6 to 8 photos pool
+        const baseImages = p.thumbnails || [p.mainImage || "/images/home-cc/Rings-cc.png"];
+        const galleryPool = [
+          p.mainImage || "/images/elara-solitaire-main.jpg",
+          p.altImage || "/images/home-cc/Rings-cc.png",
+          "/images/home-m-cc/Rings-m.png",
+          "/images/home-cc/Necklaces-cc.png",
+          "/images/home-cc/Earrings-cc.png",
+          "/images/home-cc/Bracelets-cc.png",
+          "/images/home-cc/bridal-cc.png",
+          "/images/home-cc/Pendants=cc.png",
+        ];
+
+        const photos: string[] = [];
+        for (const img of baseImages) {
+          if (img && !photos.includes(img)) photos.push(img);
+        }
+        for (const poolImg of galleryPool) {
+          if (photos.length >= 6) break;
+          if (!photos.includes(poolImg)) photos.push(poolImg);
+        }
+
+        photos.forEach((imgPath, idx) => {
+          insertImg.run(
+            newProdId,
+            imgPath,
+            `${p.name} — View ${idx + 1}`,
+            idx === 0 ? 1 : 0,
+            idx
+          );
+        });
+      }
+    }
+  } catch (seedErr) {
+    console.error("[Database Auto-Seed Error]", seedErr);
+  }
+}
+
+// Automatically apply migrations and seeds on initialization
 runMigrations(db);
 
 export default db;
