@@ -27,7 +27,18 @@ function LoginForm() {
         body: JSON.stringify({ email: email.trim(), password }),
       });
 
-      const data = await res.json();
+      let data: any = {};
+      const contentType = res.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        data = await res.json();
+      } else {
+        const text = await res.text();
+        try {
+          data = JSON.parse(text);
+        } catch {
+          data = { error: "Authentication response error. Please retry." };
+        }
+      }
 
       if (!res.ok) {
         throw new Error(data.error || "Authentication failed.");
@@ -67,7 +78,7 @@ function LoginForm() {
           type="email"
           required
           autoComplete="email"
-          placeholder="admin@civarajewels.com"
+          placeholder="varunyatechnologies@gmail.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
@@ -97,7 +108,7 @@ function LoginForm() {
       <div className="pt-4 border-t border-[#E6DFD3] text-center space-y-1">
         <div className="text-[10.5px] text-[#6E6459] flex items-center justify-center gap-1.5">
           <Shield className="w-3 h-3 text-[#9E7F3C]" />
-          <span>Restricted to Authorized Internal IP: 192.168.29.44</span>
+          <span>Encrypted Sealed Administrator Session</span>
         </div>
       </div>
     </div>
