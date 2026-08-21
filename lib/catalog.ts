@@ -124,6 +124,37 @@ export class Catalog {
 
   static products: Product[] = [
     {
+      id: "aurelia-pave-solitaire-diamond-ring",
+      name: "Aurelia Pavé Solitaire Diamond Ring",
+      category: "rings",
+      categoryName: "Rings",
+      priceINR: 185000,
+      tagline: "A radiant solitaire perched above a delicate micropavé diamond band.",
+      description: "Handcrafted in luminous 18k yellow gold, this exquisite ring features a brilliant center diamond secured in an elevated four-prong basket, beautifully enhanced by shimmering French micropavé diamonds along the shank. Designed with timeless elegance and meticulous craftsmanship, it serves as a stunning engagement ring or refined luxury statement.",
+      metalOptions: ["18k Yellow Gold", "18k White Gold", "18k Rose Gold"],
+      sizeType: "ring",
+      sizeOptions: ["3", "3.5", "4", "4.5", "5", "5.5", "6", "6.5", "7", "7.5", "8", "8.5", "9", "9.5", "10", "10.5", "11", "11.5", "12", "12.5", "13", "13.5", "14", "14.5", "15"],
+      stoneType: "Natural Diamond",
+      netWeightG: 3.40,
+      hallmark: "BIS 750 (18 Karat)",
+      imagePlaceholder: "Aurelia Pavé Solitaire Diamond Ring — hero view",
+      mainImage: "/images/products/aurelia/aurelia-1.jpg",
+      altImage: "/images/products/aurelia/aurelia-2.jpg",
+      thumbnails: [
+        "/images/products/aurelia/aurelia-1.jpg",
+        "/images/products/aurelia/aurelia-2.jpg",
+        "/images/products/aurelia/aurelia-3.jpg",
+        "/images/products/aurelia/aurelia-4.jpg",
+        "/images/products/aurelia/aurelia-5.jpg",
+        "/images/products/aurelia/aurelia-6.jpg"
+      ],
+      details: {
+        materials: "Handcrafted in hallmarked 18k Yellow Gold (BIS 750) with 3.40g net metal weight. Features a 1.25 CT VS1 / G-H brilliant diamond center stone with French micropavé diamond accents.",
+        craft: "Individually set by a master lapidary artisan over 2–3 weeks. Includes complimentary insured shipping across India.",
+        care: "Complimentary annual inspection, prong tightening, ultrasonic cleaning, and one complimentary resizing within the first year."
+      }
+    },
+    {
       id: "elara-solitaire",
       name: "Elara Solitaire Ring",
       category: "rings",
