@@ -1,0 +1,133 @@
+:root {
+  --ivory: #FBF7F0;
+  --porcelain: #FFFFFF;
+  --alabaster: #F4EDE2;
+  --pearl: #E6DFD3;
+  --gold: #C9A961;
+  --brass: #9E7F3C;
+  --ink: #241F1B;
+  --taupe: #6E6459;
+
+  --ease-quiet: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-inout: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-fast: 180ms;
+  --dur-base: 320ms;
+  --dur-slow: 640ms;
+  --dur-reveal: 900ms;
+  --stagger: 70ms;
+}
+
+/* Floating Card Keyframes & Levitation Physics */
+@keyframes floatGentle {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.animate-float-slow {
+  animation: floatGentle 6s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+  animation: floatGentle 7s ease-in-out 1.5s infinite;
+}
+
+/* Specular Sweep Effect */
+.specular-sweep {
+  position: relative;
+  overflow: hidden;
+}
+.specular-sweep::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -150%;
+  width: 50%;
+  height: 200%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.45) 50%,
+    transparent 100%
+  );
+  transform: rotate(25deg);
+  pointer-events: none;
+  transition: left var(--dur-reveal) var(--ease-quiet);
+}
+.specular-sweep:hover::after {
+  left: 200%;
+}
+
+/* Motion Reveal Classes */
+.reveal-init {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity var(--dur-slow) var(--ease-quiet), transform var(--dur-slow) var(--ease-quiet);
+  will-change: opacity, transform;
+}
+.reveal-init.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Line reveal container */
+.line-reveal-wrap {
+  overflow: hidden;
+}
+.line-reveal-child {
+  opacity: 0;
+  transform: translateY(0.9em);
+  transition: opacity var(--dur-reveal) var(--ease-quiet), transform var(--dur-reveal) var(--ease-quiet);
+}
+.line-reveal-wrap.revealed .line-reveal-child {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Rule draw */
+.rule-draw {
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 700ms var(--ease-quiet);
+}
+.rule-draw.revealed {
+  transform: scaleX(1);
+}
+
+/* Image Veil Animation */
+.image-veil-container {
+  position: relative;
+  overflow: hidden;
+}
+.image-veil-overlay {
+  position: absolute;
+  inset: 0;
+  background-color: var(--alabaster);
+  z-index: 10;
+  transform: scaleY(1);
+  transform-origin: top;
+  transition: transform 800ms var(--ease-quiet);
+}
+.image-veil-container.revealed .image-veil-overlay {
+  transform: scaleY(0);
+}
+
+/* Reduced Motion Override */
+@media (prefers-reduced-motion: reduce) {
+  .reveal-init,
+  .line-reveal-child,
+  .rule-draw,
+  .image-veil-overlay,
+  .animate-float-slow,
+  .animate-float-delayed {
+    transition: opacity 120ms linear !important;
+    transform: none !important;
+    animation: none !important;
+  }
+  .specular-sweep::after {
+    display: none !important;
+  }
+}

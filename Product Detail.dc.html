@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="./image-slot.js"></script>
+<style>
+  body { margin:0; background:#faf7f0; color:#211c15; font-family:'Jost',sans-serif; -webkit-font-smoothing:antialiased; }
+  a { color:#211c15; text-decoration:none; transition:color .15s; }
+  a:hover { color:#a8843c; }
+</style>
+</helmet>
+
+<div style="width:100%; overflow-x:hidden">
+
+  <nav style="display:flex; align-items:center; justify-content:space-between; gap:32px; padding:24px 56px; background:#faf7f0; border-bottom:1px solid #eadfc9">
+    <a href="Civara Jewels Home.dc.html" style="font-family:'Cormorant Garamond',serif; font-size:23px; letter-spacing:0.3em; font-weight:500">CIVARA <span style="color:#a8843c">JEWELS</span></a>
+    <div style="display:flex; gap:32px; font-size:13px; letter-spacing:0.13em; text-transform:uppercase; align-items:center">
+      <a href="Civara Jewels Home.dc.html#new">Rings</a><a href="Civara Jewels Home.dc.html#new">Necklaces</a><a href="Civara Jewels Home.dc.html#new">Earrings</a><a href="Civara Jewels Home.dc.html#new">Bracelets</a><a href="Civara Jewels Home.dc.html#new">Bridal</a><a href="Civara Jewels Home.dc.html#new">Pendants</a>
+    </div>
+    <a href="#enquire" style="border:1px solid #211c15; border-radius:999px; padding:8px 20px; font-size:12px; letter-spacing:0.16em; text-transform:uppercase" style-hover="background:#211c15; color:#faf7f0">Book a viewing</a>
+  </nav>
+
+  <div style="padding:14px 56px; font-size:11px; letter-spacing:0.18em; text-transform:uppercase; color:#8a8172">
+    <a href="Civara Jewels Home.dc.html" style="color:#8a8172">Home</a> &nbsp;/&nbsp; <a href="Civara Jewels Home.dc.html#new" style="color:#8a8172">Rings</a> &nbsp;/&nbsp; <span style="color:#211c15">Elara solitaire</span>
+  </div>
+
+  <section data-screen-label="Product" style="display:grid; grid-template-columns:minmax(0,1.15fr) minmax(0,1fr); gap:64px; padding:24px 56px 96px">
+    <div style="display:flex; flex-direction:column; gap:16px">
+      <div style="height:560px; background:#f5efe2"><image-slot id="pd-main" shape="rect" placeholder="Elara solitaire — hero shot"></image-slot></div>
+      <div style="display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:16px">
+        <div style="height:170px; background:#f5efe2"><image-slot id="pd-alt-1" shape="rect" placeholder="On hand"></image-slot></div>
+        <div style="height:170px; background:#f5efe2"><image-slot id="pd-alt-2" shape="rect" placeholder="Side profile"></image-slot></div>
+        <div style="height:170px; background:#f5efe2"><image-slot id="pd-alt-3" shape="rect" placeholder="Stone detail"></image-slot></div>
+      </div>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:0; max-width:520px">
+      <div style="font-size:11px; letter-spacing:0.28em; text-transform:uppercase; color:#a8843c; margin-bottom:14px">The Solitaire Edit</div>
+      <h1 style="font-family:'Cormorant Garamond',serif; font-weight:500; font-size:48px; margin:0 0 10px">Elara solitaire</h1>
+      <div style="font-family:'Cormorant Garamond',serif; font-size:28px; color:#5f5748; margin-bottom:22px">{{ price }}</div>
+      <p style="font-size:15px; font-weight:300; line-height:1.8; color:#5f5748; margin:0 0 30px; text-wrap:pretty">A single certified stone, hand-set in recycled 18-karat gold. The Elara is cut to catch the room rather than the camera — a quiet claw setting that lets light do the work.</p>
+
+      <div style="margin-bottom:26px">
+        <div style="font-size:11px; letter-spacing:0.22em; text-transform:uppercase; color:#8a8172; margin-bottom:12px">Metal</div>
+        <div style="display:flex; gap:10px">
+          <sc-for list="{{ metals }}" as="m" hint-placeholder-count="3">
+            <div onClick="{{ m.select }}" style="cursor:pointer; padding:10px 18px; font-size:13px; border:1px solid {{ m.border }}; background:{{ m.bg }}">{{ m.name }}</div>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="margin-bottom:30px">
+        <div style="font-size:11px; letter-spacing:0.22em; text-transform:uppercase; color:#8a8172; margin-bottom:12px">Ring size — <a href="#" style="color:#a8843c; text-transform:none; letter-spacing:normal; font-size:12px">size guide</a></div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap">
+          <sc-for list="{{ sizes }}" as="s" hint-placeholder-count="6">
+            <div onClick="{{ s.select }}" style="cursor:pointer; width:44px; height:44px; display:flex; align-items:center; justify-content:center; font-size:13px; border:1px solid {{ s.border }}; background:{{ s.bg }}">{{ s.label }}</div>
+          </sc-for>
+        </div>
+      </div>
+
+      <div id="enquire" style="display:flex; flex-direction:column; gap:12px; margin-bottom:34px">
+        <a href="#" style="background:#171310; color:#c9a45c; text-align:center; padding:17px 36px; font-size:13px; letter-spacing:0.22em; text-transform:uppercase" style-hover="background:#2a241b">Enquire on WhatsApp</a>
+        <a href="#" style="border:1px solid #a8843c; color:#a8843c; text-align:center; padding:16px 36px; font-size:13px; letter-spacing:0.22em; text-transform:uppercase" style-hover="background:#a8843c; color:#faf7f0">Book a private viewing</a>
+        <div style="font-size:12px; font-weight:300; color:#8a8172; text-align:center">We craft to order — no online checkout. Every enquiry is answered within a day.</div>
+      </div>
+
+      <sc-for list="{{ details }}" as="d" hint-placeholder-count="3">
+        <div style="border-top:1px solid #eadfc9">
+          <div onClick="{{ d.toggle }}" style="cursor:pointer; display:flex; justify-content:space-between; align-items:center; padding:18px 2px">
+            <div style="font-size:13px; letter-spacing:0.16em; text-transform:uppercase">{{ d.title }}</div>
+            <div style="color:#a8843c; font-size:18px">{{ d.mark }}</div>
+          </div>
+          <sc-if value="{{ d.open }}" hint-placeholder-val="{{ false }}">
+            <p style="font-size:14px; font-weight:300; line-height:1.8; color:#5f5748; margin:0 0 20px; text-wrap:pretty">{{ d.body }}</p>
+          </sc-if>
+        </div>
+      </sc-for>
+      <div style="border-top:1px solid #eadfc9"></div>
+    </div>
+  </section>
+
+  <section data-screen-label="Related" style="padding:80px 56px 100px; background:#f5efe2">
+    <h2 style="font-family:'Cormorant Garamond',serif; font-weight:500; font-size:36px; margin:0 0 40px; text-align:center">You may also admire</h2>
+    <div style="display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:26px">
+      <sc-for list="{{ related }}" as="p" hint-placeholder-count="4">
+        <a href="#" style="display:flex; flex-direction:column; gap:14px">
+          <div style="height:280px; background:#faf7f0"><image-slot id="{{ p.slot }}" shape="rect" placeholder="{{ p.placeholder }}"></image-slot></div>
+          <div style="display:flex; flex-direction:column; gap:4px; text-align:center">
+            <div style="font-size:15px">{{ p.name }}</div>
+            <div style="font-family:'Cormorant Garamond',serif; font-size:19px; color:#5f5748">{{ p.price }}</div>
+          </div>
+        </a>
+      </sc-for>
+    </div>
+  </section>
+
+  <footer style="background:#171310; color:#6e6553; padding:26px 56px; display:flex; justify-content:space-between; font-size:11px; letter-spacing:0.18em; text-transform:uppercase">
+    <a href="Civara Jewels Home.dc.html" style="color:#bfb49c">← Civara Jewels</a>
+    <div>Pure. Precious. Perfect.</div>
+  </footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;currency&quot;: {&quot;editor&quot;: &quot;enum&quot;, &quot;options&quot;: [&quot;₹ INR&quot;, &quot;$ USD&quot;, &quot;€ EUR&quot;], &quot;default&quot;: &quot;₹ INR&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Store&quot;}}">
+class Component extends DCLogic {
+  state = { metal: "Yellow gold", size: "12", open: "Materials" };
+  renderVals() {
+    const cur = this.props.currency ?? "₹ INR";
+    const conv = { "₹ INR": { s: "₹", r: 1, g: "en-IN" }, "$ USD": { s: "$", r: 1/84, g: "en-US" }, "€ EUR": { s: "€", r: 1/91, g: "de-DE" } }[cur];
+    const fmt = (inr) => conv.s + Math.round(inr * conv.r).toLocaleString(conv.g);
+    const metals = ["Yellow gold", "White gold", "Rose gold"].map(name => ({
+      name,
+      border: this.state.metal === name ? "#a8843c" : "#d8caac",
+      bg: this.state.metal === name ? "#f5efe2" : "transparent",
+      select: () => this.setState({ metal: name }),
+    }));
+    const sizes = ["10", "11", "12", "13", "14", "15", "16"].map(label => ({
+      label,
+      border: this.state.size === label ? "#a8843c" : "#d8caac",
+      bg: this.state.size === label ? "#f5efe2" : "transparent",
+      select: () => this.setState({ size: label }),
+    }));
+    const detailData = [
+      { title: "Materials & certification", body: "Recycled 18-karat hallmarked gold. Centre stone certified by GIA/IGI, ethically sourced. Each piece ships with its certificate of authenticity and hallmark card." },
+      { title: "Craft & delivery", body: "Hand-finished to order by a single master goldsmith over 2–3 weeks. Complimentary insured delivery across India; worldwide on request." },
+      { title: "Care & lifetime service", body: "Complimentary lifetime cleaning and inspection. One free resizing within the first year. Store in the provided case, away from perfumes and abrasives." },
+    ];
+    const details = detailData.map(d => ({
+      ...d,
+      open: this.state.open === d.title,
+      mark: this.state.open === d.title ? "−" : "+",
+      toggle: () => this.setState({ open: this.state.open === d.title ? "" : d.title }),
+    }));
+    const related = [
+      { slot: "rel-1", name: "Vela diamond pendant", inr: 46200, placeholder: "Pendant on chain" },
+      { slot: "rel-2", name: "Ora pearl drops", inr: 32900, placeholder: "Pearl drop earrings" },
+      { slot: "rel-3", name: "Sena gold bangle", inr: 58700, placeholder: "Gold bangle" },
+      { slot: "rel-4", name: "Nira band ring", inr: 38400, placeholder: "Stacking band" },
+    ].map(p => ({ ...p, price: fmt(p.inr) }));
+    return { price: fmt(84500), metals, sizes, details, related };
+  }
+}
+</script>
+</body>
+</html>

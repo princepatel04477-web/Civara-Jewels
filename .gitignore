@@ -1,0 +1,29 @@
+# Dependencies
+node_modules
+/.pnp
+.pnp.js
+
+# Testing
+/coverage
+
+# Next.js
+/.next/
+/out/
+
+# Production
+/build
+
+# Misc
+.DS_Store
+*.pem
+
+# Local env files
+.env*.local
+.env
+
+# Vercel
+.vercel
+
+# Civara Database & local storage
+/data/
+civara.db*

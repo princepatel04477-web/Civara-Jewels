@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="./image-slot.js"></script>
+<style>
+  body { margin:0; background:#faf7f0; color:#211c15; font-family:'Jost',sans-serif; -webkit-font-smoothing:antialiased; }
+  a { color:#211c15; text-decoration:none; transition:color .15s; }
+  a:hover { color:#a8843c; }
+</style>
+</helmet>
+
+<div style="width:100%; overflow-x:hidden">
+
+  <!-- announcement -->
+  <div style="background:#171310; color:#c9a45c; font-size:11px; letter-spacing:0.26em; text-transform:uppercase; text-align:center; padding:9px 24px">Pure. Precious. Perfect. — Complimentary insured shipping across India</div>
+
+  <!-- nav -->
+  <nav style="display:flex; align-items:center; justify-content:space-between; gap:32px; padding:24px 56px; background:#faf7f0; border-bottom:1px solid #eadfc9">
+    <a href="#" style="font-family:'Cormorant Garamond',serif; font-size:23px; letter-spacing:0.3em; font-weight:500">CIVARA <span style="color:#a8843c">JEWELS</span></a>
+    <div style="display:flex; gap:22px; font-size:12px; letter-spacing:0.11em; text-transform:uppercase; align-items:center">
+      <a href="#new">Rings</a><a href="#new">Necklaces</a><a href="#new">Earrings</a><a href="#new">Bracelets</a><a href="#new">Bridal</a><a href="#new">Pendants</a>
+    </div>
+    <a href="#contact" style="flex-shrink:0; border:1px solid #211c15; border-radius:999px; padding:8px 20px; font-size:12px; letter-spacing:0.16em; text-transform:uppercase; white-space:nowrap" style-hover="background:#211c15; color:#faf7f0">Book a viewing</a>
+  </nav>
+
+  <!-- hero -->
+  <section data-screen-label="Hero" style="display:flex; flex-direction:column; align-items:center; text-align:center; gap:26px; padding:110px 56px 96px; background:#f5efe2">
+    <div style="font-size:12px; letter-spacing:0.32em; text-transform:uppercase; color:#a8843c">The Signature Edit</div>
+    <h1 style="font-family:'Cormorant Garamond',serif; font-weight:500; font-size:76px; line-height:1.05; margin:0; max-width:18ch; text-wrap:pretty">Light, held close to the skin.</h1>
+    <div style="width:64px; border-top:1px solid #a8843c"></div>
+    <p style="font-size:17px; font-weight:300; line-height:1.8; max-width:52ch; margin:0; color:#5f5748">Hand-set stones in 18-karat gold, crafted by master artisans — for those who value restraint and radiance in equal measure.</p>
+    <div style="display:flex; gap:18px; margin-top:10px">
+      <a href="#new" style="border:1px solid #a8843c; color:#a8843c; padding:15px 36px; font-size:13px; letter-spacing:0.22em; text-transform:uppercase" style-hover="background:#a8843c; color:#faf7f0">Explore the edit</a>
+    </div>
+  </section>
+
+  <!-- new arrivals -->
+  <section id="new" data-screen-label="New Arrivals" style="padding:90px 56px; background:#faf7f0">
+    <div style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:44px">
+      <div>
+        <div style="font-size:11px; letter-spacing:0.28em; text-transform:uppercase; color:#a8843c; margin-bottom:12px">Newly Arrived</div>
+        <h2 style="font-family:'Cormorant Garamond',serif; font-weight:500; font-size:42px; margin:0">The latest from the atelier</h2>
+      </div>
+      <a href="#" style="font-size:12px; letter-spacing:0.2em; text-transform:uppercase; border-bottom:1px solid #a8843c; padding-bottom:3px">View all pieces</a>
+    </div>
+    <div style="display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:26px">
+      <sc-for list="{{ newIn }}" as="p" hint-placeholder-count="4">
+        <a href="Product Detail.dc.html" style="display:flex; flex-direction:column; gap:14px">
+          <div style="height:320px; background:#f5efe2"><image-slot id="{{ p.slot }}" shape="rect" placeholder="{{ p.placeholder }}"></image-slot></div>
+          <div style="display:flex; flex-direction:column; gap:4px; text-align:center">
+            <div style="font-size:15px">{{ p.name }}</div>
+            <div style="font-family:'Cormorant Garamond',serif; font-size:19px; color:#5f5748">{{ p.price }}</div>
+          </div>
+        </a>
+      </sc-for>
+    </div>
+  </section>
+
+  <!-- categories -->
+  <section data-screen-label="Categories" style="padding:90px 56px; background:#f5efe2">
+    <div style="text-align:center; margin-bottom:48px">
+      <div style="font-size:11px; letter-spacing:0.28em; text-transform:uppercase; color:#a8843c; margin-bottom:12px">Browse by</div>
+      <h2 style="font-family:'Cormorant Garamond',serif; font-weight:500; font-size:42px; margin:0">Categories</h2>
+    </div>
+    <div style="display:grid; grid-template-columns:repeat(6, minmax(0, 1fr)); gap:20px">
+      <sc-for list="{{ categories }}" as="c" hint-placeholder-count="6">
+        <a href="#" style="display:flex; flex-direction:column; gap:12px; text-align:center">
+          <div style="height:220px; background:#faf7f0"><image-slot id="{{ c.slot }}" shape="rect" placeholder="{{ c.ph }}"></image-slot></div>
+          <div style="font-family:'Cormorant Garamond',serif; font-size:21px">{{ c.name }}</div>
+          <div style="font-size:11px; letter-spacing:0.2em; text-transform:uppercase; color:#8a8172">{{ c.count }} pieces</div>
+        </a>
+      </sc-for>
+    </div>
+  </section>
+
+  <!-- philosophy -->
+  <section data-screen-label="Philosophy" style="display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:64px; padding:110px 56px; background:#faf7f0; align-items:center">
+    <div style="display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:18px">
+      <div style="height:400px; margin-top:48px"><image-slot id="story-1" shape="rect" placeholder="Artisan at the bench"></image-slot></div>
+      <div style="height:400px"><image-slot id="story-2" shape="rect" placeholder="Finished piece, close crop"></image-slot></div>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:22px; max-width:52ch">
+      <div style="font-size:11px; letter-spacing:0.28em; text-transform:uppercase; color:#a8843c">Our Philosophy</div>
+      <h2 style="font-family:'Cormorant Garamond',serif; font-weight:500; font-size:44px; line-height:1.15; margin:0; text-wrap:pretty">Jewellery that lives with the body — not on it.</h2>
+      <p style="font-size:15px; font-weight:300; line-height:1.9; color:#5f5748; margin:0">Every Civara piece is guided by balance, proportion, and tactility. Nothing is excessive; every detail exists for a reason. We work only in hallmarked gold and certified stones, finished by hand so each piece feels intuitive, personal, and quietly present.</p>
+      <a href="#" style="font-size:12px; letter-spacing:0.2em; text-transform:uppercase; border-bottom:1px solid #a8843c; padding-bottom:3px; align-self:flex-start">Read our story</a>
+    </div>
+  </section>
+
+  <!-- testimonials -->
+  <section data-screen-label="Testimonials" style="padding:96px 56px; background:#f5efe2">
+    <div style="text-align:center; margin-bottom:52px">
+      <div style="font-size:11px; letter-spacing:0.28em; text-transform:uppercase; color:#a8843c; margin-bottom:12px">Kind Words</div>
+      <h2 style="font-family:'Cormorant Garamond',serif; font-weight:500; font-size:42px; margin:0">From our clients</h2>
+    </div>
+    <div style="display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:28px">
+      <sc-for list="{{ testimonials }}" as="t" hint-placeholder-count="3">
+        <div style="background:#faf7f0; padding:40px 34px; display:flex; flex-direction:column; gap:18px; text-align:center; align-items:center">
+          <div style="font-family:'Cormorant Garamond',serif; font-size:34px; color:#a8843c; line-height:1">“</div>
+          <p style="font-family:'Cormorant Garamond',serif; font-size:20px; line-height:1.6; font-style:italic; margin:0; text-wrap:pretty">{{ t.quote }}</p>
+          <div style="width:36px; border-top:1px solid #d8caac"></div>
+          <div style="font-size:12px; letter-spacing:0.18em; text-transform:uppercase; color:#8a8172">{{ t.name }} · {{ t.city }}</div>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <!-- footer -->
+  <footer id="contact" data-screen-label="Footer" style="background:#171310; color:#bfb49c">
+    <div style="display:grid; grid-template-columns:minmax(0,1.2fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr); gap:48px; padding:80px 56px 56px">
+      <div style="display:flex; flex-direction:column; gap:20px">
+        <img src="assets/civara-logo.jpeg" alt="Civara Jewels — Pure. Precious. Perfect." style="width:180px">
+        <p style="font-size:13px; font-weight:300; line-height:1.8; margin:0; max-width:38ch">A fine jewellery atelier crafting heirlooms in hallmarked gold and certified diamonds. Every piece hand-finished, every stone verified.</p>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:14px; font-size:13px">
+        <div style="font-size:11px; letter-spacing:0.24em; text-transform:uppercase; color:#c9a45c; margin-bottom:6px">Collections</div>
+        <a href="#new" style="color:#bfb49c">Rings</a><a href="#new" style="color:#bfb49c">Necklaces</a><a href="#new" style="color:#bfb49c">Earrings</a><a href="#new" style="color:#bfb49c">Bracelets</a><a href="#new" style="color:#bfb49c">Bridal</a><a href="#new" style="color:#bfb49c">Pendants</a>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:14px; font-size:13px">
+        <div style="font-size:11px; letter-spacing:0.24em; text-transform:uppercase; color:#c9a45c; margin-bottom:6px">Services</div>
+        <a href="#" style="color:#bfb49c">Private viewings</a><a href="#" style="color:#bfb49c">Size guide</a><a href="#" style="color:#bfb49c">Care &amp; repair</a>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:14px; font-size:13px">
+        <div style="font-size:11px; letter-spacing:0.24em; text-transform:uppercase; color:#c9a45c; margin-bottom:6px">Contact</div>
+        <a href="tel:+919999900000" style="color:#bfb49c">+91 99999 00000</a>
+        <a href="mailto:hello@civarajewels.com" style="color:#bfb49c">hello@civarajewels.com</a>
+        <a href="#" style="color:#bfb49c">WhatsApp us</a>
+        <div style="font-weight:300; line-height:1.7">Atelier visits by appointment<br>Mon – Sat, 11am – 7pm</div>
+      </div>
+    </div>
+    <div style="border-top:1px solid #2a241b; padding:22px 56px; display:flex; justify-content:space-between; font-size:11px; letter-spacing:0.18em; text-transform:uppercase; color:#6e6553">
+      <div>© Civara Jewels 2026</div>
+      <div>Pure. Precious. Perfect.</div>
+    </div>
+  </footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;currency&quot;: {&quot;editor&quot;: &quot;enum&quot;, &quot;options&quot;: [&quot;₹ INR&quot;, &quot;$ USD&quot;, &quot;€ EUR&quot;], &quot;default&quot;: &quot;₹ INR&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Store&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const cur = this.props.currency ?? "₹ INR";
+    const conv = { "₹ INR": { s: "₹", r: 1, g: "en-IN" }, "$ USD": { s: "$", r: 1/84, g: "en-US" }, "€ EUR": { s: "€", r: 1/91, g: "de-DE" } }[cur];
+    const fmt = (inr) => conv.s + Math.round(inr * conv.r).toLocaleString(conv.g);
+    const newIn = [
+      { slot: "new-1", name: "Elara solitaire ring", inr: 84500, placeholder: "Solitaire ring — studio shot" },
+      { slot: "new-2", name: "Vela diamond pendant", inr: 46200, placeholder: "Pendant on chain" },
+      { slot: "new-3", name: "Ora pearl drops", inr: 32900, placeholder: "Pearl drop earrings" },
+      { slot: "new-4", name: "Sena gold bangle", inr: 58700, placeholder: "Gold bangle on wrist" },
+    ].map(p => ({ ...p, price: fmt(p.inr) }));
+    const categories = [
+      { slot: "cat-rings", name: "Rings", ph: "Ring close-up", count: 64 },
+      { slot: "cat-necklaces", name: "Necklaces", ph: "Necklace on bust", count: 48 },
+      { slot: "cat-earrings", name: "Earrings", ph: "Earrings pair", count: 52 },
+      { slot: "cat-bracelets", name: "Bracelets", ph: "Bracelet stack", count: 31 },
+      { slot: "cat-bridal", name: "Bridal", ph: "Bridal set", count: 27 },
+      { slot: "cat-pendants", name: "Pendants", ph: "Pendant detail", count: 39 },
+    ];
+    const testimonials = [
+      { quote: "The solitaire they made for our engagement is beyond anything I imagined. Quiet, precise, unmistakably ours.", name: "Ananya R.", city: "Mumbai" },
+      { quote: "The bridal set exceeded every expectation — three weeks later it was on my neck, in real gold.", name: "Kavya S.", city: "Bengaluru" },
+      { quote: "Heirloom quality without the ceremony. The bangle sits like it was measured to my wrist — because it was.", name: "Meera D.", city: "Delhi" },
+    ];
+    return { newIn, categories, testimonials };
+  }
+}
+</script>
+</body>
+</html>
