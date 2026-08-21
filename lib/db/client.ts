@@ -169,7 +169,7 @@ function seedDatabaseIfNeeded(database: Database.Database) {
         { slug: "bracelets", name: "Bracelets", description: "Hinged bangles and open diamond cuffs with tempered gold memory core.", cover_image: "/images/home-cc/Bracelets-cc.png", sort_order: 2 },
         { slug: "necklaces", name: "Necklace", description: "Liquid diamond tennis strands and architectural gold collars.", cover_image: "/images/home-cc/Necklaces-cc.png", sort_order: 3 },
         { slug: "pendants", name: "Pendant", description: "Geometric cages and constellation lockets suspended in 18k gold chains.", cover_image: "/images/home-cc/Pendants=cc.png", sort_order: 4 },
-        { slug: "bridal", name: "Bridal", description: "Heirloom wedding sets and kundan choker suites crafted for generations.", cover_image: "/images/home-cc/bridal-cc.png", sort_order: 5 },
+        { slug: "bridal", name: "Bridal", description: "Heirloom wedding sets and kundan choker suites crafted for generations.", cover_image: "/images/home-m-cc/bridal-m.png", sort_order: 5 },
         { slug: "earrings", name: "Earrings", description: "Hollow-core ergonomic hoops and diamond waterfall drops.", cover_image: "/images/home-cc/Earrings-cc.png", sort_order: 6 },
       ];
 

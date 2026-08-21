@@ -107,7 +107,7 @@ export class Catalog {
       description: "Uncompromised bridal sets, ceremonial necklaces, and bespoke wedding bands handcrafted in hallmarked gold and certified diamonds.",
       count: 27,
       heroPlaceholder: "Grand bridal jewellery set render",
-      coverImage: "/images/home-cc/bridal-cc.png",
+      coverImage: "/images/home-m-cc/bridal-m.png",
       mobileCoverImage: "/images/home-m-cc/bridal-m.png",
     },
     pendants: {

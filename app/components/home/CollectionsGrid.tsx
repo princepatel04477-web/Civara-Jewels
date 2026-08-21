@@ -59,9 +59,9 @@ export const CollectionsGrid: React.FC = () => {
       slug: collections.bridal.slug,
       name: collections.bridal.name,
       count: collections.bridal.count,
-      image: collections.bridal.coverImage || "/images/home-cc/bridal-cc.png",
+      image: collections.bridal.mobileCoverImage || "/images/home-m-cc/bridal-m.png",
       mobileImage: collections.bridal.mobileCoverImage || "/images/home-m-cc/bridal-m.png",
-      desktopSpan: "lg:col-span-1 lg:row-span-2",
+      desktopSpan: "lg:col-span-2 lg:row-span-1",
       tabletSpan: "md:col-span-1",
     },
     {
@@ -70,7 +70,7 @@ export const CollectionsGrid: React.FC = () => {
       count: collections.pendants.count,
       image: collections.pendants.coverImage || "/images/home-cc/Pendants=cc.png",
       mobileImage: collections.pendants.mobileCoverImage || "/images/home-m-cc/pendants-m.png",
-      desktopSpan: "lg:col-span-2 lg:row-span-1",
+      desktopSpan: "lg:col-span-1 lg:row-span-1",
       tabletSpan: "md:col-span-1",
     },
   ];
