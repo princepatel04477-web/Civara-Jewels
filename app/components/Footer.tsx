@@ -1,24 +1,11 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import Link from "next/link";
 import { NewsletterCapture } from "./footer/NewsletterCapture";
 import { MapPin, MessageCircle, Phone, Mail, ShieldCheck } from "lucide-react";
 
 export const Footer = () => {
-  const [isAdminAllowed, setIsAdminAllowed] = useState(false);
-
-  useEffect(() => {
-    fetch("/api/auth/ip-check")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data && data.isAllowed) {
-          setIsAdminAllowed(true);
-        }
-      })
-      .catch(() => {});
-  }, []);
-
   return (
     <footer id="contact" className="bg-[#241F1B] text-[#E6DFD3] border-t border-[#6E6459]/30">
       {/* Top Newsletter Strip (P2-6) */}
@@ -132,16 +119,14 @@ export const Footer = () => {
             <div><Link href="/faq" className="hover:text-[#C9A961] transition-colors">Frequently Asked Questions</Link></div>
             <div><Link href="/privacy" className="hover:text-[#C9A961] transition-colors">Privacy Policy</Link></div>
             <div><Link href="/terms" className="hover:text-[#C9A961] transition-colors">Terms of Service</Link></div>
-            {isAdminAllowed && (
-              <div className="pt-2">
-                <Link
-                  href="/admin"
-                  className="text-[#C9A961] hover:underline inline-flex items-center gap-1 font-medium tracking-wider uppercase text-[10px]"
-                >
-                  <ShieldCheck className="w-3.5 h-3.5" /> Admin Panel
-                </Link>
-              </div>
-            )}
+            <div className="pt-2">
+              <Link
+                href="/admin"
+                className="text-[#C9A961] hover:underline inline-flex items-center gap-1 font-medium tracking-wider uppercase text-[10px]"
+              >
+                <ShieldCheck className="w-3.5 h-3.5" /> Admin Panel
+              </Link>
+            </div>
           </div>
         </div>
       </div>
@@ -151,11 +136,9 @@ export const Footer = () => {
         <div>© Civara Jewels {new Date().getFullYear()}</div>
         <div className="text-center sm:text-right flex items-center gap-4">
           <span>Bandra, Mumbai · Khan Market, Delhi · Virtual HD</span>
-          {isAdminAllowed && (
-            <Link href="/admin" className="text-[#C9A961]/80 hover:text-[#C9A961] underline text-[10px]">
-              Atelier Admin
-            </Link>
-          )}
+          <Link href="/admin" className="text-[#C9A961]/80 hover:text-[#C9A961] underline text-[10px]">
+            Atelier Admin
+          </Link>
         </div>
       </div>
     </footer>
