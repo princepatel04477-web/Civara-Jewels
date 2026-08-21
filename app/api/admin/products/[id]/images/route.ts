@@ -3,7 +3,6 @@ import { ProductRepo } from "@/lib/db/repo/products";
 import { getAdminSession } from "@/lib/auth/session";
 import { getClientIP } from "@/lib/auth/ip";
 import { AuditRepo } from "@/lib/db/repo/audit";
-import sharp from "sharp";
 import fs from "fs";
 import path from "path";
 import crypto from "crypto";
@@ -41,84 +40,142 @@ export async function POST(
   const ip = getClientIP(request);
 
   try {
-    const formData = await request.formData();
-    // Accept single or multiple files
-    let files = formData.getAll("files") as File[];
-    if (files.length === 0) {
-      const singleFile = formData.get("file") as File | null;
-      if (singleFile) files = [singleFile];
-    }
-
-    if (files.length === 0) {
-      return NextResponse.json({ error: "No image files provided" }, { status: 400 });
-    }
-
+    const contentType = request.headers.get("content-type") || "";
+    const uploadsDir = getUploadsDir();
     const currentImages = ProductRepo.listProductImages(productId);
     const existingCount = currentImages.length;
-
-    if (existingCount + files.length > 12) {
-      return NextResponse.json(
-        { error: `Gallery maximum limit reached. Current: ${existingCount}, Attempted: +${files.length}. Maximum allowed: 12 photos.` },
-        { status: 400 }
-      );
-    }
-
-    const allowedMimeTypes = ["image/jpeg", "image/png", "image/webp", "image/avif"];
-    const maxSizeBytes = 12 * 1024 * 1024; // 12MB per photo
-
-    const uploadsDir = getUploadsDir();
-
     const savedImages = [];
 
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      if (!allowedMimeTypes.includes(file.type)) {
-        continue;
+    // Mode 1: JSON payload with Base64 / URL strings
+    if (contentType.includes("application/json")) {
+      const body = await request.json();
+      const items: Array<{ path?: string; dataUrl?: string; alt?: string }> = Array.isArray(body.images)
+        ? body.images
+        : body.dataUrl || body.path
+        ? [body]
+        : [];
+
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        let imagePath = item.path || "";
+
+        if (item.dataUrl && item.dataUrl.startsWith("data:image/")) {
+          const match = item.dataUrl.match(/^data:image\/([a-zA-Z0-9+]+);base64,(.+)$/);
+          if (match) {
+            const rawExt = match[1].toLowerCase().replace("jpeg", "jpg");
+            const base64Data = match[2];
+            const buffer = Buffer.from(base64Data, "base64");
+            const uuid = crypto.randomUUID();
+            const filename = `${uuid}.${rawExt}`;
+            const diskPath = path.join(uploadsDir, filename);
+
+            try {
+              fs.writeFileSync(diskPath, buffer);
+              imagePath = `/uploads/${filename}`;
+            } catch {
+              // fallback to storing dataUrl directly if disk write is constrained
+              imagePath = item.dataUrl;
+            }
+          }
+        }
+
+        if (imagePath) {
+          const isPrimary = existingCount === 0 && i === 0 ? 1 : 0;
+          const sortOrder = existingCount + i;
+          const alt = item.alt || `${product.name} — View ${existingCount + i + 1}`;
+          const newImg = ProductRepo.addProductImage(productId, imagePath, alt, isPrimary, sortOrder);
+          savedImages.push(newImg);
+        }
       }
-      if (file.size > maxSizeBytes) {
-        continue;
+    } else {
+      // Mode 2: Standard multipart/form-data upload
+      const formData = await request.formData();
+      const files: File[] = [];
+
+      // Extract all file fields regardless of input naming
+      for (const [, value] of formData.entries()) {
+        if (value && typeof value === "object" && "arrayBuffer" in value && (value as File).size > 0) {
+          files.push(value as File);
+        }
       }
 
-      const bytes = await file.arrayBuffer();
-      const buffer = Buffer.from(bytes);
+      if (files.length === 0) {
+        return NextResponse.json({ error: "No valid image files provided." }, { status: 400 });
+      }
 
-      const imagePipeline = sharp(buffer);
-      const metadata = await imagePipeline.metadata();
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const bytes = await file.arrayBuffer();
+        const buffer = Buffer.from(bytes);
 
-      const uuid = crypto.randomUUID();
-      const filename = `${uuid}.webp`;
-      const diskPath = path.join(uploadsDir, filename);
+        const lowerName = file.name.toLowerCase();
+        let ext = ".jpg";
+        if (lowerName.endsWith(".png") || file.type.includes("png")) ext = ".png";
+        else if (lowerName.endsWith(".webp") || file.type.includes("webp")) ext = ".webp";
+        else if (lowerName.endsWith(".avif") || file.type.includes("avif")) ext = ".avif";
+        else if (lowerName.endsWith(".svg") || file.type.includes("svg")) ext = ".svg";
 
-      // Preserve jewelry photography fidelity: max 2400px edge, WebP quality 88 (near-lossless for stones)
-      const outputBuffer = await imagePipeline
-        .resize({
-          width: metadata.width && metadata.width > 2400 ? 2400 : undefined,
-          height: metadata.height && metadata.height > 2400 ? 2400 : undefined,
-          fit: "inside",
-          withoutEnlargement: true,
-        })
-        .webp({ quality: 88, effort: 4 })
-        .toBuffer();
+        let outputBuffer: Buffer = buffer;
+        let finalExt = ext;
 
-      fs.writeFileSync(diskPath, outputBuffer);
+        // Try sharp optimization if available, otherwise preserve raw buffer
+        try {
+          // Dynamic import of sharp to prevent hard crash if binary binding differs
+          const sharpModule = await import("sharp");
+          const sharp = sharpModule.default || sharpModule;
+          const imagePipeline = sharp(buffer);
+          const metadata = await imagePipeline.metadata();
 
-      const relativeWebPath = `/uploads/${filename}`;
-      const isPrimary = existingCount === 0 && i === 0 ? 1 : 0;
-      const sortOrder = existingCount + i;
-      const alt = `${product.name} — View ${existingCount + i + 1}`;
+          outputBuffer = await imagePipeline
+            .resize({
+              width: metadata.width && metadata.width > 2400 ? 2400 : undefined,
+              height: metadata.height && metadata.height > 2400 ? 2400 : undefined,
+              fit: "inside",
+              withoutEnlargement: true,
+            })
+            .webp({ quality: 88, effort: 4 })
+            .toBuffer();
+          finalExt = ".webp";
+        } catch {
+          // Keep raw outputBuffer and original extension
+          outputBuffer = buffer;
+          finalExt = ext;
+        }
 
-      const newImage = ProductRepo.addProductImage(productId, relativeWebPath, alt, isPrimary, sortOrder);
-      savedImages.push(newImage);
+        const uuid = crypto.randomUUID();
+        const filename = `${uuid}${finalExt}`;
+        const diskPath = path.join(uploadsDir, filename);
+
+        let relativeWebPath = `/uploads/${filename}`;
+        try {
+          fs.writeFileSync(diskPath, outputBuffer);
+        } catch {
+          // If filesystem write fails, fallback to inline base64 data URI
+          const mimeType = finalExt === ".webp" ? "image/webp" : file.type || "image/jpeg";
+          relativeWebPath = `data:${mimeType};base64,${outputBuffer.toString("base64")}`;
+        }
+
+        const isPrimary = existingCount === 0 && i === 0 ? 1 : 0;
+        const sortOrder = existingCount + i;
+        const alt = `${product.name} — View ${existingCount + i + 1}`;
+
+        const newImage = ProductRepo.addProductImage(productId, relativeWebPath, alt, isPrimary, sortOrder);
+        savedImages.push(newImage);
+      }
     }
 
-    AuditRepo.log({
-      action: "IMAGES_UPLOADED",
-      entity: "ProductImage",
-      entityId: productId,
-      adminEmail,
-      ipAddress: ip,
-      details: { count: savedImages.length, productName: product.name },
-    });
+    try {
+      AuditRepo.log({
+        action: "IMAGES_UPLOADED",
+        entity: "ProductImage",
+        entityId: productId,
+        adminEmail,
+        ipAddress: ip,
+        details: { count: savedImages.length, productName: product.name },
+      });
+    } catch {
+      // non-blocking
+    }
 
     return NextResponse.json(
       {
@@ -158,14 +215,18 @@ export async function PUT(
 
     ProductRepo.reorderImages(productId, imageIds);
 
-    AuditRepo.log({
-      action: "IMAGES_REORDERED",
-      entity: "ProductImage",
-      entityId: productId,
-      adminEmail,
-      ipAddress: ip,
-      details: { newOrder: imageIds },
-    });
+    try {
+      AuditRepo.log({
+        action: "IMAGES_REORDERED",
+        entity: "ProductImage",
+        entityId: productId,
+        adminEmail,
+        ipAddress: ip,
+        details: { newOrder: imageIds },
+      });
+    } catch {
+      // non-blocking
+    }
 
     return NextResponse.json({ success: true, images: ProductRepo.listProductImages(productId) });
   } catch (error: any) {

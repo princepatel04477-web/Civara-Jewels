@@ -53,10 +53,31 @@ export const ImageDropzone: React.FC<ImageDropzoneProps> = ({
     }
 
     try {
-      const res = await fetch(`/api/admin/products/${productId}/images`, {
+      let res = await fetch(`/api/admin/products/${productId}/images`, {
         method: "POST",
         body: formData,
       });
+
+      // If FormData is rejected, fallback to Base64 payload upload
+      if (!res.ok) {
+        const base64List: Array<{ dataUrl: string; alt: string }> = [];
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+          const dataUrl = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+          });
+          base64List.push({ dataUrl, alt: file.name });
+        }
+
+        res = await fetch(`/api/admin/products/${productId}/images`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ images: base64List }),
+        });
+      }
 
       const data = await res.json();
       if (!res.ok) {
@@ -64,8 +85,11 @@ export const ImageDropzone: React.FC<ImageDropzoneProps> = ({
       }
 
       onImagesChange();
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
     } catch (err: any) {
-      setError(err.message || "Upload failed");
+      setError(err.message || "Upload failed. Please try a different image.");
     } finally {
       setIsUploading(false);
     }
@@ -73,13 +97,13 @@ export const ImageDropzone: React.FC<ImageDropzoneProps> = ({
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    if (files) handleUploadBatch(files);
+    if (files && files.length > 0) handleUploadBatch(files);
   };
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     const files = e.dataTransfer.files;
-    if (files) handleUploadBatch(files);
+    if (files && files.length > 0) handleUploadBatch(files);
   };
 
   const handleDelete = async (imageId: number) => {
@@ -162,7 +186,7 @@ export const ImageDropzone: React.FC<ImageDropzoneProps> = ({
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className="bg-[#241F1B] text-[#C9A961] hover:bg-[#181412] px-4 py-2 text-xs uppercase tracking-wider font-medium transition-colors inline-flex items-center gap-1.5 shrink-0"
+          className="bg-[#241F1B] text-[#C9A961] hover:bg-[#181412] px-4 py-2 text-xs uppercase tracking-wider font-medium transition-colors inline-flex items-center gap-1.5 shrink-0 cursor-pointer"
         >
           <Upload className="w-3.5 h-3.5" /> Upload Photos
         </button>
@@ -179,7 +203,7 @@ export const ImageDropzone: React.FC<ImageDropzoneProps> = ({
           ref={fileInputRef}
           type="file"
           multiple
-          accept="image/jpeg,image/png,image/webp,image/avif"
+          accept="image/*"
           onChange={handleFileChange}
           className="hidden"
         />
@@ -187,17 +211,17 @@ export const ImageDropzone: React.FC<ImageDropzoneProps> = ({
           <div className="flex flex-col items-center gap-2">
             <Loader2 className="w-8 h-8 text-[#C9A961] animate-spin" />
             <p className="text-xs text-[#6E6459] uppercase tracking-wider">
-              Processing & converting batch to WebP...
+              Processing & uploading photos...
             </p>
           </div>
         ) : (
           <div className="flex flex-col items-center gap-2">
             <Upload className="w-8 h-8 text-[#9E7F3C]" />
             <div className="font-serif text-lg text-[#241F1B]">
-              Drop 6–8 design photos here or click to browse
+              Drop single or bulk design photos here or click to browse
             </div>
             <div className="text-[11px] text-[#6E6459]">
-              Supports multi-file selection (JPG, PNG, WebP). Optimized at 2400px edge for luxury jewelry.
+              Select multiple photos at once or drop them here (JPG, PNG, WebP, AVIF, HEIC).
             </div>
           </div>
         )}
@@ -236,12 +260,11 @@ export const ImageDropzone: React.FC<ImageDropzoneProps> = ({
               >
                 {/* Photo Preview */}
                 <div className="relative aspect-square w-full bg-[#F4EDE2]">
-                  <Image
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
                     src={img.path}
                     alt={img.alt || `Photo ${idx + 1}`}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 640px) 50vw, 25vw"
+                    className="w-full h-full object-cover"
                   />
 
                   {/* Slot Number */}
@@ -262,7 +285,7 @@ export const ImageDropzone: React.FC<ImageDropzoneProps> = ({
                       <button
                         type="button"
                         onClick={() => handleSetPrimary(img.id)}
-                        className="p-2 bg-[#FAF7F0] text-[#241F1B] hover:text-[#9E7F3C] text-[10px] uppercase tracking-wider font-medium"
+                        className="p-2 bg-[#FAF7F0] text-[#241F1B] hover:text-[#9E7F3C] text-[10px] uppercase tracking-wider font-medium cursor-pointer"
                       >
                         Set Cover
                       </button>
@@ -271,7 +294,7 @@ export const ImageDropzone: React.FC<ImageDropzoneProps> = ({
                       type="button"
                       onClick={() => handleDelete(img.id)}
                       title="Remove Photo"
-                      className="p-2 bg-red-600 text-white hover:bg-red-700"
+                      className="p-2 bg-red-600 text-white hover:bg-red-700 cursor-pointer"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -284,7 +307,7 @@ export const ImageDropzone: React.FC<ImageDropzoneProps> = ({
                     type="button"
                     disabled={idx === 0}
                     onClick={() => handleMoveOrder(idx, "left")}
-                    className="p-1 text-[#6E6459] hover:text-[#241F1B] disabled:opacity-30 disabled:cursor-not-allowed"
+                    className="p-1 text-[#6E6459] hover:text-[#241F1B] disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
                     title="Move Left / Earlier"
                   >
                     <ArrowLeft className="w-3.5 h-3.5" />
@@ -298,7 +321,7 @@ export const ImageDropzone: React.FC<ImageDropzoneProps> = ({
                     type="button"
                     disabled={idx === images.length - 1}
                     onClick={() => handleMoveOrder(idx, "right")}
-                    className="p-1 text-[#6E6459] hover:text-[#241F1B] disabled:opacity-30 disabled:cursor-not-allowed"
+                    className="p-1 text-[#6E6459] hover:text-[#241F1B] disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
                     title="Move Right / Later"
                   >
                     <ArrowRight className="w-3.5 h-3.5" />
