@@ -5,7 +5,14 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/studio/rates*", "/*?*metal=*", "/*?*purity=*", "/*?*stone=*"],
+      disallow: [
+        "/admin*",
+        "/api/admin*",
+        "/studio/rates*",
+        "/*?*metal=*",
+        "/*?*purity=*",
+        "/*?*stone=*",
+      ],
     },
     sitemap: "https://civara-jewels.vercel.app/sitemap.xml",
   };

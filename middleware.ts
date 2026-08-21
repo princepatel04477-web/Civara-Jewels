@@ -7,24 +7,18 @@ import { isAdminIP } from "./lib/auth/ip";
 export async function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
 
-  // 1. First Security Layer: IP Allowlist Check
+  // 1. Strict IP Security Boundary:
+  // If the visitor's IP is not in the allowed admin list, completely obscure the admin route.
+  // Return standard 404 Not Found so unauthorized visitors see no trace of an admin panel.
   const isIpAllowed = isAdminIP(request);
 
   if (!isIpAllowed) {
     if (pathname.startsWith("/api/admin/")) {
-      return NextResponse.json(
-        { error: "Forbidden: Access denied for this IP address." },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
 
-    // Rewrite to custom 403 page
-    return NextResponse.rewrite(new URL("/admin/forbidden", request.url), { status: 403 });
-  }
-
-  // Allow forbidden page if directly navigated to
-  if (pathname === "/admin/forbidden") {
-    return NextResponse.next();
+    // Rewrite to standard 404 Not Found page
+    return NextResponse.rewrite(new URL("/_not-found", request.url), { status: 404 });
   }
 
   // Allow login endpoints without active session
@@ -47,7 +41,7 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
-  // 3. Reject Unauthenticated Requests
+  // 3. Unauthenticated requests from authorized IPs go to login
   if (!isAuthenticated) {
     if (pathname.startsWith("/api/admin/")) {
       return NextResponse.json(
