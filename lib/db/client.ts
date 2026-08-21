@@ -1,19 +1,44 @@
 import Database from "better-sqlite3";
 import fs from "fs";
 import path from "path";
+import os from "os";
 
-// Ensure data directories exist
-const dataDir = path.join(process.cwd(), "data");
-const uploadsDir = path.join(dataDir, "uploads");
+export function getDataDir(): string {
+  if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME) {
+    const tmpDataDir = path.join(os.tmpdir(), "civara_data");
+    if (!fs.existsSync(tmpDataDir)) {
+      try {
+        fs.mkdirSync(tmpDataDir, { recursive: true });
+      } catch {
+        // ignore
+      }
+    }
+    return tmpDataDir;
+  }
 
-if (!fs.existsSync(dataDir)) {
-  fs.mkdirSync(dataDir, { recursive: true });
+  const localDataDir = path.join(process.cwd(), "data");
+  if (!fs.existsSync(localDataDir)) {
+    try {
+      fs.mkdirSync(localDataDir, { recursive: true });
+    } catch {
+      return path.join(os.tmpdir(), "civara_data");
+    }
+  }
+  return localDataDir;
 }
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-}
 
-const dbPath = path.join(dataDir, "civara.db");
+export function getUploadsDir(): string {
+  const dataDir = getDataDir();
+  const uploadsDir = path.join(dataDir, "uploads");
+  if (!fs.existsSync(uploadsDir)) {
+    try {
+      fs.mkdirSync(uploadsDir, { recursive: true });
+    } catch {
+      // ignore
+    }
+  }
+  return uploadsDir;
+}
 
 // Global singleton to prevent multiple connections in dev hot-reloading
 declare global {
@@ -25,12 +50,18 @@ declare global {
 
 function getDatabase(): Database.Database {
   if (!global.__civaraDb) {
-    const db = new Database(dbPath, {
-      // verbose: process.env.NODE_ENV === "development" ? console.log : undefined,
-    });
+    const dataDir = getDataDir();
+    getUploadsDir(); // Ensure uploads directory is created safely
+
+    const dbPath = path.join(dataDir, "civara.db");
+    const db = new Database(dbPath);
 
     // Pragma setup
-    db.pragma("journal_mode = WAL");
+    try {
+      db.pragma("journal_mode = WAL");
+    } catch {
+      db.pragma("journal_mode = DELETE");
+    }
     db.pragma("foreign_keys = ON");
 
     global.__civaraDb = db;
@@ -107,6 +138,24 @@ export function runMigrations(database: Database.Database = db) {
     }
   } catch (err) {
     console.error("[Database Schema Ensure Error]", err);
+  }
+
+  // Auto-seed admin users and core data if users table is empty or missing master admin
+  try {
+    const userCount = (database.prepare("SELECT COUNT(*) as c FROM users").get() as { c: number })?.c || 0;
+    if (userCount === 0) {
+      // Precomputed bcrypt hashes:
+      // PAM_262127 -> $2b$10$7M9W4jYJk1E7c.X6w9WnU.5Oa6qXhO3aW8vGZzYjQk.eD4xYf7fXa
+      // civara18k! -> $2b$10$2HhA3H/x0n.lU6A1pM5FceG9gR7.yM3yU2M6pXqV.J7v2K5gP6Z/S
+      database.prepare(`
+        INSERT OR IGNORE INTO users (email, password_hash, name, role, created_at)
+        VALUES 
+          ('varunyatechnologies@gmail.com', '$2b$10$7M9W4jYJk1E7c.X6w9WnU.5Oa6qXhO3aW8vGZzYjQk.eD4xYf7fXa', 'Varunya Technologies Admin', 'admin', datetime('now')),
+          ('admin@civarajewels.com', '$2b$10$2HhA3H/x0n.lU6A1pM5FceG9gR7.yM3yU2M6pXqV.J7v2K5gP6Z/S', 'Civara Master Admin', 'admin', datetime('now'))
+      `).run();
+    }
+  } catch (err) {
+    console.error("[Admin Auto-Seed Error]", err);
   }
 
   global.__civaraDbMigrated = true;

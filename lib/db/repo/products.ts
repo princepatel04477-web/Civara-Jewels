@@ -1,4 +1,4 @@
-import db from "../client";
+import db, { getDataDir } from "../client";
 import { CreateProductInput, UpdateProductInput } from "../schemas/product";
 import { AuditRepo } from "./audit";
 import fs from "fs";
@@ -406,7 +406,7 @@ export const ProductRepo = {
     // Clean up local uploaded files if in /uploads/
     for (const img of images) {
       if (img.path && img.path.startsWith("/uploads/")) {
-        const filePath = path.join(process.cwd(), "data", img.path);
+        const filePath = path.join(getDataDir(), img.path.replace(/^\//, ""));
         if (fs.existsSync(filePath)) {
           try {
             fs.unlinkSync(filePath);
@@ -484,7 +484,7 @@ export const ProductRepo = {
 
     // Clean up file if local
     if (img.path && img.path.startsWith("/uploads/")) {
-      const filePath = path.join(process.cwd(), "data", img.path);
+      const filePath = path.join(getDataDir(), img.path.replace(/^\//, ""));
       if (fs.existsSync(filePath)) {
         try {
           fs.unlinkSync(filePath);

@@ -7,6 +7,7 @@ import sharp from "sharp";
 import fs from "fs";
 import path from "path";
 import crypto from "crypto";
+import { getUploadsDir } from "@/lib/db/client";
 
 export async function GET(
   request: Request,
@@ -65,10 +66,7 @@ export async function POST(
     const allowedMimeTypes = ["image/jpeg", "image/png", "image/webp", "image/avif"];
     const maxSizeBytes = 12 * 1024 * 1024; // 12MB per photo
 
-    const uploadsDir = path.join(process.cwd(), "data", "uploads");
-    if (!fs.existsSync(uploadsDir)) {
-      fs.mkdirSync(uploadsDir, { recursive: true });
-    }
+    const uploadsDir = getUploadsDir();
 
     const savedImages = [];
 

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
+import { getUploadsDir } from "@/lib/db/client";
 
 export async function GET(
   request: Request,
@@ -10,7 +11,7 @@ export async function GET(
     const filename = params.file.join("/");
     // Sanitize path traversal attempts
     const sanitized = path.normalize(filename).replace(/^(\.\.[\/\\])+/, "");
-    const diskPath = path.join(process.cwd(), "data", "uploads", sanitized);
+    const diskPath = path.join(getUploadsDir(), sanitized);
 
     if (!fs.existsSync(diskPath) || !fs.statSync(diskPath).isFile()) {
       return new NextResponse("File Not Found", { status: 404 });
