@@ -48,11 +48,11 @@ export default function AboutPage() {
       {/* Story in Two Columns */}
       <section className="py-20 px-6 lg:px-20 bg-[#F4EDE2] border-y border-[#E6DFD3]">
         <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-          <ImageVeil className="h-[480px] bg-porcelain border border-[#E6DFD3]">
+          <ImageVeil className="h-[460px] sm:h-[500px] lg:h-[520px] bg-porcelain border border-[#E6DFD3] rounded-sm overflow-hidden shadow-sm">
             <ImageSlot
-              src="/images/artisan-bench.jpg"
+              src="/images/atelier/artisan-bench.png"
               placeholderText="Goldsmith at the workbench with loupe"
-              alt="Goldsmith workbench"
+              alt="Civara Atelier Master Goldsmith at the Workbench"
             />
           </ImageVeil>
 
