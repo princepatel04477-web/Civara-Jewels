@@ -1,15 +1,10 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
-import { Catalog } from "../../lib/catalog";
-import { ImageSlot } from "../components/ImageSlot";
 import { AccordionGallery, AccordionItem } from "../components/ui/AccordionGallery";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 
 export default function CollectionsIndexPage() {
-  const collectionsList = Object.values(Catalog.collections);
-
   // High-Resolution 16:9 Photography Items for AccordionGallery
   const accordionItems: AccordionItem[] = [
     {
@@ -51,7 +46,7 @@ export default function CollectionsIndexPage() {
   ];
 
   return (
-    <div className="w-full bg-[#FBF7F0]">
+    <div className="w-full bg-[#FBF7F0] min-h-[85vh]">
       {/* Hero Header */}
       <section className="py-16 sm:py-20 lg:py-24 px-6 lg:px-14 text-center border-b border-[#E6DFD3]">
         <div className="max-w-3xl mx-auto space-y-4">
@@ -69,7 +64,7 @@ export default function CollectionsIndexPage() {
       </section>
 
       {/* Interactive Accordion Gallery Showcase Section */}
-      <section className="max-w-7xl mx-auto px-6 lg:px-14 py-12 lg:py-16 space-y-6">
+      <section className="max-w-7xl mx-auto px-6 lg:px-14 py-12 lg:py-20 space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-[#E6DFD3] pb-4">
           <div>
             <div className="text-[10px] uppercase tracking-[0.28em] text-[#9E7F3C] font-semibold">
@@ -80,7 +75,7 @@ export default function CollectionsIndexPage() {
             </h2>
           </div>
           <p className="text-xs text-[#6E6459] font-light">
-            Hover or tap across the panels to reveal each high jewelry curation.
+            Hover or tap across the panels to explore each high jewelry curation.
           </p>
         </div>
 
@@ -92,7 +87,7 @@ export default function CollectionsIndexPage() {
             accentColor="#C9A961"
             overlayColor="#181412"
             textColor="#FFFFFF"
-            height={480}
+            height={520}
             gap={12}
             radius={8}
             expandRatio={0.5}
@@ -102,51 +97,6 @@ export default function CollectionsIndexPage() {
             parallax={0.4}
             tilt={6}
           />
-        </div>
-      </section>
-
-      {/* Curated Grid of Collections */}
-      <section className="max-w-7xl mx-auto px-6 lg:px-14 py-12 lg:py-20 border-t border-[#E6DFD3]">
-        <div className="text-center space-y-2 mb-12">
-          <div className="text-[10px] uppercase tracking-[0.3em] text-[#9E7F3C] font-semibold">
-            Catalog Directory
-          </div>
-          <h2 className="font-serif text-3xl sm:text-4xl font-medium text-[#241F1B]">
-            Explore by Category
-          </h2>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10">
-          {collectionsList.map((c) => (
-            <Link
-              key={c.slug}
-              href={`/collections/${c.slug}`}
-              className="group flex flex-col bg-[#FAF7F0] border border-[#E6DFD3] hover:border-[#C9A961] transition-all overflow-hidden shadow-sm hover:shadow-md"
-            >
-              <div className="relative w-full aspect-[16/10] bg-[#F4EDE2] overflow-hidden">
-                <ImageSlot
-                  src={c.mobileCoverImage || c.coverImage}
-                  placeholderText={c.heroPlaceholder}
-                  alt={c.name}
-                  className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
-                />
-              </div>
-              <div className="p-6 sm:p-8 flex flex-col gap-3">
-                <div className="text-[11px] uppercase tracking-[0.24em] text-[#9E7F3C]">
-                  {c.count} Pieces
-                </div>
-                <h3 className="font-serif text-2xl sm:text-3xl font-medium text-[#241F1B] group-hover:text-[#9E7F3C] transition-colors">
-                  {c.name}
-                </h3>
-                <p className="text-xs font-light leading-relaxed text-[#6E6459] line-clamp-2">
-                  {c.description}
-                </p>
-                <div className="pt-2 text-xs uppercase tracking-[0.2em] text-[#241F1B] group-hover:text-[#9E7F3C] inline-flex items-center gap-1.5 font-medium">
-                  Explore {c.name} <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
-                </div>
-              </div>
-            </Link>
-          ))}
         </div>
       </section>
     </div>
