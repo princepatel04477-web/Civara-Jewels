@@ -65,12 +65,12 @@ export default function HomePage() {
   ];
 
   const quickCategories = [
-    { name: "Rings", href: "/collections/rings", count: "12 pieces", icon: "💍", cover: "/images/collections-portfolio/Rings-Collection-Cover.png" },
-    { name: "Necklaces", href: "/collections/necklaces", count: "8 pieces", icon: "📿", cover: "/images/collections-portfolio/Necklace-Collection-Cover.png" },
-    { name: "Earrings", href: "/collections/earrings", count: "10 pieces", icon: "✨", cover: "/images/collections-portfolio/Earrings-Collection-Cover.png" },
-    { name: "Bracelets", href: "/collections/bracelets", count: "6 pieces", icon: "💫", cover: "/images/collections-portfolio/Bracelets-Collection-Cover.png" },
-    { name: "Bridal", href: "/collections/bridal", count: "14 pieces", icon: "👑", cover: "/images/collections-portfolio/Bridal-Collection-Cover.png" },
-    { name: "Pendants", href: "/collections/pendants", count: "7 pieces", icon: "💎", cover: "/images/collections-portfolio/Pendant-Collection-Cover.png" },
+    { name: "Rings", href: "/collections/rings", count: "12 pieces", icon: "💍", cover: "/images/home-cc/Rings-cc.png" },
+    { name: "Necklaces", href: "/collections/necklaces", count: "8 pieces", icon: "📿", cover: "/images/home-cc/Necklaces-cc.png" },
+    { name: "Earrings", href: "/collections/earrings", count: "10 pieces", icon: "✨", cover: "/images/home-cc/Earrings-cc.png" },
+    { name: "Bracelets", href: "/collections/bracelets", count: "6 pieces", icon: "💫", cover: "/images/home-cc/Bracelets-cc.png" },
+    { name: "Bridal", href: "/collections/bridal", count: "14 pieces", icon: "👑", cover: "/images/home-cc/bridal-cc.png" },
+    { name: "Pendants", href: "/collections/pendants", count: "7 pieces", icon: "💎", cover: "/images/home-cc/Pendants-cc.png" },
   ];
 
   return (
