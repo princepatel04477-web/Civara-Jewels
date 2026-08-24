@@ -64,15 +64,6 @@ export default function HomePage() {
     { label: "Fine Silver", hallmark: "925 Silver", rateKey: "Silver", defaultRate: 26999, unit: "/ 1kg" },
   ];
 
-  const quickCategories = [
-    { name: "Rings", href: "/collections/rings", count: "64 PIECES", cover: "/images/home-cc/Rings-cc.png" },
-    { name: "Necklaces", href: "/collections/necklaces", count: "48 PIECES", cover: "/images/home-cc/Necklaces-cc.png" },
-    { name: "Earrings", href: "/collections/earrings", count: "52 PIECES", cover: "/images/home-cc/Earrings-cc.png" },
-    { name: "Bracelets", href: "/collections/bracelets", count: "31 PIECES", cover: "/images/home-cc/Bracelets-cc.png" },
-    { name: "Bridal", href: "/collections/bridal", count: "27 PIECES", cover: "/images/home-cc/bridal-cc.png" },
-    { name: "Pendants", href: "/collections/pendants", count: "39 PIECES", cover: "/images/home-cc/Pendants-cc.png" },
-  ];
-
   return (
     <div className="w-full bg-[#FBF7F0]">
       {/* 1. HERO (CONCEPT B: CINEMATIC FULL-WIDTH ATELIER CANVAS) */}
@@ -120,43 +111,6 @@ export default function HomePage() {
             >
               Bespoke Commissions <ArrowRight className="w-3.5 h-3.5" />
             </Link>
-          </div>
-        </div>
-
-        {/* Interactive Quick Category Jump Rail (home-cc Signature Covers) */}
-        <div className="relative z-10 mt-10 pt-6 border-t border-[#E6DFD3]/80 max-w-6xl mx-auto w-full">
-          <div className="text-[10px] uppercase tracking-[0.24em] text-[#9E7F3C] font-semibold mb-3 text-left">
-            Explore By Category
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-3.5">
-            {quickCategories.map((cat) => (
-              <Link
-                key={cat.name}
-                href={cat.href}
-                className="group relative overflow-hidden h-28 sm:h-32 border border-[#E6DFD3] hover:border-[#C9A961] transition-all duration-500 rounded-sm text-left shadow-xs hover:shadow-xl flex flex-col justify-end p-3 sm:p-3.5"
-              >
-                {/* Background home-cc Photo */}
-                <Image
-                  src={cat.cover}
-                  alt={cat.name}
-                  fill
-                  sizes="(max-width: 768px) 50vw, 16vw"
-                  className="object-cover object-center transition-transform duration-700 ease-out group-hover:scale-110"
-                />
-                {/* Luxury dark gradient scrim */}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#181412]/92 via-[#181412]/45 to-transparent group-hover:via-[#181412]/30 transition-colors duration-300" />
-
-                {/* Content */}
-                <div className="relative z-10 flex flex-col justify-end">
-                  <div className="font-serif text-base sm:text-lg font-medium text-[#FBF7F0] group-hover:text-[#C9A961] transition-colors leading-tight">
-                    {cat.name}
-                  </div>
-                  <div className="text-[9px] sm:text-[10px] uppercase tracking-[0.2em] text-[#C9A961] font-mono font-medium mt-0.5">
-                    {cat.count}
-                  </div>
-                </div>
-              </Link>
-            ))}
           </div>
         </div>
       </section>

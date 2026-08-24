@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { BookViewingDialog } from "./header/BookViewingDialog";
 import { Catalog } from "../../lib/catalog";
@@ -16,7 +17,14 @@ export const Header = () => {
   const [isMegaMenuOpen, setIsMegaMenuOpen] = useState(false);
   const [savedCount, setSavedCount] = useState(0);
 
-  const collectionsList = Object.values(Catalog.collections);
+  const megaMenuCategories = [
+    { name: "Rings", href: "/collections/rings", count: "64 PIECES", image: "/images/home-cc/Rings-cc.png" },
+    { name: "Necklaces", href: "/collections/necklaces", count: "48 PIECES", image: "/images/home-cc/Necklaces-cc.png" },
+    { name: "Earrings", href: "/collections/earrings", count: "52 PIECES", image: "/images/home-cc/Earrings-cc.png" },
+    { name: "Bracelets", href: "/collections/bracelets", count: "31 PIECES", image: "/images/home-cc/Bracelets-cc.png" },
+    { name: "Bridal", href: "/collections/bridal", count: "27 PIECES", image: "/images/home-cc/bridal-cc.png" },
+    { name: "Pendants", href: "/collections/pendants", count: "39 PIECES", image: "/images/home-cc/Pendants-cc.png" },
+  ];
 
   const updateCount = () => {
     setSavedCount(getWishlistIds().length);
@@ -130,29 +138,41 @@ export const Header = () => {
         </div>
       </nav>
 
-      {/* Mega-Menu Dropdown for Collections */}
+      {/* Mega-Menu Dropdown for Collections Navigation Strip */}
       {isMegaMenuOpen && (
         <div
           onMouseEnter={() => setIsMegaMenuOpen(true)}
           onMouseLeave={() => setIsMegaMenuOpen(false)}
-          className="fixed inset-x-0 top-[70px] z-30 bg-[#F4EDE2] border-b border-[#E6DFD3] p-10 hidden lg:block shadow-xl animate-fadeIn"
+          className="fixed inset-x-0 top-[70px] z-50 bg-[#FAF7F0] border-b border-[#E6DFD3] p-8 hidden lg:block shadow-2xl animate-fadeIn"
         >
-          <div className="max-w-6xl mx-auto grid grid-cols-6 gap-6 text-center">
-            {collectionsList.map((c) => (
-              <Link
-                key={c.slug}
-                href={`/collections/${c.slug}`}
-                onClick={() => setIsMegaMenuOpen(false)}
-                className="group p-4 bg-[#FBF7F0] border border-[#E6DFD3] hover:border-[#C9A961] transition-all"
-              >
-                <div className="font-serif text-lg font-medium text-[#241F1B] group-hover:text-[#9E7F3C] transition-colors">
-                  {c.name}
-                </div>
-                <div className="text-[10px] uppercase tracking-widest text-[#6E6459] mt-1">
-                  {c.count} pieces
-                </div>
-              </Link>
-            ))}
+          <div className="max-w-7xl mx-auto">
+            <div className="grid grid-cols-6 gap-4 text-center">
+              {megaMenuCategories.map((c) => (
+                <Link
+                  key={c.name}
+                  href={c.href}
+                  onClick={() => setIsMegaMenuOpen(false)}
+                  className="group relative overflow-hidden h-36 border border-[#E6DFD3] hover:border-[#C9A961] transition-all duration-500 rounded-sm text-left shadow-xs hover:shadow-xl flex flex-col justify-end p-3.5"
+                >
+                  <Image
+                    src={c.image}
+                    alt={c.name}
+                    fill
+                    sizes="16vw"
+                    className="object-cover object-center transition-transform duration-700 ease-out group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#181412]/92 via-[#181412]/45 to-transparent group-hover:via-[#181412]/30 transition-colors duration-300" />
+                  <div className="relative z-10 flex flex-col justify-end">
+                    <div className="font-serif text-base font-medium text-[#FBF7F0] group-hover:text-[#C9A961] transition-colors leading-tight">
+                      {c.name}
+                    </div>
+                    <div className="text-[9.5px] uppercase tracking-[0.2em] text-[#C9A961] font-mono font-medium mt-0.5">
+                      {c.count}
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
       )}
