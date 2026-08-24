@@ -58,6 +58,12 @@ export interface JournalArticle {
   imagePlaceholder: string;
 }
 
+export const STANDARD_RING_SIZES = [
+  "3", "3.5", "4", "4.5", "5", "5.5", "6", "6.5", "7", "7.5",
+  "8", "8.5", "9", "9.5", "10", "10.5", "11", "11.5", "12", "12.5",
+  "13", "13.5", "14", "14.5", "15"
+];
+
 export class Catalog {
   static collections: Record<string, CollectionInfo> = {
     rings: {
@@ -164,7 +170,7 @@ export class Catalog {
       description: "A single certified stone, hand-set in recycled 18-karat gold. The Elara is cut to catch the room rather than the camera — a quiet claw setting that lets light do the work.",
       metalOptions: ["Yellow gold", "White gold", "Rose gold"],
       sizeType: "ring",
-      sizeOptions: ["10", "11", "12", "13", "14", "15", "16"],
+      sizeOptions: STANDARD_RING_SIZES,
       stoneType: "Natural Diamond",
       imagePlaceholder: "Elara solitaire — hero shot",
       mainImage: "/images/elara-solitaire-main.jpg",
@@ -191,7 +197,7 @@ export class Catalog {
       description: "A solid 18k yellow gold band featuring a gentle wave texture inspired by water ripples. Designed for solo wear or effortless stacking.",
       metalOptions: ["Yellow gold", "Rose gold", "White gold"],
       sizeType: "ring",
-      sizeOptions: ["10", "11", "12", "13", "14", "15"],
+      sizeOptions: STANDARD_RING_SIZES,
       stoneType: "Gold Only",
       imagePlaceholder: "Nira sculpted stacking band",
       mainImage: "/images/home-cc/Rings-cc.png",
@@ -213,7 +219,7 @@ export class Catalog {
       description: "An architectonic emerald-cut diamond in a bezel setting. Bold yet understated geometry in 18k yellow gold.",
       metalOptions: ["Yellow gold", "White gold"],
       sizeType: "ring",
-      sizeOptions: ["11", "12", "13", "14", "15"],
+      sizeOptions: STANDARD_RING_SIZES,
       stoneType: "Natural Emerald Cut Diamond",
       imagePlaceholder: "Aethel emerald cut ring",
       mainImage: "/images/home-cc/Rings-cc.png",
@@ -385,7 +391,7 @@ export class Catalog {
       description: "A perfectly flush-fitting set comprising an oval solitaire engagement ring and a pavé diamond wedding band.",
       metalOptions: ["Yellow gold", "White gold"],
       sizeType: "ring",
-      sizeOptions: ["10", "11", "12", "13", "14", "15", "16"],
+      sizeOptions: STANDARD_RING_SIZES,
       stoneType: "Oval Diamond & Micro Pavé",
       imagePlaceholder: "Meera bridal ring duo set",
       mainImage: "/images/home-cc/bridal-cc.png",
@@ -613,7 +619,7 @@ export class Catalog {
       description: p.description || "Handcrafted in hallmarked 18k gold and certified diamonds.",
       metalOptions: [p.metal || "18k Yellow Gold"],
       sizeType: "ring",
-      sizeOptions: sizes,
+      sizeOptions: sizes && sizes.length > 0 ? sizes : STANDARD_RING_SIZES,
       stoneType: p.diamond_carat ? `${p.diamond_carat}ct Diamond` : "Natural Diamond",
       imagePlaceholder: p.name,
       mainImage: mainImg,

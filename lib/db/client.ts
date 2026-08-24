@@ -187,30 +187,37 @@ function seedDatabaseIfNeeded(database: Database.Database) {
       allCols.forEach((c) => { categoryMap[c.slug] = c.id; });
     }
 
-    // 3. Seed Metal Rates
-    const ratesCount = (database.prepare("SELECT COUNT(*) as c FROM metal_rates").get() as { c: number })?.c || 0;
-    if (ratesCount === 0) {
-      const initialRates = [
-        { metal: "Gold", purity: "18 KT", rate_inr: 69999 },
-        { metal: "Gold", purity: "14 KT", rate_inr: 55999 },
-        { metal: "Gold", purity: "10 KT", rate_inr: 42999 },
-        { metal: "Silver", purity: "Silver", rate_inr: 26999 },
-      ];
-      const insertRate = database.prepare(`
-        INSERT INTO metal_rates (metal, purity, rate_inr, updated_by, updated_at)
-        VALUES (?, ?, ?, 'System Initializer', datetime('now'))
-      `);
-      for (const r of initialRates) {
-        insertRate.run(r.metal, r.purity, r.rate_inr);
+    // 3. Seed & Sync Metal Rates (Official Atelier Benchmarks)
+    const initialRates = [
+      { metal: "Gold", purity: "18 KT", rate_inr: 69999 },
+      { metal: "Gold", purity: "14 KT", rate_inr: 55999 },
+      { metal: "Gold", purity: "10 KT", rate_inr: 42999 },
+      { metal: "Silver", purity: "Silver", rate_inr: 26999 },
+    ];
+    for (const r of initialRates) {
+      const existing = database.prepare("SELECT id FROM metal_rates WHERE purity = ?").get(r.purity) as { id: number } | undefined;
+      if (!existing) {
+        database.prepare(`
+          INSERT INTO metal_rates (metal, purity, rate_inr, updated_by, updated_at)
+          VALUES (?, ?, ?, 'System Initializer', datetime('now'))
+        `).run(r.metal, r.purity, r.rate_inr);
+      } else {
+        database.prepare(`
+          UPDATE metal_rates SET rate_inr = ?, is_active = 1, updated_at = datetime('now') WHERE purity = ?
+        `).run(r.rate_inr, r.purity);
       }
     }
 
-    // 4. Seed Ring Size Config
-    const ringConfigCount = (database.prepare("SELECT COUNT(*) as c FROM ring_sizes").get() as { c: number })?.c || 0;
-    if (ringConfigCount === 0) {
+    // 4. Seed & Sync Ring Size Config (Size 3 to 15 in 0.5 increments)
+    const existingRing = database.prepare("SELECT id FROM ring_sizes WHERE id = 1").get() as { id: number } | undefined;
+    if (!existingRing) {
       database.prepare(`
         INSERT INTO ring_sizes (id, min_size, max_size, increment, pricing_mode, updated_at)
         VALUES (1, 3.0, 15.0, 0.5, 'SAME_PRICE', datetime('now'))
+      `).run();
+    } else {
+      database.prepare(`
+        UPDATE ring_sizes SET min_size = 3.0, max_size = 15.0, increment = 0.5, pricing_mode = 'SAME_PRICE' WHERE id = 1
       `).run();
     }
 

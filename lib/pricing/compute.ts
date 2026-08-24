@@ -34,9 +34,12 @@ export interface PricingProduct {
 }
 
 export interface MetalRates {
-  gold24kPer10g: number; // INR per 10g 24K gold (e.g., 72500)
+  gold24kPer10g: number; // INR per 10g 24K gold (e.g., 93332)
+  gold18kPer10g?: number; // INR per 10g 18K gold (e.g., 69999)
+  gold14kPer10g?: number; // INR per 10g 14K gold (e.g., 55999)
+  gold10kPer10g?: number; // INR per 10g 10K gold (e.g., 42999)
   platinumPer10g: number; // INR per 10g platinum (e.g., 32000)
-  silverPerKg: number; // INR per 1kg silver (e.g., 86000)
+  silverPerKg: number; // INR per 1kg silver (e.g., 26999)
   updatedAt: string; // ISO string
   updatedBy: string;
 }
@@ -163,23 +166,36 @@ export function computePrice(product: PricingProduct, rates: MetalRates): PriceB
   }
 
   // LIVE PRICING ENGINE (INTEGER PAISE MATH)
-  let baseRatePerUnitPaise = 0;
-  let divisor = 10; // default 10g for gold & platinum
+  let metalRatePerGramPaise = 0;
+  let purityFactor = PURITY_FACTORS[product.purity.toString()] || 0.75;
+  let rateUsed = rates.gold24kPer10g;
 
   if (product.metal === "gold") {
-    baseRatePerUnitPaise = Math.round(rates.gold24kPer10g * 100);
-    divisor = 10;
+    if (Number(product.purity) === 18 && rates.gold18kPer10g) {
+      metalRatePerGramPaise = Math.round((rates.gold18kPer10g * 100) / 10);
+      rateUsed = rates.gold18kPer10g;
+    } else if (Number(product.purity) === 14 && rates.gold14kPer10g) {
+      metalRatePerGramPaise = Math.round((rates.gold14kPer10g * 100) / 10);
+      rateUsed = rates.gold14kPer10g;
+    } else if (Number(product.purity) === 10 && rates.gold10kPer10g) {
+      metalRatePerGramPaise = Math.round((rates.gold10kPer10g * 100) / 10);
+      rateUsed = rates.gold10kPer10g;
+    } else {
+      const baseRatePerUnitPaise = Math.round(rates.gold24kPer10g * 100);
+      const gramRate24kPaise = baseRatePerUnitPaise / 10;
+      metalRatePerGramPaise = Math.round(gramRate24kPaise * purityFactor);
+      rateUsed = rates.gold24kPer10g;
+    }
   } else if (product.metal === "platinum") {
-    baseRatePerUnitPaise = Math.round(rates.platinumPer10g * 100);
-    divisor = 10;
+    const baseRatePerUnitPaise = Math.round(rates.platinumPer10g * 100);
+    const gramRatePaise = baseRatePerUnitPaise / 10;
+    metalRatePerGramPaise = Math.round(gramRatePaise * (PURITY_FACTORS["PT950"] || 0.95));
+    rateUsed = rates.platinumPer10g;
   } else if (product.metal === "silver") {
-    baseRatePerUnitPaise = Math.round(rates.silverPerKg * 100);
-    divisor = 1000;
+    const baseRatePerUnitPaise = Math.round(rates.silverPerKg * 100);
+    metalRatePerGramPaise = Math.round(baseRatePerUnitPaise / 1000);
+    rateUsed = rates.silverPerKg;
   }
-
-  const purityFactor = PURITY_FACTORS[product.purity.toString()] || 0.75;
-  const gramRate24kPaise = baseRatePerUnitPaise / divisor; // rate per 1 gram in paise
-  const metalRatePerGramPaise = Math.round(gramRate24kPaise * purityFactor);
 
   const chargeableWeightG = product.netWeightG * (1 + product.wastagePercent / 100);
   const metalValuePaise = Math.round(metalRatePerGramPaise * chargeableWeightG);
