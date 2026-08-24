@@ -5,40 +5,40 @@ import { AccordionGallery, AccordionItem } from "../components/ui/AccordionGalle
 import { Sparkles } from "lucide-react";
 
 export default function CollectionsIndexPage() {
-  // High-Resolution Atelier Photography Items for AccordionGallery (Centered & Clean)
+  // Curated High-Res 3:4 Portrait Collection Portfolio Photography
   const accordionItems: AccordionItem[] = [
     {
-      image: "/images/collections-gallery/rings.jpg",
+      image: "/images/collections-portfolio/Rings-Collection-Cover.webp",
       label: "Rings",
       link: "/collections/rings",
       alt: "Civara Handcrafted Solitaires & Stacking Rings",
     },
     {
-      image: "/images/collections-gallery/necklaces.jpg",
+      image: "/images/collections-portfolio/Necklace-Collection-Cover.webp",
       label: "Necklaces",
       link: "/collections/necklaces",
       alt: "Civara Liquid Diamond Tennis Strands & Collars",
     },
     {
-      image: "/images/collections-gallery/earrings.jpg",
+      image: "/images/collections-portfolio/Earrings-Collection-Cover.webp",
       label: "Earrings",
       link: "/collections/earrings",
       alt: "Civara Ergonomic Hoops & Diamond Drops",
     },
     {
-      image: "/images/collections-gallery/bracelets.jpg",
+      image: "/images/collections-portfolio/Bracelets-Collection-Cover.webp",
       label: "Bracelets",
       link: "/collections/bracelets",
       alt: "Civara Hinged Bangles & Open Diamond Cuffs",
     },
     {
-      image: "/images/collections-gallery/bridal.jpg",
+      image: "/images/collections-portfolio/Bridal-Collection-Cover.webp",
       label: "Bridal",
       link: "/collections/bridal",
       alt: "Civara Heirloom Royal Bridal Suites & Kundan Chokers",
     },
     {
-      image: "/images/collections-gallery/pendants.jpg",
+      image: "/images/collections-portfolio/Pendant-Collection-Cover.webp",
       label: "Pendants",
       link: "/collections/pendants",
       alt: "Civara Geometric Diamond Cages & Constellation Lockets",
