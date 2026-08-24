@@ -13,6 +13,7 @@ import { CollectionsGrid } from "./components/home/CollectionsGrid";
 import { PressStrip } from "./components/home/PressStrip";
 import { WhatsAppConcierge } from "./components/floating/WhatsAppConcierge";
 import { BookViewingDialog } from "./components/header/BookViewingDialog";
+import { LiquidGoldAurora } from "./components/ui/LiquidGoldAurora";
 import { formatINR } from "../lib/pricing/compute";
 import {
   ArrowRight,
@@ -76,10 +77,8 @@ export default function HomePage() {
     <div className="w-full bg-[#FBF7F0]">
       {/* 1. HERO (CONCEPT B: CINEMATIC FULL-WIDTH ATELIER CANVAS) */}
       <section className="relative min-h-[85vh] lg:min-h-[92vh] flex flex-col justify-between pt-16 sm:pt-24 pb-10 sm:pb-12 px-4 sm:px-6 lg:px-14 text-center bg-[#FBF7F0] border-b border-[#E6DFD3] overflow-hidden">
-        {/* Subtle Ambient Light Reflections */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,rgba(201,169,97,0.12)_0%,rgba(244,237,226,0.5)_50%,transparent_80%)] pointer-events-none" />
-        <div className="absolute -top-24 -left-24 w-96 h-96 bg-[#C9A961]/5 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -top-24 -right-24 w-96 h-96 bg-[#C9A961]/5 rounded-full blur-3xl pointer-events-none" />
+        {/* Animated Liquid Gold Aurora Background */}
+        <LiquidGoldAurora intensity="medium" />
 
         {/* Hero Content Centerpiece */}
         <div className="max-w-5xl mx-auto space-y-6 sm:space-y-8 relative z-10 my-auto">
