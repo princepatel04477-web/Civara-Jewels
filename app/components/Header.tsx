@@ -52,13 +52,16 @@ export const Header = () => {
   ];
 
   return (
-    <>
+    <header
+      className="sticky top-0 z-40 w-full"
+      onMouseLeave={() => setIsMegaMenuOpen(false)}
+    >
       <nav
-        className={`sticky top-0 z-40 bg-[#FBF7F0]/95 backdrop-blur-md transition-all duration-320 ${
+        className={`bg-[#FBF7F0]/95 backdrop-blur-md transition-all duration-320 ${
           isScrolled
             ? "py-3 border-b border-[#E6DFD3] shadow-sm"
             : "py-5 border-b border-[#E6DFD3]/60"
-        } px-6 lg:px-14 flex items-center justify-between gap-6`}
+        } px-6 lg:px-14 flex items-center justify-between gap-6 relative`}
       >
         {/* Logo */}
         <Link
@@ -78,8 +81,10 @@ export const Header = () => {
               <div
                 key={item.name}
                 className="relative py-1 group"
-                onMouseEnter={() => item.hasMega && setIsMegaMenuOpen(true)}
-                onMouseLeave={() => item.hasMega && setIsMegaMenuOpen(false)}
+                onMouseEnter={() => {
+                  if (item.hasMega) setIsMegaMenuOpen(true);
+                  else setIsMegaMenuOpen(false);
+                }}
               >
                 <Link
                   href={item.href}
@@ -136,44 +141,63 @@ export const Header = () => {
             {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
-      </nav>
 
-      {/* Mega-Menu Dropdown for Collections Navigation Strip */}
-      {isMegaMenuOpen && (
-        <div
-          onMouseEnter={() => setIsMegaMenuOpen(true)}
-          onMouseLeave={() => setIsMegaMenuOpen(false)}
-          className="fixed inset-x-0 top-[70px] z-50 bg-[#FAF7F0] border-b border-[#E6DFD3] py-6 px-6 lg:px-14 hidden lg:block shadow-2xl animate-fadeIn"
-        >
-          <div className="max-w-7xl mx-auto">
-            <div className="grid grid-cols-6 gap-3.5 xl:gap-4">
-              {megaMenuCategories.map((c) => (
+        {/* Mega-Menu Dropdown for Collections Navigation Strip (Directly attached flush under navbar) */}
+        {isMegaMenuOpen && (
+          <div
+            onMouseEnter={() => setIsMegaMenuOpen(true)}
+            onMouseLeave={() => setIsMegaMenuOpen(false)}
+            className="absolute top-full left-0 right-0 z-50 bg-[#FAF7F0]/98 backdrop-blur-xl border-b border-[#E6DFD3] py-6 px-6 lg:px-14 hidden lg:block shadow-2xl animate-fadeIn"
+          >
+            <div className="max-w-7xl mx-auto space-y-4">
+              <div className="flex items-center justify-between border-b border-[#E6DFD3]/70 pb-3">
+                <div className="text-[10.5px] uppercase tracking-[0.24em] text-[#9E7F3C] font-semibold">
+                  Private Atelier High Jewellery Curation
+                </div>
                 <Link
-                  key={c.name}
-                  href={c.href}
+                  href="/collections"
                   onClick={() => setIsMegaMenuOpen(false)}
-                  className="group relative overflow-hidden aspect-[16/9] border border-[#E6DFD3] hover:border-[#C9A961] transition-all duration-300 rounded-sm shadow-xs hover:shadow-lg block bg-[#F4EDE2]"
+                  className="text-[11px] uppercase tracking-[0.18em] text-[#241F1B] hover:text-[#9E7F3C] transition-colors font-medium inline-flex items-center gap-1"
                 >
-                  <Image
-                    src={c.image}
-                    alt={`Civara ${c.name} Collection`}
-                    fill
-                    sizes="16vw"
-                    priority
-                    className="object-cover object-center transition-transform duration-500 ease-out group-hover:scale-105"
-                  />
-                  {/* Subtle luxury edge glow on hover */}
-                  <div className="absolute inset-0 border border-transparent group-hover:border-[#C9A961]/70 transition-colors duration-300 pointer-events-none" />
+                  View All Collections →
                 </Link>
-              ))}
+              </div>
+              <div className="grid grid-cols-6 gap-3.5 xl:gap-4">
+                {megaMenuCategories.map((c) => (
+                  <Link
+                    key={c.name}
+                    href={c.href}
+                    onClick={() => setIsMegaMenuOpen(false)}
+                    className="group flex flex-col gap-2"
+                  >
+                    <div className="relative overflow-hidden aspect-[16/9] border border-[#E6DFD3] group-hover:border-[#C9A961] transition-all duration-300 rounded-[3px] shadow-xs group-hover:shadow-lg block bg-[#F4EDE2]">
+                      <Image
+                        src={c.image}
+                        alt={`Civara ${c.name} Collection`}
+                        fill
+                        sizes="16vw"
+                        priority
+                        className="object-cover object-center transition-transform duration-500 ease-out group-hover:scale-105"
+                      />
+                      {/* Subtle luxury edge glow on hover */}
+                      <div className="absolute inset-0 border border-transparent group-hover:border-[#C9A961]/70 transition-colors duration-300 pointer-events-none" />
+                    </div>
+                    <div className="text-center">
+                      <div className="font-serif text-sm font-medium text-[#241F1B] group-hover:text-[#9E7F3C] transition-colors">
+                        {c.name}
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </nav>
 
       {/* Mobile Drawer Menu */}
       {isMobileMenuOpen && (
-        <div className="fixed inset-x-0 top-[70px] z-30 bg-[#FBF7F0] border-b border-[#E6DFD3] p-6 lg:hidden shadow-xl space-y-4">
+        <div className="absolute top-full inset-x-0 z-30 bg-[#FBF7F0] border-b border-[#E6DFD3] p-6 lg:hidden shadow-xl space-y-4">
           <div className="flex flex-col gap-3 text-xs tracking-[0.16em] uppercase">
             {navItems.map((item) => (
               <Link
@@ -214,6 +238,6 @@ export const Header = () => {
 
       {/* Viewing Modal */}
       <BookViewingDialog isOpen={isViewingOpen} onClose={() => setIsViewingOpen(false)} />
-    </>
+    </header>
   );
 };
