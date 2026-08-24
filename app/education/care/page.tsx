@@ -46,7 +46,7 @@ export default function CareEducationPage() {
         <div className="p-8 bg-[#FBF7F0] border border-[#E6DFD3] space-y-3">
           <h2 className="font-serif text-2xl font-medium text-[#241F1B]">Complimentary Atelier Lifetime Service</h2>
           <p>
-            Every Civara creation includes free annual claw inspection, ultrasonic cleaning, and repolishing in our Mumbai and Delhi ateliers, plus one free resizing in your first year of custody.
+            Every Civara creation includes free annual claw inspection, ultrasonic cleaning, and repolishing in our Surat atelier, plus one free resizing in your first year of custody.
           </p>
         </div>
 

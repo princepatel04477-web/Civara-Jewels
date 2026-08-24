@@ -501,7 +501,7 @@ export class Catalog {
         "Using hand-held gravers under 20x stereoscopic magnification, our master setter carves the four delicate talon claws that cradle the certified centre stone.",
         "The diamond is positioned with mathematical precision, ensuring the table facet sits exactly parallel to the finger surface for unobstructed light entry and return.",
         "The interior shank is gently comfort-curved and buffed with natural vegetable rouge compound, yielding an ultra-smooth finish that feels like silk against the finger.",
-        "Finally, the piece receives its official BIS 750 hallmark laser inscription in Mumbai and undergoes full ultrasonic cleansing before resting in its custom presentation box."
+        "Finally, the piece receives its official BIS 750 hallmark laser inscription in Surat and undergoes full ultrasonic cleansing before resting in its custom presentation box."
       ]
     },
     {

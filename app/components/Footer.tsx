@@ -51,7 +51,7 @@ export const Footer = () => {
             </div>
             <div className="flex items-start gap-2">
               <MapPin className="w-3.5 h-3.5 text-[#C9A961] shrink-0 mt-0.5" />
-              <span>Bandra West, Mumbai · Khan Market, New Delhi</span>
+              <span>Surat Private Atelier, Gujarat</span>
             </div>
             <div className="flex items-start gap-2">
               <span className="w-3.5 h-3.5 text-center text-[#C9A961] font-serif shrink-0">◇</span>
@@ -134,7 +134,7 @@ export const Footer = () => {
       <div className="border-t border-[#6E6459]/40 px-6 lg:px-14 py-6 flex flex-col sm:flex-row justify-between items-center text-[11px] tracking-[0.18em] uppercase text-[#6E6459] gap-2">
         <div>© Civara Jewels {new Date().getFullYear()}</div>
         <div className="text-center sm:text-right flex items-center gap-4">
-          <span>Bandra, Mumbai · Khan Market, Delhi · Virtual HD</span>
+          <span>Surat, Gujarat · Virtual Concierge Worldwide</span>
           <Link href="/admin" className="text-[#C9A961]/80 hover:text-[#C9A961] underline text-[10px]">
             Atelier Admin
           </Link>

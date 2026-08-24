@@ -162,7 +162,7 @@ export default function CategoryLandingPage({ params, searchParams }: CategoryPa
             "{category.craftNote}"
           </p>
           <div className="text-[10px] uppercase tracking-[0.2em] text-[#6E6459] font-mono">
-            — Master Goldsmith, Civara Atelier Mumbai
+            — Master Goldsmith, Civara Atelier Surat
           </div>
         </div>
       </section>

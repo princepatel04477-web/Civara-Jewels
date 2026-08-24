@@ -14,7 +14,7 @@ export default function ViewingsPage() {
     email: "",
     date: "",
     time: "11:00 AM",
-    location: "Mumbai (Bandra West)",
+    location: "Surat Private Atelier",
     interests: "",
   });
 
@@ -90,25 +90,17 @@ export default function ViewingsPage() {
             <div className="relative w-full h-48 bg-[#FAF7F0] border border-[#E6DFD3] rounded-none overflow-hidden flex items-center justify-center">
               <svg className="w-full h-full text-[#E6DFD3]" viewBox="0 0 400 200" fill="none">
                 <path
-                  d="M 50 150 Q 120 40 200 120 T 350 70"
+                  d="M 50 150 Q 150 60 200 110 T 350 70"
                   stroke="#E6DFD3"
                   strokeWidth="2"
                   strokeDasharray="4 4"
                 />
-                {/* Mumbai Pin */}
-                <g transform="translate(120, 110)">
-                  <circle cx="0" cy="0" r="6" fill="#C9A961" />
-                  <circle cx="0" cy="0" r="12" stroke="#9E7F3C" strokeWidth="1" opacity="0.4" />
-                  <text x="12" y="4" fill="#241F1B" fontSize="10" fontFamily="sans-serif" fontWeight="bold">
-                    Mumbai (Bandra)
-                  </text>
-                </g>
-                {/* Delhi Pin */}
-                <g transform="translate(260, 60)">
-                  <circle cx="0" cy="0" r="6" fill="#C9A961" />
-                  <circle cx="0" cy="0" r="12" stroke="#9E7F3C" strokeWidth="1" opacity="0.4" />
-                  <text x="12" y="4" fill="#241F1B" fontSize="10" fontFamily="sans-serif" fontWeight="bold">
-                    Delhi (Khan Market)
+                {/* Surat Pin */}
+                <g transform="translate(180, 110)">
+                  <circle cx="0" cy="0" r="7" fill="#C9A961" />
+                  <circle cx="0" cy="0" r="14" stroke="#9E7F3C" strokeWidth="1" opacity="0.5" />
+                  <text x="14" y="4" fill="#241F1B" fontSize="11" fontFamily="sans-serif" fontWeight="bold">
+                    Surat Private Atelier (HQ)
                   </text>
                 </g>
               </svg>
@@ -116,27 +108,19 @@ export default function ViewingsPage() {
 
             {/* Location Cards */}
             <div className="space-y-4 text-xs font-light text-[#6E6459] pt-2">
-              <div className="p-3 bg-[#FAF7F0] border border-[#E6DFD3]">
+              <div className="p-4 bg-[#FAF7F0] border border-[#E6DFD3]">
                 <div className="font-medium text-[#241F1B] flex items-center gap-1.5 mb-1">
-                  <MapPin className="w-3.5 h-3.5 text-[#9E7F3C]" /> Mumbai Atelier — Bandra West
+                  <MapPin className="w-3.5 h-3.5 text-[#9E7F3C]" /> Civara Atelier & Salon — Surat, Gujarat
                 </div>
-                <div className="text-[11px]">Pali Hill Estate, Mumbai 400050</div>
-                <div className="text-[11px] text-[#9E7F3C] pt-1">Tue – Sun: 11:00 AM – 7:00 PM</div>
+                <div className="text-[11px]">VIP Diamond District, Surat, Gujarat 395007</div>
+                <div className="text-[11px] text-[#9E7F3C] pt-1">Mon – Sun: 10:30 AM – 7:30 PM (By Appointment)</div>
               </div>
 
-              <div className="p-3 bg-[#FAF7F0] border border-[#E6DFD3]">
+              <div className="p-4 bg-[#FAF7F0] border border-[#E6DFD3]">
                 <div className="font-medium text-[#241F1B] flex items-center gap-1.5 mb-1">
-                  <MapPin className="w-3.5 h-3.5 text-[#9E7F3C]" /> Delhi Atelier — Khan Market
+                  <Video className="w-3.5 h-3.5 text-[#9E7F3C]" /> Virtual Concierge (Worldwide 4K HD)
                 </div>
-                <div className="text-[11px]">Middle Lane, Khan Market, New Delhi 110003</div>
-                <div className="text-[11px] text-[#9E7F3C] pt-1">Mon – Sat: 11:00 AM – 7:00 PM</div>
-              </div>
-
-              <div className="p-3 bg-[#FAF7F0] border border-[#E6DFD3]">
-                <div className="font-medium text-[#241F1B] flex items-center gap-1.5 mb-1">
-                  <Video className="w-3.5 h-3.5 text-[#9E7F3C]" /> Virtual Concierge (Worldwide HD)
-                </div>
-                <div className="text-[11px]">High-definition video consultation with macro gem loupe</div>
+                <div className="text-[11px]">High-definition video consultation with macro gemological loupe</div>
               </div>
             </div>
           </div>
@@ -183,7 +167,7 @@ export default function ViewingsPage() {
                   Request an Appointment
                 </h3>
                 <p className="text-xs font-light text-[#6E6459] mt-1">
-                  Private viewings in Mumbai, Delhi, or via Virtual Concierge.
+                  Private viewings in Surat or via Virtual Concierge.
                 </p>
               </div>
 
@@ -241,9 +225,8 @@ export default function ViewingsPage() {
                     onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                     className="w-full py-2.5 bg-transparent border-b border-[#C9A961]/50 text-sm text-[#241F1B] cursor-pointer focus:outline-none"
                   >
-                    <option value="Mumbai (Bandra West)">Mumbai (Bandra West)</option>
-                    <option value="Delhi (Khan Market)">Delhi (Khan Market)</option>
-                    <option value="Virtual Concierge HD">Virtual Concierge (Worldwide HD)</option>
+                    <option value="Surat Private Atelier">Civara Atelier & Salon (Surat, Gujarat)</option>
+                    <option value="Virtual Concierge HD">Virtual Concierge (Worldwide 4K HD)</option>
                   </select>
                 </div>
 

@@ -83,7 +83,7 @@ export default function HomePage() {
         {/* Hero Content Centerpiece */}
         <div className="max-w-5xl mx-auto space-y-6 sm:space-y-8 relative z-10 my-auto">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-[#F4EDE2]/80 border border-[#E6DFD3] rounded-full text-[10px] sm:text-xs uppercase tracking-[0.28em] sm:tracking-[0.32em] text-[#9E7F3C] font-medium shadow-xs">
-            <Sparkles className="w-3 h-3 text-[#C9A961]" /> Private Fine Jewellery Atelier · Mumbai & Delhi
+            <Sparkles className="w-3 h-3 text-[#C9A961]" /> Private Fine Jewellery Atelier · Surat, India
           </div>
 
           {/* GSAP Word-by-Word Reveal Headline */}
@@ -270,7 +270,7 @@ export default function HomePage() {
               One master craftsman. From molten gold to final hallmark.
             </h2>
             <p className="text-xs sm:text-sm font-light text-[#6E6459] leading-relaxed">
-              We reject industrial casting matrices and mass assembly lines. Every Civara heirloom is sculpted by a single master goldsmith in our Mumbai and Delhi suites—ensuring harmonious claw alignment, light-refracting galleries, and unmatched structural permanence.
+              We reject industrial casting matrices and mass assembly lines. Every Civara heirloom is sculpted by a single master goldsmith in our Surat atelier suites—ensuring harmonious claw alignment, light-refracting galleries, and unmatched structural permanence.
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
@@ -358,7 +358,7 @@ export default function HomePage() {
             </div>
             <div className="space-y-1">
               <h3 className="font-serif text-xl font-semibold text-[#241F1B]">Private Atelier Salon</h3>
-              <p className="text-xs text-[#6E6459]">Bandra West, Mumbai · Khan Market, New Delhi</p>
+              <p className="text-xs text-[#6E6459]">Surat Private Salon, Gujarat</p>
             </div>
             <p className="text-xs font-light text-[#6E6459] leading-relaxed">
               Inspect loose GIA diamonds under 10x gemmological loupes, try physical sample mountings, and discuss custom alloy casting over artisanal refreshments.

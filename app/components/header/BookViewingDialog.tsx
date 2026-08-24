@@ -16,7 +16,7 @@ export const BookViewingDialog: React.FC<BookViewingDialogProps> = ({
 }) => {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("+91 ");
-  const [city, setCity] = useState("Mumbai Atelier");
+  const [city, setCity] = useState("Surat Atelier");
   const [date, setDate] = useState("");
   const [piece, setPiece] = useState(initialPiece);
   const [notes, setNotes] = useState("");
@@ -197,7 +197,7 @@ export const BookViewingDialog: React.FC<BookViewingDialogProps> = ({
                 Book a Viewing
               </h2>
               <p className="text-xs font-light text-[#6E6459]">
-                Private appointments in Mumbai, Delhi, or worldwide via Virtual Concierge HD.
+                Private appointments in Surat or worldwide via Virtual Concierge HD.
               </p>
             </div>
 
@@ -258,9 +258,8 @@ export const BookViewingDialog: React.FC<BookViewingDialogProps> = ({
                     onChange={(e) => setCity(e.target.value)}
                     className="w-full py-2.5 bg-transparent border-b border-[#C9A961]/50 focus:border-[#9E7F3C] text-[#241F1B] text-sm focus:outline-none cursor-pointer"
                   >
-                    <option value="Mumbai Atelier">Mumbai (Bandra)</option>
-                    <option value="Delhi Atelier">Delhi (Khan Market)</option>
-                    <option value="Virtual Concierge HD">Virtual Concierge (HD)</option>
+                    <option value="Surat Atelier">Civara Atelier & Salon (Surat, Gujarat)</option>
+                    <option value="Virtual Concierge HD">Virtual Concierge (Worldwide 4K HD)</option>
                   </select>
                 </div>
 

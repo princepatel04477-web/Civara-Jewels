@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     template: "%s | Civara Jewels",
   },
   description:
-    "Heirlooms in hallmarked 18k recycled gold and certified diamonds. Made to order. Private viewings in Mumbai, Delhi, and virtual HD.",
+    "Heirlooms in hallmarked 18k recycled gold and certified diamonds. Made to order. Private viewings in Surat and virtual HD worldwide.",
   keywords: [
     "fine jewellery",
     "18k recycled gold",
@@ -45,7 +45,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Civara Jewels — Fine Jewellery Atelier",
     description:
-      "Heirlooms in hallmarked 18k recycled gold and certified diamonds. Made to order. Private viewings in Mumbai, Delhi, and virtual HD.",
+      "Heirlooms in hallmarked 18k recycled gold and certified diamonds. Made to order. Private viewings in Surat and virtual HD worldwide.",
     url: "https://civara-jewels.vercel.app",
     siteName: "Civara Jewels",
     locale: "en_IN",
@@ -63,7 +63,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Civara Jewels — Fine Jewellery Atelier",
     description:
-      "Heirlooms in hallmarked 18k recycled gold and certified diamonds. Made to order. Private viewings in Mumbai, Delhi, and virtual HD.",
+      "Heirlooms in hallmarked 18k recycled gold and certified diamonds. Made to order. Private viewings in Surat and virtual HD worldwide.",
     images: ["/images/home-cc/Rings-cc.png"],
   },
 };
@@ -94,8 +94,8 @@ export default function RootLayout({
         ],
         address: {
           "@type": "PostalAddress",
-          addressLocality: "Mumbai",
-          addressRegion: "Maharashtra",
+          addressLocality: "Surat",
+          addressRegion: "Gujarat",
           addressCountry: "IN",
         },
       },

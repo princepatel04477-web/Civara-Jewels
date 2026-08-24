@@ -118,7 +118,7 @@ export const ViewingModal: React.FC<ViewingModalProps> = ({ isOpen, onClose }) =
                   onChange={(e) => setFormData({ ...formData, type: e.target.value })}
                   className="w-full p-3 bg-[#fdfbf6] border border-[#d8caac] text-[#211c15] text-sm cursor-pointer"
                 >
-                  <option value="In-Person Atelier Visit">In-Person Atelier Visit (Mumbai / Delhi)</option>
+                  <option value="In-Person Atelier Visit">In-Person Atelier Visit (Surat, Gujarat)</option>
                   <option value="Virtual Live Concierge">Virtual Live Consultation (HD Cam)</option>
                   <option value="Home Appointment">Bespoke Home Appointment</option>
                 </select>

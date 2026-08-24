@@ -30,7 +30,7 @@ BUG      The header <button>Book a viewing</button> has no onClick. Confirmed:
 GOAL     Make the button open a modal <BookViewingDialog /> with fields:
            - Name (required)
            - Phone with +91 default (required, validate 10-digit IN)
-           - Preferred city (Mumbai / Delhi / Virtual concierge HD)
+           - Preferred city (Surat / Virtual concierge HD)
            - Preferred date (date picker, min = today + 2 days)
            - Piece of interest (optional, free text)
            - Notes (optional textarea)
@@ -148,7 +148,7 @@ DETAILS
            title:       "Civara Jewels — Fine Jewellery Atelier"
            description: "Heirlooms in hallmarked 18k recycled gold and
                          certified diamonds. Made to order. Private
-                         viewings in Mumbai, Delhi, and virtual HD."
+                         viewings in Surat and virtual HD worldwide."
            og:image:    /og/civara-og-default.jpg  (1200×630, warm cream,
                         the yellow-gold solitaire on beige stone)
            twitter:card:summary_large_image
@@ -401,8 +401,7 @@ ACCEPT   1. Successful submit shows "Welcome. First release lands soon."
 ```
 TARGET   app/viewings/page.tsx  and  components/footer
 GOAL     Even without a public store, name the neighbourhoods.
-         "By appointment · Bandra, Mumbai · Khan Market, Delhi ·
-          Virtual concierge worldwide (HD)"
+         "By appointment · Surat, Gujarat · Virtual Concierge Worldwide" (HD)"
          Add a simple map (Mapbox static image, no interactive JS)
          with two pins on /viewings.
 ACCEPT   1. Footer shows the two cities and the virtual option.

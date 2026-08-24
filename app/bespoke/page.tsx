@@ -60,7 +60,7 @@ export default function BespokePage() {
       num: "01",
       title: "Private Consultation",
       tagline: "The Initial Dialogue",
-      desc: "Discuss your story, aesthetic preferences, metal tone, and budget with our atelier concierge in person at our private Mumbai/Delhi suites or via a 4K live video appointment.",
+      desc: "Discuss your story, aesthetic preferences, metal tone, and budget with our atelier concierge in person at our private Surat atelier suites or via a 4K live video appointment.",
       image: "/images/bespoke/bespoke-step-1.webp",
       alt: "Civara Private Jewellery Consultation with Diamond Parcels",
     },

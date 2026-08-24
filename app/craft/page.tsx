@@ -49,7 +49,7 @@ export default function CraftPage() {
               100% RJC-Certified Recycled Gold
             </h2>
             <p className="text-sm font-light leading-relaxed text-[#6E6459]">
-              Every gram of gold poured in our atelier originates from RJC (Responsible Jewellery Council) certified refineries in Mumbai and Dubai. By refining existing pre-owned fine jewellery and industrial recycled bullion, we avoid virgin gold mining footprint entirely.
+              Every gram of gold poured in our atelier originates from RJC (Responsible Jewellery Council) certified refineries in Surat and accredited bullion houses. By refining existing pre-owned fine jewellery and industrial recycled bullion, we avoid virgin gold mining footprint entirely.
             </p>
             <div className="bg-[#F4EDE2] border border-[#E6DFD3] p-5 space-y-2 text-xs">
               <div className="font-medium text-[#241F1B]">Atelier Purity Guarantee:</div>
@@ -120,7 +120,7 @@ export default function CraftPage() {
               BIS 750 Hallmark Stamping
             </h2>
             <p className="text-sm font-light leading-relaxed text-[#6E6459]">
-              Every finished jewel is submitted to the Bureau of Indian Standards (BIS) Hallmarking Centre in Mumbai. The hallmark contains three permanent laser marks: the BIS logo triangle, the purity numeral 750, and the unique 6-digit HUID (Hallmark Unique Identification) code.
+              Every finished jewel is submitted to the Bureau of Indian Standards (BIS) Hallmarking Centre in Surat. The hallmark contains three permanent laser marks: the BIS logo triangle, the purity numeral 750, and the unique 6-digit HUID (Hallmark Unique Identification) code.
             </p>
             <div className="pt-2">
               <Link

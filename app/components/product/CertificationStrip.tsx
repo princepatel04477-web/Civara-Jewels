@@ -103,7 +103,7 @@ export const CertificationStrip: React.FC<CertificationStripProps> = ({
                 </p>
                 <div className="border border-[#E6DFD3] bg-[#F4EDE2]/50 p-4 text-xs space-y-1">
                   <div className="font-medium text-[#241F1B]">Assay Inscription: BIS 750 · CIVARA · RJC</div>
-                  <div className="text-[11px] text-[#6E6459]">Verified at Mumbai Central Assaying Authority</div>
+                  <div className="text-[11px] text-[#6E6459]">Verified at BIS Diamond & Precious Metal Assaying Authority, Surat</div>
                 </div>
               </div>
             )}

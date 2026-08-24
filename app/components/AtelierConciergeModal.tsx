@@ -29,7 +29,7 @@ export function AtelierConciergeModal({
   // Form State for Private Viewing
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
-  const [city, setCity] = useState("Mumbai Atelier");
+  const [city, setCity] = useState("Surat Atelier");
   const [preferredDate, setPreferredDate] = useState("");
   const [specialNotes, setSpecialNotes] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -252,10 +252,8 @@ export function AtelierConciergeModal({
                       onChange={(e) => setCity(e.target.value)}
                       className="w-full bg-[#FBF7F0] border border-[#E6DFD3] text-[#241F1B] px-3 py-2.5 text-xs focus:outline-none focus:border-[#C9A961]"
                     >
-                      <option value="Mumbai Atelier">Mumbai Flagship Atelier</option>
-                      <option value="Jaipur Studio">Jaipur Heritage Studio</option>
-                      <option value="Delhi Lounge">New Delhi Private Lounge</option>
-                      <option value="Virtual Private Consultation">Virtual High-Definition Session</option>
+                      <option value="Surat Atelier">Civara Flagship Atelier (Surat, Gujarat)</option>
+                      <option value="Virtual Private Consultation">Virtual High-Definition Session (Worldwide)</option>
                     </select>
                   </div>
 
