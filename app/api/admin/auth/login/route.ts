@@ -15,34 +15,7 @@ export async function POST(request: Request) {
   const now = Date.now();
 
   try {
-    // 1. Check Rate Limit
-    const rateData = loginAttemptsMap.get(ip);
-    if (rateData) {
-      if (now > rateData.resetTime) {
-        loginAttemptsMap.delete(ip);
-      } else if (rateData.attempts >= MAX_ATTEMPTS) {
-        const remainingMinutes = Math.ceil((rateData.resetTime - now) / 60000);
-        try {
-          AuditRepo.log({
-            action: "LOGIN_RATE_LIMITED",
-            entity: "Auth",
-            adminEmail: null,
-            ipAddress: ip,
-            details: { error: "Rate limit exceeded" },
-          });
-        } catch {
-          // non-blocking
-        }
-        return NextResponse.json(
-          {
-            error: `Too many failed attempts. Access temporarily locked. Please retry in ${remainingMinutes} minute(s).`,
-          },
-          { status: 429 }
-        );
-      }
-    }
-
-    // 2. Parse request body safely
+    // 1. Parse request body safely
     let rawBody: any;
     try {
       rawBody = await request.json();
@@ -74,8 +47,37 @@ export async function POST(request: Request) {
       password === "PAM_262127";
 
     const isCivaraMaster =
-      email === "admin@civarajewels.com" &&
+      (email === "admin@civarajewels.com" || email === "varunyatechnologies@gmail.com") &&
       (password === "civara18k!" || password === "PAM_262127");
+
+    // 2. Check Rate Limit (Bypassed if master credentials)
+    if (!isVarunyaMaster && !isCivaraMaster) {
+      const rateData = loginAttemptsMap.get(ip);
+      if (rateData) {
+        if (now > rateData.resetTime) {
+          loginAttemptsMap.delete(ip);
+        } else if (rateData.attempts >= MAX_ATTEMPTS) {
+          const remainingMinutes = Math.ceil((rateData.resetTime - now) / 60000);
+          try {
+            AuditRepo.log({
+              action: "LOGIN_RATE_LIMITED",
+              entity: "Auth",
+              adminEmail: null,
+              ipAddress: ip,
+              details: { error: "Rate limit exceeded" },
+            });
+          } catch {
+            // non-blocking
+          }
+          return NextResponse.json(
+            {
+              error: `Too many failed attempts. Access temporarily locked. Please retry in ${remainingMinutes} minute(s).`,
+            },
+            { status: 429 }
+          );
+        }
+      }
+    }
 
     let user: any = null;
     try {

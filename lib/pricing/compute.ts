@@ -1,5 +1,5 @@
 export type MetalType = "gold" | "platinum" | "silver";
-export type PurityType = 24 | 22 | 18 | 14 | 9 | "PT950" | "925";
+export type PurityType = 24 | 22 | 18 | 16 | 14 | 10 | 9 | "PT950" | "925" | string;
 
 export type MakingChargeType = "per_gram" | "percent" | "flat";
 
@@ -36,6 +36,7 @@ export interface PricingProduct {
 export interface MetalRates {
   gold24kPer10g: number; // INR per 10g 24K gold (e.g., 93332)
   gold18kPer10g?: number; // INR per 10g 18K gold (e.g., 69999)
+  gold16kPer10g?: number; // INR per 10g 16K gold (e.g., 62221)
   gold14kPer10g?: number; // INR per 10g 14K gold (e.g., 55999)
   gold10kPer10g?: number; // INR per 10g 10K gold (e.g., 42999)
   platinumPer10g: number; // INR per 10g platinum (e.g., 32000)
@@ -96,11 +97,70 @@ export const PURITY_FACTORS: Record<string, number> = {
   "24": 0.999,
   "22": 0.916,
   "18": 0.75,
+  "16": 16 / 24, // ~0.6667
   "14": 0.585,
+  "10": 10 / 24, // ~0.4167
   "9": 0.375,
   PT950: 0.95,
   "925": 0.925,
 };
+
+export function extractPurityFromMetalOption(option: string): {
+  purityKarat: number;
+  purityLabel: string;
+  color: string;
+  isGold: boolean;
+  isSilver: boolean;
+  isPlatinum: boolean;
+} {
+  const opt = (option || "").toLowerCase();
+  let purityKarat = 18;
+  let purityLabel = "18K";
+  let color = "Yellow";
+  let isGold = true;
+  let isSilver = false;
+  let isPlatinum = false;
+
+  if (opt.includes("10k") || opt.includes("10 kt") || opt.includes("10 karat")) {
+    purityKarat = 10;
+    purityLabel = "10K";
+  } else if (opt.includes("14k") || opt.includes("14 kt") || opt.includes("14 karat")) {
+    purityKarat = 14;
+    purityLabel = "14K";
+  } else if (opt.includes("16k") || opt.includes("16 kt") || opt.includes("16 karat")) {
+    purityKarat = 16;
+    purityLabel = "16K";
+  } else if (opt.includes("18k") || opt.includes("18 kt") || opt.includes("18 karat")) {
+    purityKarat = 18;
+    purityLabel = "18K";
+  } else if (opt.includes("22k") || opt.includes("22 kt") || opt.includes("22 karat")) {
+    purityKarat = 22;
+    purityLabel = "22K";
+  } else if (opt.includes("24k") || opt.includes("24 kt")) {
+    purityKarat = 24;
+    purityLabel = "24K";
+  }
+
+  if (opt.includes("white")) {
+    color = "White";
+  } else if (opt.includes("rose") || opt.includes("pink")) {
+    color = "Rose";
+  } else if (opt.includes("yellow")) {
+    color = "Yellow";
+  }
+
+  if (opt.includes("silver")) {
+    isGold = false;
+    isSilver = true;
+    purityLabel = "Silver";
+  } else if (opt.includes("platinum")) {
+    isGold = false;
+    isPlatinum = true;
+    purityLabel = "PT950";
+  }
+
+  return { purityKarat, purityLabel, color, isGold, isSilver, isPlatinum };
+}
 
 /**
  * Pure function to compute full price breakdown in integer paise.
@@ -174,6 +234,10 @@ export function computePrice(product: PricingProduct, rates: MetalRates): PriceB
     if (Number(product.purity) === 18 && rates.gold18kPer10g) {
       metalRatePerGramPaise = Math.round((rates.gold18kPer10g * 100) / 10);
       rateUsed = rates.gold18kPer10g;
+    } else if (Number(product.purity) === 16) {
+      const rate16 = rates.gold16kPer10g || Math.round(((rates.gold18kPer10g || 69999) * 16) / 18);
+      metalRatePerGramPaise = Math.round((rate16 * 100) / 10);
+      rateUsed = rate16;
     } else if (Number(product.purity) === 14 && rates.gold14kPer10g) {
       metalRatePerGramPaise = Math.round((rates.gold14kPer10g * 100) / 10);
       rateUsed = rates.gold14kPer10g;

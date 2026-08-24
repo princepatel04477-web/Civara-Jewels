@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { formatINR } from "../../../lib/pricing/compute";
-import { ChevronDown, Info, ShieldCheck, Clock } from "lucide-react";
+import { ChevronDown, Info, ShieldCheck } from "lucide-react";
 
 interface PriceBreakdownProps {
   metalLabel?: string;
@@ -12,22 +12,30 @@ interface PriceBreakdownProps {
   makingCharges: number;
   gstAmount: number;
   totalAmount: number;
-  gold18kRate?: number;
+  metalPurityLabel?: string;
+  metalRate?: number;
+  rateUnit?: string;
+  gold18kRate?: number; // backwards compatibility
   updatedAt?: string;
 }
 
 export const PriceBreakdown: React.FC<PriceBreakdownProps> = ({
-  metalLabel = "Metal (18k Recycled Gold, 4.20g)",
+  metalLabel = "Metal (18k Recycled Gold, 3.40g)",
   metalAmount = 30450,
-  diamondLabel = "Diamonds (0.50ct, G-H/VS1 Certified)",
+  diamondLabel = "Diamonds (1.25ct, G-H/VS1 Certified)",
   diamondAmount = 32000,
   makingCharges = 4800,
   gstAmount = 2017,
   totalAmount = 69267,
-  gold18kRate = 54375, // 18K rate (75% of 24k @ 72,500/10g = ₹5,437.5/g)
-  updatedAt = "Today, 11:00 AM",
+  metalPurityLabel = "18K Gold Rate:",
+  metalRate,
+  rateUnit = "/ 10g",
+  gold18kRate,
+  updatedAt = "Live Atelier Benchmark",
 }) => {
   const [isOpen, setIsOpen] = useState(true);
+
+  const activeRate = metalRate ?? gold18kRate ?? 69999;
 
   return (
     <div className="w-full bg-[#FAF7F0] border border-[#E6DFD3] p-4 sm:p-5 space-y-3 font-sans text-xs">
@@ -48,13 +56,13 @@ export const PriceBreakdown: React.FC<PriceBreakdownProps> = ({
         />
       </button>
 
-      {/* 18K Gold Rate Line — Rendered in Serif/Sans, NO Monospace */}
+      {/* Dynamic Metal Benchmark Rate Line */}
       <div className="min-h-[22px] flex items-center justify-between text-[11px] text-[#6E6459] border-b border-[#E6DFD3]/60 pb-2">
         <span className="inline-flex items-center gap-1.5 font-medium text-[#9E7F3C]">
-          <ShieldCheck className="w-3.5 h-3.5" /> 18K Gold Rate:
+          <ShieldCheck className="w-3.5 h-3.5" /> {metalPurityLabel}
         </span>
         <span className="font-serif font-medium text-[#241F1B] text-xs sm:text-sm">
-          {formatINR(gold18kRate)} / 10g <span className="font-sans text-[10px] text-[#6E6459] font-normal">({updatedAt})</span>
+          {formatINR(activeRate)} {rateUnit} <span className="font-sans text-[10px] text-[#6E6459] font-normal">({updatedAt})</span>
         </span>
       </div>
 
@@ -100,7 +108,7 @@ export const PriceBreakdown: React.FC<PriceBreakdownProps> = ({
           </div>
 
           <p className="text-[10px] text-[#6E6459] pt-1 leading-relaxed">
-            * Rate confirmed at order booking. Certified BIS 750 hallmark and independent laboratory report included.
+            * Rate confirmed at order booking. Certified BIS hallmark and independent laboratory report included.
           </p>
         </div>
       )}

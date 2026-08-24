@@ -149,14 +149,17 @@ export function runMigrations(database: Database.Database = db) {
 
 function seedDatabaseIfNeeded(database: Database.Database) {
   try {
-    // 1. Seed Users (Precomputed bcrypt hashes)
-    // PAM_262127 -> $2b$10$7M9W4jYJk1E7c.X6w9WnU.5Oa6qXhO3aW8vGZzYjQk.eD4xYf7fXa
-    // civara18k! -> $2b$10$2HhA3H/x0n.lU6A1pM5FceG9gR7.yM3yU2M6pXqV.J7v2K5gP6Z/S
+    // 1. Seed & Sync Users (Verified bcrypt hashes)
+    // PAM_262127 -> $2b$10$g4LBdnGHbdj.5QVTMKOZ.udR7Vcmm2gqRss2i3doHrfykjCW1bTA6
+    // civara18k! -> $2b$10$Awxmbk4wqCLHGRA.aGnnj.PiHmymKkfxvGgCOl6ekCD.qzOF8bLIu
     database.prepare(`
-      INSERT OR IGNORE INTO users (email, password_hash, name, role, created_at)
+      INSERT INTO users (email, password_hash, name, role, created_at)
       VALUES 
-        ('varunyatechnologies@gmail.com', '$2b$10$7M9W4jYJk1E7c.X6w9WnU.5Oa6qXhO3aW8vGZzYjQk.eD4xYf7fXa', 'Varunya Technologies Admin', 'admin', datetime('now')),
-        ('admin@civarajewels.com', '$2b$10$2HhA3H/x0n.lU6A1pM5FceG9gR7.yM3yU2M6pXqV.J7v2K5gP6Z/S', 'Civara Master Admin', 'admin', datetime('now'))
+        ('varunyatechnologies@gmail.com', '$2b$10$g4LBdnGHbdj.5QVTMKOZ.udR7Vcmm2gqRss2i3doHrfykjCW1bTA6', 'Varunya Technologies Admin', 'admin', datetime('now')),
+        ('admin@civarajewels.com', '$2b$10$Awxmbk4wqCLHGRA.aGnnj.PiHmymKkfxvGgCOl6ekCD.qzOF8bLIu', 'Civara Master Admin', 'admin', datetime('now'))
+      ON CONFLICT(email) DO UPDATE SET 
+        password_hash = excluded.password_hash,
+        name = excluded.name;
     `).run();
 
     // 2. Seed 6 Categories
@@ -190,6 +193,7 @@ function seedDatabaseIfNeeded(database: Database.Database) {
     // 3. Seed & Sync Metal Rates (Official Atelier Benchmarks)
     const initialRates = [
       { metal: "Gold", purity: "18 KT", rate_inr: 69999 },
+      { metal: "Gold", purity: "16 KT", rate_inr: 62221 },
       { metal: "Gold", purity: "14 KT", rate_inr: 55999 },
       { metal: "Gold", purity: "10 KT", rate_inr: 42999 },
       { metal: "Silver", purity: "Silver", rate_inr: 26999 },

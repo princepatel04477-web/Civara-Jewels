@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { formatINR, computePrice, MetalRates, PricingProduct } from "../../../lib/pricing/compute";
-import { updateMetalRates, getMetalRateHistory, MetalRateHistoryEntry, revertMetalRate } from "../../../lib/pricing/rates";
+import { updateMetalRates, getMetalRateHistory, MetalRateHistoryEntry } from "../../../lib/pricing/rates";
 import { ShieldCheck, AlertTriangle, RefreshCw, Lock, ArrowUpRight, ArrowDownRight, RotateCcw, CheckCircle2, Sliders } from "lucide-react";
 import Link from "next/link";
 
@@ -56,11 +56,13 @@ export default function AdminRatesPage() {
 
   // Official Metal Rates State
   const [gold18kRate, setGold18kRate] = useState(69999);
+  const [gold16kRate, setGold16kRate] = useState(62221);
   const [gold14kRate, setGold14kRate] = useState(55999);
   const [gold10kRate, setGold10kRate] = useState(42999);
   const [silverRate, setSilverRate] = useState(26999);
 
   const [input18k, setInput18k] = useState("69,999");
+  const [input16k, setInput16k] = useState("62,221");
   const [input14k, setInput14k] = useState("55,999");
   const [input10k, setInput10k] = useState("42,999");
   const [inputSilver, setInputSilver] = useState("26,999");
@@ -90,6 +92,7 @@ export default function AdminRatesPage() {
       const data = await res.json();
       if (data && Array.isArray(data.rates)) {
         const r18 = data.rates.find((r: any) => r.purity === "18 KT" || r.purity === "18k");
+        const r16 = data.rates.find((r: any) => r.purity === "16 KT" || r.purity === "16k");
         const r14 = data.rates.find((r: any) => r.purity === "14 KT" || r.purity === "14k");
         const r10 = data.rates.find((r: any) => r.purity === "10 KT" || r.purity === "10k");
         const rSilv = data.rates.find((r: any) => r.metal === "Silver" || r.purity === "Silver");
@@ -97,6 +100,10 @@ export default function AdminRatesPage() {
         if (r18) {
           setGold18kRate(r18.rate_inr);
           setInput18k(formatINR(r18.rate_inr).replace("₹", ""));
+        }
+        if (r16) {
+          setGold16kRate(r16.rate_inr);
+          setInput16k(formatINR(r16.rate_inr).replace("₹", ""));
         }
         if (r14) {
           setGold14kRate(r14.rate_inr);
@@ -151,6 +158,7 @@ export default function AdminRatesPage() {
   const currentRatesObj: MetalRates = {
     gold24kPer10g: Math.round(gold18kRate / 0.75),
     gold18kPer10g: gold18kRate,
+    gold16kPer10g: gold16kRate,
     gold14kPer10g: gold14kRate,
     gold10kPer10g: gold10kRate,
     platinumPer10g: 32000,
@@ -164,13 +172,14 @@ export default function AdminRatesPage() {
     setIsSaving(true);
 
     const val18 = parseNumber(input18k) || 69999;
+    const val16 = parseNumber(input16k) || 62221;
     const val14 = parseNumber(input14k) || 55999;
     const val10 = parseNumber(input10k) || 42999;
     const valSilv = parseNumber(inputSilver) || 26999;
 
     try {
       // Update in memory & rates.ts
-      await updateMetalRates(val18, val14, val10, valSilv, "Atelier Admin");
+      await updateMetalRates(val18, val16, val14, val10, valSilv, "Atelier Admin");
 
       // Update in SQLite database table
       const res = await fetch("/api/admin/pricing/rates");
@@ -179,6 +188,7 @@ export default function AdminRatesPage() {
         for (const r of data.rates) {
           let newRate = r.rate_inr;
           if (r.purity === "18 KT" || r.purity === "18k") newRate = val18;
+          else if (r.purity === "16 KT" || r.purity === "16k") newRate = val16;
           else if (r.purity === "14 KT" || r.purity === "14k") newRate = val14;
           else if (r.purity === "10 KT" || r.purity === "10k") newRate = val10;
           else if (r.metal === "Silver" || r.purity === "Silver") newRate = valSilv;
@@ -194,6 +204,7 @@ export default function AdminRatesPage() {
       }
 
       setGold18kRate(val18);
+      setGold16kRate(val16);
       setGold14kRate(val14);
       setGold10kRate(val10);
       setSilverRate(valSilv);
@@ -287,78 +298,96 @@ export default function AdminRatesPage() {
           </p>
         </div>
 
-        {/* 4 Rate Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* 5 Rate Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
           {/* 18 KT */}
-          <div className="p-6 bg-[#FAF7F0] border-2 border-[#C9A961] space-y-3 relative">
+          <div className="p-5 bg-[#FAF7F0] border-2 border-[#C9A961] space-y-2.5 relative">
             <div className="text-[10px] uppercase tracking-[0.2em] text-[#9E7F3C] font-semibold">
-              Primary Gold (BIS 750)
+              Primary (BIS 750)
             </div>
-            <div className="font-serif text-2xl font-medium text-[#241F1B]">18 KT Gold</div>
+            <div className="font-serif text-xl font-medium text-[#241F1B]">18 KT Gold</div>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 font-serif text-lg text-[#9E7F3C]">₹</span>
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 font-serif text-base text-[#9E7F3C]">₹</span>
               <input
                 type="text"
                 value={input18k}
                 onChange={(e) => setInput18k(e.target.value)}
-                className="w-full bg-[#FFFFFF] border border-[#C9A961] text-[#241F1B] pl-8 pr-3 py-2.5 font-serif text-xl font-semibold outline-none focus:ring-1 focus:ring-[#9E7F3C]"
+                className="w-full bg-[#FFFFFF] border border-[#C9A961] text-[#241F1B] pl-7 pr-2 py-2 font-serif text-base font-semibold outline-none focus:ring-1 focus:ring-[#9E7F3C]"
               />
             </div>
-            <div className="text-[10.5px] text-[#6E6459]">Rate per 10g (₹{formatINR(gold18kRate).replace("₹", "")}/-)</div>
+            <div className="text-[10px] text-[#6E6459]">Rate / 10g (₹{formatINR(gold18kRate).replace("₹", "")}/-)</div>
+          </div>
+
+          {/* 16 KT */}
+          <div className="p-5 bg-[#FAF7F0] border border-[#E6DFD3] space-y-2.5">
+            <div className="text-[10px] uppercase tracking-[0.2em] text-[#6E6459] font-medium">
+              Medium (BIS 667)
+            </div>
+            <div className="font-serif text-xl font-medium text-[#241F1B]">16 KT Gold</div>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 font-serif text-base text-[#9E7F3C]">₹</span>
+              <input
+                type="text"
+                value={input16k}
+                onChange={(e) => setInput16k(e.target.value)}
+                className="w-full bg-[#FFFFFF] border border-[#E6DFD3] text-[#241F1B] pl-7 pr-2 py-2 font-serif text-base font-semibold outline-none focus:border-[#C9A961]"
+              />
+            </div>
+            <div className="text-[10px] text-[#6E6459]">Rate / 10g (₹{formatINR(gold16kRate).replace("₹", "")}/-)</div>
           </div>
 
           {/* 14 KT */}
-          <div className="p-6 bg-[#FAF7F0] border border-[#E6DFD3] space-y-3">
+          <div className="p-5 bg-[#FAF7F0] border border-[#E6DFD3] space-y-2.5">
             <div className="text-[10px] uppercase tracking-[0.2em] text-[#6E6459] font-medium">
-              Daily Gold (BIS 585)
+              Daily (BIS 585)
             </div>
-            <div className="font-serif text-2xl font-medium text-[#241F1B]">14 KT Gold</div>
+            <div className="font-serif text-xl font-medium text-[#241F1B]">14 KT Gold</div>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 font-serif text-lg text-[#9E7F3C]">₹</span>
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 font-serif text-base text-[#9E7F3C]">₹</span>
               <input
                 type="text"
                 value={input14k}
                 onChange={(e) => setInput14k(e.target.value)}
-                className="w-full bg-[#FFFFFF] border border-[#E6DFD3] text-[#241F1B] pl-8 pr-3 py-2.5 font-serif text-xl font-semibold outline-none focus:border-[#C9A961]"
+                className="w-full bg-[#FFFFFF] border border-[#E6DFD3] text-[#241F1B] pl-7 pr-2 py-2 font-serif text-base font-semibold outline-none focus:border-[#C9A961]"
               />
             </div>
-            <div className="text-[10.5px] text-[#6E6459]">Rate per 10g (₹{formatINR(gold14kRate).replace("₹", "")}/-)</div>
+            <div className="text-[10px] text-[#6E6459]">Rate / 10g (₹{formatINR(gold14kRate).replace("₹", "")}/-)</div>
           </div>
 
           {/* 10 KT */}
-          <div className="p-6 bg-[#FAF7F0] border border-[#E6DFD3] space-y-3">
+          <div className="p-5 bg-[#FAF7F0] border border-[#E6DFD3] space-y-2.5">
             <div className="text-[10px] uppercase tracking-[0.2em] text-[#6E6459] font-medium">
-              Entry Gold (BIS 417)
+              Entry (BIS 417)
             </div>
-            <div className="font-serif text-2xl font-medium text-[#241F1B]">10 KT Gold</div>
+            <div className="font-serif text-xl font-medium text-[#241F1B]">10 KT Gold</div>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 font-serif text-lg text-[#9E7F3C]">₹</span>
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 font-serif text-base text-[#9E7F3C]">₹</span>
               <input
                 type="text"
                 value={input10k}
                 onChange={(e) => setInput10k(e.target.value)}
-                className="w-full bg-[#FFFFFF] border border-[#E6DFD3] text-[#241F1B] pl-8 pr-3 py-2.5 font-serif text-xl font-semibold outline-none focus:border-[#C9A961]"
+                className="w-full bg-[#FFFFFF] border border-[#E6DFD3] text-[#241F1B] pl-7 pr-2 py-2 font-serif text-base font-semibold outline-none focus:border-[#C9A961]"
               />
             </div>
-            <div className="text-[10.5px] text-[#6E6459]">Rate per 10g (₹{formatINR(gold10kRate).replace("₹", "")}/-)</div>
+            <div className="text-[10px] text-[#6E6459]">Rate / 10g (₹{formatINR(gold10kRate).replace("₹", "")}/-)</div>
           </div>
 
           {/* Silver */}
-          <div className="p-6 bg-[#FAF7F0] border border-[#E6DFD3] space-y-3">
+          <div className="p-5 bg-[#FAF7F0] border border-[#E6DFD3] space-y-2.5">
             <div className="text-[10px] uppercase tracking-[0.2em] text-[#6E6459] font-medium">
-              Fine Silver (925 Sterling)
+              Fine Silver (925)
             </div>
-            <div className="font-serif text-2xl font-medium text-[#241F1B]">Silver</div>
+            <div className="font-serif text-xl font-medium text-[#241F1B]">Silver</div>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 font-serif text-lg text-[#9E7F3C]">₹</span>
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 font-serif text-base text-[#9E7F3C]">₹</span>
               <input
                 type="text"
                 value={inputSilver}
                 onChange={(e) => setInputSilver(e.target.value)}
-                className="w-full bg-[#FFFFFF] border border-[#E6DFD3] text-[#241F1B] pl-8 pr-3 py-2.5 font-serif text-xl font-semibold outline-none focus:border-[#C9A961]"
+                className="w-full bg-[#FFFFFF] border border-[#E6DFD3] text-[#241F1B] pl-7 pr-2 py-2 font-serif text-base font-semibold outline-none focus:border-[#C9A961]"
               />
             </div>
-            <div className="text-[10.5px] text-[#6E6459]">Rate per 1kg (₹{formatINR(silverRate).replace("₹", "")}/-)</div>
+            <div className="text-[10px] text-[#6E6459]">Rate / 1kg (₹{formatINR(silverRate).replace("₹", "")}/-)</div>
           </div>
         </div>
 
@@ -447,7 +476,9 @@ export default function AdminRatesPage() {
               <tr className="border-b border-[#E6DFD3] text-[10px] uppercase tracking-[0.2em] text-[#9E7F3C]">
                 <th className="py-3 px-4">Timestamp</th>
                 <th className="py-3 px-4">18K Gold / 10g</th>
+                <th className="py-3 px-4">16K Gold / 10g</th>
                 <th className="py-3 px-4">14K Gold / 10g</th>
+                <th className="py-3 px-4">10K Gold / 10g</th>
                 <th className="py-3 px-4">Silver / 1kg</th>
                 <th className="py-3 px-4">Updated By</th>
               </tr>
@@ -462,7 +493,13 @@ export default function AdminRatesPage() {
                     {formatINR(entry.gold18kPer10g || 69999)}
                   </td>
                   <td className="py-3 px-4 text-[#241F1B]">
+                    {formatINR(entry.gold16kPer10g || 62221)}
+                  </td>
+                  <td className="py-3 px-4 text-[#241F1B]">
                     {formatINR(entry.gold14kPer10g || 55999)}
+                  </td>
+                  <td className="py-3 px-4 text-[#241F1B]">
+                    {formatINR(entry.gold10kPer10g || 42999)}
                   </td>
                   <td className="py-3 px-4 text-[#241F1B]">
                     {formatINR(entry.silverPerKg || 26999)}

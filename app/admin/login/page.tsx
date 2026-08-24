@@ -44,7 +44,8 @@ function LoginForm() {
         throw new Error(data.error || "Authentication failed.");
       }
 
-      router.push(nextUrl);
+      // Hard navigation ensures browser cookie is sent on first request to /admin
+      window.location.href = nextUrl;
     } catch (err: any) {
       setErrorMessage(err.message || "Invalid credentials.");
     } finally {

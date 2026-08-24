@@ -7,10 +7,11 @@ export interface MetalRateHistoryEntry extends MetalRates {
 }
 
 // Official Atelier Benchmark Rates:
-// 18 KT Gold @ ₹69,999/10g, 14 KT Gold @ ₹55,999/10g, 10 KT Gold @ ₹42,999/10g, Silver @ ₹26,999/kg
+// 18 KT Gold @ ₹69,999/10g, 16 KT Gold @ ₹62,221/10g, 14 KT Gold @ ₹55,999/10g, 10 KT Gold @ ₹42,999/10g, Silver @ ₹26,999/kg
 let currentRates: MetalRates = {
   gold24kPer10g: 93332,
   gold18kPer10g: 69999,
+  gold16kPer10g: 62221,
   gold14kPer10g: 55999,
   gold10kPer10g: 42999,
   platinumPer10g: 32000,
@@ -37,6 +38,7 @@ export async function getMetalRateHistory(): Promise<MetalRateHistoryEntry[]> {
 
 export async function updateMetalRates(
   newGold18k: number = 69999,
+  newGold16k: number = 62221,
   newGold14k: number = 55999,
   newGold10k: number = 42999,
   newSilver: number = 26999,
@@ -50,6 +52,7 @@ export async function updateMetalRates(
   currentRates = {
     gold24kPer10g: gold24kEquivalent,
     gold18kPer10g: newGold18k,
+    gold16kPer10g: newGold16k,
     gold14kPer10g: newGold14k,
     gold10kPer10g: newGold10k,
     platinumPer10g: 32000,
@@ -90,6 +93,7 @@ export async function revertMetalRate(historyId: string): Promise<MetalRates> {
   return (
     await updateMetalRates(
       target.gold18kPer10g || 69999,
+      target.gold16kPer10g || 62221,
       target.gold14kPer10g || 55999,
       target.gold10kPer10g || 42999,
       target.silverPerKg || 26999,
