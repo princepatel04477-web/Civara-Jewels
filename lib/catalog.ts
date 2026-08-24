@@ -56,6 +56,10 @@ export interface JournalArticle {
   content: string[];
   pullQuote: string;
   imagePlaceholder: string;
+  image?: string;
+  featured?: boolean;
+  tags?: string[];
+  relatedProductSlug?: string;
 }
 
 export const STANDARD_RING_SIZES = [
@@ -473,9 +477,13 @@ export class Catalog {
       readTime: "5 min read",
       date: "August 2026",
       author: "Founder & Creative Director",
+      featured: true,
+      image: "/images/atelier/artisan-bench.png",
+      imagePlaceholder: "Founder bench sketch and gold alloy assay",
+      tags: ["Philosophy", "Quiet Luxury", "Metallurgy", "Surat Atelier"],
+      relatedProductSlug: "elara-solitaire",
       excerpt: "When fine jewellery stops shouting for attention across the room, an intimate relationship begins between the jewel and the skin that wears it.",
       pullQuote: "Quiet luxury is not minimalism — it is the unyielding conviction that when material and craft are flawless, no excess ornament is required.",
-      imagePlaceholder: "Founder bench sketch and gold alloy assay",
       content: [
         "In a market crowded with oversized logos, exaggerated prong baskets, and synthetic urgency, fine jewellery has often traded timelessness for spectacle. We established Civara Jewels on a counter-intuitive premise: that the most powerful heirlooms are those crafted with supreme restraint.",
         "A solitaire ring resting on the hand is not meant to broadcast wealth to strangers across a restaurant; it is designed to catch ambient room light at dusk, to bring personal calm to the wearer during a quiet moment at a desk, and to sit flush and weightless against the finger for fifty years.",
@@ -486,15 +494,19 @@ export class Catalog {
     },
     {
       slug: "the-making-of-an-elara",
-      title: "The Making of an Elara",
+      title: "The Making of an Elara: From Molten Bullion to Solitaire",
       subtitle: "A step-by-step master goldsmith photo essay from molten gold to finished solitaire.",
       category: "Craft & Process",
       readTime: "7 min read",
       date: "July 2026",
       author: "Master Bench Goldsmith",
+      featured: false,
+      image: "/images/elara-solitaire-main.jpg",
+      imagePlaceholder: "Macro photograph of Elara claw setting under microscope",
+      tags: ["Goldsmithing", "Micro-Lapidary", "Solitaire", "BIS 750"],
+      relatedProductSlug: "elara-solitaire",
       excerpt: "Behind the fluid silhouette of the Elara Solitaire lies 18 hours of micro-lapidary benchwork, zero-porosity casting, and microscopic claw alignment.",
       pullQuote: "Every micron of gold removed during the polishing wheel must reveal the natural fire of the diamond, never compete with it.",
-      imagePlaceholder: "Macro photograph of Elara claw setting under microscope",
       content: [
         "The journey of an Elara Solitaire begins with pure bullion grains of RJC-certified recycled 24-karat gold, copper, and fine silver, melted in a ceramic crucible at 1,064 degrees Celsius to forge our proprietary 18-karat alloy ingot.",
         "The alloy is drawn into an ergonomic ring profile through hardened steel rollers, ensuring internal grain density and complete elimination of microscopic casting porosity.",
@@ -512,15 +524,86 @@ export class Catalog {
       readTime: "8 min read",
       date: "June 2026",
       author: "Senior Atelier Curator",
+      featured: false,
+      image: "/images/bespoke/bespoke-step-1.png",
+      imagePlaceholder: "Antique gold heirloom alongside modern bespoke sketch",
+      tags: ["Ancestral Gold", "Remodelling", "Family Heirlooms", "Custody"],
+      relatedProductSlug: "nira-stacking-band",
       excerpt: "Inheriting family jewellery is an emotional inheritance. Learn how to evaluate antique hallmarks, safely reset vintage diamonds, and preserve generational memory.",
       pullQuote: "An heirloom is never truly owned; you merely hold custody of its gold and fire for the generation that follows.",
-      imagePlaceholder: "Antique gold heirloom alongside modern bespoke sketch",
       content: [
         "Receiving ancestral jewellery is one of the most intimate moments in a family's history. Yet many modern heirs find themselves inheriting heavy, fragile, or dated pieces that remain locked in bank vaults rather than worn in daily life.",
         "The first step in respectful heirloom custody is a thorough gemmological and structural condition audit. Inspect the claws for thinning metal, check old European cut diamonds for girdle chipping, and verify ancestral purity stamps.",
         "When an inherited setting no longer fits your daily aesthetic, ethical remodelling offers a seamless bridge between heritage and modern wear. At Civara, we specialize in carefully unsetting ancestral stones, assaying the family gold into pure bullion, and recasting it into contemporary solitaires and stacking bands.",
         "By preserving the original stone's provenance while adapting the silhouette to contemporary ergonomics, the memory of previous custodians stays alive on your hand every single day.",
         "Always keep written documentation of provenance, insurance certificates, and laboratory grading reports safely catalogued alongside your jewellery collection."
+      ]
+    },
+    {
+      slug: "the-diamond-light-equation",
+      title: "The Diamond Light Equation: Why Table Spread Lies and Pavilion Angles Rule",
+      subtitle: "Deconstructing optical physics, light leaks, and the true geometry of natural diamond fire.",
+      category: "Gemmology & 4Cs",
+      readTime: "6 min read",
+      date: "May 2026",
+      author: "Lead Gemmologist, FGA",
+      featured: false,
+      image: "/images/collections-portfolio/Rings-Collection-Cover.png",
+      imagePlaceholder: "Diamond ray-tracing diagram and scintillation facet model",
+      tags: ["Gemmology", "Diamond Cut", "Pavilion Physics", "GIA Standards"],
+      relatedProductSlug: "aurelia-emerald-ring",
+      excerpt: "Many diamond buyers focus strictly on carat weight, unaware that poorly proportioned pavilions cause light to leak out the bottom rather than bounce back into the eye.",
+      pullQuote: "A smaller diamond cut to perfect 40.8-degree pavilion angles will invariably outshine a larger, shallow-cut stone across any candlelit room.",
+      content: [
+        "In commercial diamond grading, carat weight is the easiest metric to price, but the most misleading indicator of visual beauty. A heavy diamond with a shallow pavilion simply acts like a window, allowing light to pass straight through without returning brilliance to your eyes.",
+        "Total Internal Reflection is the optical engine of a great solitaire. When a light ray strikes the crown facets, it must refract at precisely calculated angles, reflect off the opposite pavilion facet, and return upward through the table with vivid dispersion into rainbow spectral fire.",
+        "At Civara, we reject stones with steep crown angles or excessive pavilion depth, selecting only stones whose optical proportions fall within the tightest tolerances of the Tolkowsky ideal cut formula.",
+        "Our gemmologists individually inspect each certified stone under polarized light filters to ensure exceptional crystal strain transparency, zero haziness, and breathtaking scintillation in natural daylight."
+      ]
+    },
+    {
+      slug: "the-surat-goldsmithing-tradition",
+      title: "The Surat Atelier Heritage: 500 Years of Precision Benchwork",
+      subtitle: "Inside the world capital of diamond cutting and bespoke heirloom metalcraft.",
+      category: "Craft & Process",
+      readTime: "9 min read",
+      date: "April 2026",
+      author: "Atelier Historian",
+      featured: false,
+      image: "/images/artisan-bench.jpg",
+      imagePlaceholder: "Surat artisan bench with traditional hand tools and modern microscopes",
+      tags: ["Surat", "Diamond Capital", "Heritage", "Artisan Bench"],
+      relatedProductSlug: "celeste-diamond-tennis-necklace",
+      excerpt: "Over 90% of the world's diamonds are cut and polished in Surat. Explore how multi-generational artisans blend ancient lapidary wisdom with modern microscopic precision.",
+      pullQuote: "In Surat, diamond setting is not an industrial trade — it is a sacred lineage of hand-eye memory passed from father to daughter across centuries.",
+      content: [
+        "Surat's relationship with precious stones dates back half a millennium to the Mughal maritime trade on the banks of the Tapi River. Today, the city stands as the undisputed global capital of diamond cutting, shaping the vast majority of natural gemstones on Earth.",
+        "Within Civara's private atelier suites in Surat, our bench masters work with tools that bridge eras: traditional hardened-steel burrs and brass bezel pushers rest beside 40x Leica stereo microscopes and fiber-laser welders.",
+        "Each jewel is created without production-line rush. A single master goldsmith is entrusted with a piece from initial ingot rolling to the final hand-stamped hallmark, ensuring unbroken artistic accountability and structural integrity.",
+        "This intimate proximity to the world's finest diamond cutters allows Civara to source stones directly at the lapidary source, eliminating intermediaries and investing the value directly into superior gold weight and artisanal finishing."
+      ]
+    },
+    {
+      slug: "bespoke-reimagining-ancestral-heirlooms",
+      title: "Bespoke Reimagining: Transforming a 1940s Necklace into Everyday Modern Rings",
+      subtitle: "A real atelier case study in unsetting family diamonds and casting new lifelong silhouettes.",
+      category: "Bespoke Stories",
+      readTime: "6 min read",
+      date: "March 2026",
+      author: "Head of Bespoke Design",
+      featured: false,
+      image: "/images/bespoke/bespoke-sketch.png",
+      imagePlaceholder: "Bespoke gouache illustration alongside finished modern gold rings",
+      tags: ["Bespoke", "Case Study", "Restoration", "Custom Atelier"],
+      relatedProductSlug: "aethel-emerald-ring",
+      excerpt: "When client Priya inherited an unworn 1940s floral necklace, our bespoke atelier extracted 32 Old European cut diamonds and forged three contemporary stacking bands.",
+      pullQuote: "The greatest tribute to ancestral jewellery is not locking it in safe deposit, but wearing its gold and memories every single day.",
+      content: [
+        "When our client visited our Surat atelier with her grandmother's 1940s platinum and yellow gold floral collar, the piece had spent nearly three decades in a bank locker. While sentimentally invaluable, its rigid construction made it impossible to style with modern tailored wardrobes.",
+        "Our bespoke team began with a comprehensive non-destructive mapping of all 32 Old European cut diamonds, measuring their unique cushion-like facet patterns and warm candlelight glow.",
+        "In collaboration with the client, we sketched three distinct creations: a central architectural bezel ring for daily wear, and two nesting wave bands to be gifted to her daughters on their wedding days.",
+        "The ancestral gold was refined and re-alloyed into 18K honey gold, casting new contemporary silhouettes while preserving every single grain of family lineage.",
+        "The resulting trio of rings turned an unworn relic into three living heirlooms that are now worn across two generations every single day."
       ]
     }
   ];
