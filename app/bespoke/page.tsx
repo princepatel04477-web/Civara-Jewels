@@ -1,19 +1,56 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { LineReveal } from "../components/motion/LineReveal";
 import { RuleDraw } from "../components/motion/RuleDraw";
 import { ImageSlot } from "../components/ImageSlot";
-import { MessageCircle, CheckCircle, Sparkles, SlidersHorizontal, ArrowRight, ShieldCheck, Diamond } from "lucide-react";
+import { formatINR } from "../../lib/pricing/compute";
+import {
+  MessageCircle,
+  CheckCircle,
+  Sparkles,
+  SlidersHorizontal,
+  ArrowRight,
+  ShieldCheck,
+  Diamond,
+  TrendingUp,
+  RefreshCw,
+} from "lucide-react";
 
 export default function BespokePage() {
   const [sliderPos, setSliderPos] = useState(50);
   const [activeStep, setActiveStep] = useState(1);
 
+  // Live Metal Rates State
+  const [metalRates, setMetalRates] = useState<{ [key: string]: number }>({
+    "18 KT": 69999,
+    "16 KT": 62221,
+    "14 KT": 55999,
+    "10 KT": 42999,
+    "Silver": 26999,
+  });
+
+  useEffect(() => {
+    fetch("/api/public/metal-rates")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && Array.isArray(data.rates)) {
+          const map: { [key: string]: number } = {};
+          data.rates.forEach((r: any) => {
+            map[r.purity] = r.rate_inr;
+          });
+          setMetalRates((prev) => ({ ...prev, ...map }));
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   // Bespoke Configurator State
-  const [selectedCategory, setSelectedCategory] = useState("Engagement Ring");
-  const [selectedMetal, setSelectedMetal] = useState("18K Yellow Gold");
+  const [selectedCategory, setSelectedCategory] = useState("Rings");
+  const [selectedKarat, setSelectedKarat] = useState("18K");
+  const [selectedTone, setSelectedTone] = useState("Yellow Gold");
+  const [selectedRingSize, setSelectedRingSize] = useState("7");
   const [selectedStone, setSelectedStone] = useState("Natural GIA Diamond");
   const [selectedBudget, setSelectedBudget] = useState("₹1.5L – ₹3.5L");
   const [selectedTimeline, setSelectedTimeline] = useState("2 – 3 Weeks");
@@ -47,7 +84,7 @@ export default function BespokePage() {
       num: "04",
       title: "Wax Model & Casting",
       tagline: "Tactile Fit & Proportions",
-      desc: "Review a 1:1 scale wax model to test finger fit and profile height before lost-wax casting in 100% RJC-certified recycled 18-karat gold.",
+      desc: "Review a 1:1 scale wax model to test finger fit and profile height before lost-wax casting in 100% RJC-certified recycled gold.",
       image: "/images/bespoke/bespoke-step-4.webp",
       alt: "Hand-Carved Green Jewelry Wax Model at Workbench",
     },
@@ -61,49 +98,77 @@ export default function BespokePage() {
     },
   ];
 
+  // 6 Official Categories
   const categories = [
-    "Engagement Ring",
-    "Solitaire Stacking Band",
-    "Tennis Necklace / Collar",
-    "Bridal Suite",
-    "Sculptural Earrings",
-    "Bespoke Cuff / Bangle",
+    { id: "Rings", label: "Rings", sub: "Solitaires & Stacking Bands (Sizes 3–15)" },
+    { id: "Necklaces", label: "Necklaces", sub: "Tennis Collars & Chokers" },
+    { id: "Earrings", label: "Earrings", sub: "Hoops, Drops & Studs" },
+    { id: "Bracelets", label: "Bracelets", sub: "Bangles, Cuffs & Tennis Chains" },
+    { id: "Bridal", label: "Bridal", sub: "Polki Suites & Ceremonial Sets" },
+    { id: "Pendants", label: "Pendants", sub: "Medallions & Lockets" },
   ];
 
-  const metals = [
-    "18K Yellow Gold (BIS 750)",
-    "18K White Gold (BIS 750)",
-    "18K Rose Gold (BIS 750)",
-    "Platinum 950",
+  // Karat Tiers with Official Benchmark Rates
+  const karatTiers = [
+    { id: "18K", label: "18K Gold", hallmark: "BIS 750", rateKey: "18 KT", defaultRate: 69999 },
+    { id: "16K", label: "16K Gold", hallmark: "BIS 667", rateKey: "16 KT", defaultRate: 62221 },
+    { id: "14K", label: "14K Gold", hallmark: "BIS 585", rateKey: "14 KT", defaultRate: 55999 },
+    { id: "10K", label: "10K Gold", hallmark: "BIS 417", rateKey: "10 KT", defaultRate: 42999 },
+    { id: "Silver", label: "Fine Silver", hallmark: "925 Silver", rateKey: "Silver", defaultRate: 26999, unit: "/ 1kg" },
+    { id: "Platinum", label: "Platinum", hallmark: "PT 950", rateKey: "Platinum", defaultRate: 32000 },
+  ];
+
+  // Color / Tone Tones
+  const tones = [
+    { id: "Yellow Gold", label: "Yellow Gold", colorClass: "bg-[#ECC976]" },
+    { id: "White Gold", label: "White Gold", colorClass: "bg-[#E6E8E8]" },
+    { id: "Rose Gold", label: "Rose Gold", colorClass: "bg-[#E8AF98]" },
+  ];
+
+  // Ring Sizes (3 to 15 in 0.5 increments)
+  const ringSizes = [
+    "3", "3.5", "4", "4.5", "5", "5.5", "6", "6.5", "7", "7.5",
+    "8", "8.5", "9", "9.5", "10", "10.5", "11", "11.5", "12", "12.5",
+    "13", "13.5", "14", "14.5", "15"
   ];
 
   const stones = [
-    "Natural GIA Diamond",
-    "Lab-Grown IGI Diamond",
+    "Natural GIA Certified Diamond",
+    "Lab-Grown IGI Certified Diamond",
     "Uncut Polki & Heritage Diamond",
-    "Colored Gemstone (Sapphire/Emerald)",
+    "Rare Colored Gemstone (Sapphire/Emerald/Ruby)",
   ];
 
   const budgets = [
-    "₹75,000 – ₹1.5L",
+    "₹50,000 – ₹1.5L",
     "₹1.5L – ₹3.5L",
     "₹3.5L – ₹7.5L",
     "₹7.5L + (High Jewellery)",
   ];
 
   const timelines = [
-    "2 – 3 Weeks (Standard)",
-    "4 – 6 Weeks (Ceremonial)",
-    "Urgent (Under 10 Days)",
+    "2 – 3 Weeks (Standard Atelier)",
+    "4 – 6 Weeks (Ceremonial/Wedding)",
+    "Express (Under 10 Days)",
   ];
+
+  const currentSelectedKaratObj = karatTiers.find((k) => k.id === selectedKarat) || karatTiers[0];
+  const activeMetalRate = metalRates[currentSelectedKaratObj.rateKey] || currentSelectedKaratObj.defaultRate;
+  const fullMetalDescription = selectedKarat === "Silver" 
+    ? "Fine Silver (925)" 
+    : selectedKarat === "Platinum" 
+    ? "Platinum 950" 
+    : `${selectedKarat} ${selectedTone} (${currentSelectedKaratObj.hallmark})`;
 
   const whatsappMessage = encodeURIComponent(
     `Hello Civara Atelier,\n\nI would like to commission a Bespoke Jewellery Piece with the following specifications:\n\n` +
       `• Category: ${selectedCategory}\n` +
-      `• Precious Metal: ${selectedMetal}\n` +
-      `• Gemstone/Diamond: ${selectedStone}\n` +
+      (selectedCategory === "Rings" ? `• Ring Size: Size ${selectedRingSize} (Indian standard)\n` : "") +
+      `• Metal: ${fullMetalDescription}\n` +
+      `• Benchmark Rate: ₹${formatINR(activeMetalRate).replace("₹", "")} ${currentSelectedKaratObj.unit || "/ 10g"}\n` +
+      `• Stone Preference: ${selectedStone}\n` +
       `• Target Budget: ${selectedBudget}\n` +
-      `• Timeline: ${selectedTimeline}\n\n` +
+      `• Target Timeline: ${selectedTimeline}\n\n` +
       `Could we arrange a consultation with the master goldsmith?`
   );
 
@@ -124,6 +189,47 @@ export default function BespokePage() {
           <p className="text-sm sm:text-base font-light leading-relaxed text-[#6E6459] max-w-2xl mx-auto">
             Every bespoke piece at Civara is handcrafted to order over 2 to 3 weeks. A single dedicated goldsmith guides your piece from initial gouache drawing to official BIS hallmarking.
           </p>
+        </div>
+      </section>
+
+      {/* Live Metal Benchmark Rates Ticker Section */}
+      <section className="bg-[#FAF7F0] border-b border-[#E6DFD3] py-6 px-6 lg:px-20">
+        <div className="max-w-6xl mx-auto space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div className="flex items-center gap-2 text-xs uppercase tracking-[0.22em] text-[#9E7F3C] font-semibold">
+              <TrendingUp className="w-4 h-4 text-[#9E7F3C]" /> Active Atelier Benchmark Valuation Rates
+            </div>
+            <div className="text-[11px] text-[#6E6459] flex items-center gap-1.5 font-mono">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" /> Live Transparent Pricing Standard
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+            {karatTiers.filter(k => k.id !== "Platinum").map((k) => {
+              const rate = metalRates[k.rateKey] || k.defaultRate;
+              const isSelected = selectedKarat === k.id;
+              return (
+                <div
+                  key={k.id}
+                  onClick={() => setSelectedKarat(k.id)}
+                  className={`p-3.5 border transition-all cursor-pointer rounded-sm ${
+                    isSelected
+                      ? "border-[#C9A961] bg-[#FFFFFF] shadow-sm ring-1 ring-[#C9A961]"
+                      : "border-[#E6DFD3] bg-[#FBF7F0] hover:border-[#9E7F3C]"
+                  }`}
+                >
+                  <div className="flex justify-between items-baseline">
+                    <span className="font-serif text-sm font-semibold text-[#241F1B]">{k.label}</span>
+                    <span className="text-[9px] uppercase tracking-wider text-[#9E7F3C] font-mono">{k.hallmark}</span>
+                  </div>
+                  <div className="text-base font-serif font-bold text-[#241F1B] mt-1">
+                    ₹{formatINR(rate).replace("₹", "")}/-
+                  </div>
+                  <div className="text-[10px] text-[#6E6459] font-mono">per {k.unit ? "1 kg" : "10 grams"}</div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </section>
 
@@ -291,53 +397,133 @@ export default function BespokePage() {
         </div>
 
         <div className="bg-[#FAF7F0] border border-[#E6DFD3] p-8 lg:p-12 space-y-8 rounded-sm shadow-sm">
-          {/* 1. Category */}
+          {/* 1. Category Selection */}
           <div className="space-y-3">
-            <label className="text-xs uppercase tracking-[0.2em] text-[#9E7F3C] font-semibold block">
-              1. Commission Category
-            </label>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
-              {categories.map((c) => (
-                <button
-                  key={c}
-                  type="button"
-                  onClick={() => setSelectedCategory(c)}
-                  className={`p-3 text-xs text-left border rounded-sm transition-all cursor-pointer ${
-                    selectedCategory === c
-                      ? "border-[#C9A961] bg-[#FFFFFF] font-medium text-[#241F1B] shadow-xs ring-1 ring-[#C9A961]"
-                      : "border-[#E6DFD3] bg-[#FBF7F0] text-[#6E6459] hover:border-[#9E7F3C]"
-                  }`}
-                >
-                  {c}
-                </button>
-              ))}
+            <div className="flex justify-between items-center">
+              <label className="text-xs uppercase tracking-[0.2em] text-[#9E7F3C] font-semibold">
+                1. Commission Category
+              </label>
+              <span className="text-[11px] text-[#6E6459]">6 Official Collections</span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {categories.map((c) => {
+                const isSelected = selectedCategory === c.id;
+                return (
+                  <button
+                    key={c.id}
+                    type="button"
+                    onClick={() => setSelectedCategory(c.id)}
+                    className={`p-3.5 text-left border rounded-sm transition-all cursor-pointer ${
+                      isSelected
+                        ? "border-[#C9A961] bg-[#FFFFFF] font-medium text-[#241F1B] shadow-xs ring-1 ring-[#C9A961]"
+                        : "border-[#E6DFD3] bg-[#FBF7F0] text-[#6E6459] hover:border-[#9E7F3C]"
+                    }`}
+                  >
+                    <div className="font-serif text-sm font-semibold text-[#241F1B]">{c.label}</div>
+                    <div className="text-[10px] text-[#6E6459] mt-0.5">{c.sub}</div>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
-          {/* 2. Metal */}
-          <div className="space-y-3">
-            <label className="text-xs uppercase tracking-[0.2em] text-[#9E7F3C] font-semibold block">
-              2. Precious Metal Purity
-            </label>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-              {metals.map((m) => (
-                <button
-                  key={m}
-                  type="button"
-                  onClick={() => setSelectedMetal(m)}
-                  className={`p-3 text-xs text-left border rounded-sm transition-all cursor-pointer ${
-                    selectedMetal === m
-                      ? "border-[#C9A961] bg-[#FFFFFF] font-medium text-[#241F1B] shadow-xs ring-1 ring-[#C9A961]"
-                      : "border-[#E6DFD3] bg-[#FBF7F0] text-[#6E6459] hover:border-[#9E7F3C]"
-                  }`}
-                >
-                  {m}
-                </button>
-              ))}
+          {/* 1.1 Ring Size Selector (Visible only when Rings is selected) */}
+          {selectedCategory === "Rings" && (
+            <div className="p-4 bg-[#FFFFFF] border border-[#E6DFD3] space-y-3 rounded-sm">
+              <div className="flex justify-between items-center">
+                <label className="text-xs uppercase tracking-[0.2em] text-[#9E7F3C] font-semibold">
+                  Select Ring Size (Size 3 to 15 · Half Variations)
+                </label>
+                <span className="text-[11px] font-mono text-[#241F1B] font-bold">Selected: Size {selectedRingSize}</span>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {ringSizes.map((s) => {
+                  const isSelected = selectedRingSize === s;
+                  return (
+                    <button
+                      key={s}
+                      type="button"
+                      onClick={() => setSelectedRingSize(s)}
+                      className={`px-3 py-1.5 text-xs font-mono border rounded-xs transition-all cursor-pointer ${
+                        isSelected
+                          ? "border-[#C9A961] bg-[#241F1B] text-[#C9A961] font-bold"
+                          : "border-[#E6DFD3] bg-[#FBF7F0] text-[#241F1B] hover:border-[#9E7F3C]"
+                      }`}
+                    >
+                      {s}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
+          )}
+
+          {/* 2. Metal & Karat Selection with Live Benchmark Rates */}
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <label className="text-xs uppercase tracking-[0.2em] text-[#9E7F3C] font-semibold">
+                2. Precious Metal & Karat Purity (Live Rates)
+              </label>
+              <span className="text-[11px] font-mono text-[#9E7F3C] font-semibold">
+                Rate: ₹{formatINR(activeMetalRate).replace("₹", "")} {currentSelectedKaratObj.unit || "/ 10g"}
+              </span>
+            </div>
+
+            {/* Karat Tabs */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+              {karatTiers.map((k) => {
+                const rate = metalRates[k.rateKey] || k.defaultRate;
+                const isSelected = selectedKarat === k.id;
+                return (
+                  <button
+                    key={k.id}
+                    type="button"
+                    onClick={() => setSelectedKarat(k.id)}
+                    className={`p-3 text-center border rounded-sm transition-all cursor-pointer ${
+                      isSelected
+                        ? "border-[#C9A961] bg-[#FFFFFF] text-[#241F1B] font-bold shadow-xs ring-1 ring-[#C9A961]"
+                        : "border-[#E6DFD3] bg-[#FBF7F0] text-[#6E6459] hover:border-[#9E7F3C]"
+                    }`}
+                  >
+                    <div className="font-serif text-sm">{k.label}</div>
+                    <div className="text-[9px] uppercase tracking-wider text-[#9E7F3C] font-mono">{k.hallmark}</div>
+                    <div className="text-[11px] font-mono font-semibold text-[#241F1B] mt-1">
+                      ₹{formatINR(rate).replace("₹", "")}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Gold Tone / Color Selector (Only if a Gold karat is selected) */}
+            {selectedKarat !== "Silver" && selectedKarat !== "Platinum" && (
+              <div className="flex items-center gap-3 pt-2">
+                <span className="text-xs text-[#6E6459]">Gold Tone:</span>
+                <div className="flex items-center gap-2">
+                  {tones.map((t) => {
+                    const isSelected = selectedTone === t.id;
+                    return (
+                      <button
+                        key={t.id}
+                        type="button"
+                        onClick={() => setSelectedTone(t.id)}
+                        className={`flex items-center gap-2 px-3 py-1.5 border text-xs rounded-sm transition-all cursor-pointer ${
+                          isSelected
+                            ? "border-[#C9A961] bg-[#FFFFFF] font-medium text-[#241F1B] ring-1 ring-[#C9A961]"
+                            : "border-[#E6DFD3] bg-[#FBF7F0] text-[#6E6459]"
+                        }`}
+                      >
+                        <span className={`w-3 h-3 rounded-full ${t.colorClass} border border-black/10`} />
+                        {t.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* 3. Stones */}
+          {/* 3. Stones Preference */}
           <div className="space-y-3">
             <label className="text-xs uppercase tracking-[0.2em] text-[#9E7F3C] font-semibold block">
               3. Diamond / Gemstone Preference
@@ -407,8 +593,8 @@ export default function BespokePage() {
             </div>
           </div>
 
-          {/* Brief Summary Box */}
-          <div className="p-6 bg-[#FFFFFF] border border-[#C9A961]/40 rounded-sm space-y-4">
+          {/* Brief Summary Box with Live Rate & WhatsApp Dispatch */}
+          <div className="p-6 bg-[#FFFFFF] border border-[#C9A961]/40 rounded-sm space-y-4 shadow-sm">
             <div className="flex items-center justify-between border-b border-[#E6DFD3] pb-3">
               <div className="text-xs font-semibold uppercase tracking-[0.2em] text-[#241F1B]">
                 Bespoke Commission Summary
@@ -420,25 +606,27 @@ export default function BespokePage() {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs font-light text-[#6E6459]">
               <div>
                 <span className="text-[10px] uppercase text-[#9E7F3C] block font-semibold">Piece</span>
-                <span className="text-[#241F1B] font-medium">{selectedCategory}</span>
+                <span className="text-[#241F1B] font-medium">
+                  {selectedCategory} {selectedCategory === "Rings" ? `(Size ${selectedRingSize})` : ""}
+                </span>
               </div>
               <div>
-                <span className="text-[10px] uppercase text-[#9E7F3C] block font-semibold">Metal</span>
-                <span className="text-[#241F1B] font-medium">{selectedMetal}</span>
+                <span className="text-[10px] uppercase text-[#9E7F3C] block font-semibold">Metal & Karat</span>
+                <span className="text-[#241F1B] font-medium">{fullMetalDescription}</span>
               </div>
               <div>
-                <span className="text-[10px] uppercase text-[#9E7F3C] block font-semibold">Stone</span>
-                <span className="text-[#241F1B] font-medium">{selectedStone}</span>
+                <span className="text-[10px] uppercase text-[#9E7F3C] block font-semibold">Benchmark Rate</span>
+                <span className="text-[#241F1B] font-medium">₹{formatINR(activeMetalRate).replace("₹", "")} {currentSelectedKaratObj.unit || "/ 10g"}</span>
               </div>
               <div>
-                <span className="text-[10px] uppercase text-[#9E7F3C] block font-semibold">Budget</span>
+                <span className="text-[10px] uppercase text-[#9E7F3C] block font-semibold">Target Budget</span>
                 <span className="text-[#241F1B] font-medium">{selectedBudget}</span>
               </div>
             </div>
 
             <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="flex items-center gap-2 text-xs text-[#6E6459]">
-                <ShieldCheck className="w-4 h-4 text-[#9E7F3C]" /> Confidential atelier consultation · No obligation
+                <ShieldCheck className="w-4 h-4 text-[#9E7F3C]" /> Confidential atelier consultation · Verified BIS benchmark rates
               </div>
               <a
                 href={`https://wa.me/919999900000?text=${whatsappMessage}`}
