@@ -5,6 +5,7 @@ import { CurrencyProvider } from "./context/CurrencyContext";
 import { AnnouncementBar } from "./components/AnnouncementBar";
 import { Header } from "./components/Header";
 import { Footer } from "./components/Footer";
+import { MobileBottomNav } from "./components/MobileBottomNav";
 
 // Optimized font loading (P3-1 font waterfall diet)
 const cormorant = Cormorant_Garamond({
@@ -123,8 +124,9 @@ export default function RootLayout({
         <CurrencyProvider>
           <AnnouncementBar />
           <Header />
-          <main className="flex-grow">{children}</main>
+          <main className="flex-grow pb-16 lg:pb-0">{children}</main>
           <Footer />
+          <MobileBottomNav />
         </CurrencyProvider>
       </body>
     </html>

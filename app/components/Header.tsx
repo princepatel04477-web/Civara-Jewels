@@ -195,44 +195,120 @@ export const Header = () => {
         )}
       </nav>
 
-      {/* Mobile Drawer Menu */}
+      {/* Mobile Haute Joaillerie Salon Drawer */}
       {isMobileMenuOpen && (
-        <div className="absolute top-full inset-x-0 z-30 bg-[#FBF7F0] border-b border-[#E6DFD3] p-6 lg:hidden shadow-xl space-y-4">
-          <div className="flex flex-col gap-3 text-xs tracking-[0.16em] uppercase">
-            {navItems.map((item) => (
+        <div className="fixed inset-0 top-[60px] sm:top-[70px] z-50 bg-[#181412]/70 backdrop-blur-md lg:hidden flex flex-col justify-start animate-fadeIn">
+          <div className="bg-[#FAF7F0] border-b border-[#C9A961]/40 shadow-2xl max-h-[88vh] overflow-y-auto p-6 space-y-6 animate-slideDown">
+            {/* Salon Header Tag */}
+            <div className="flex items-center justify-between border-b border-[#E6DFD3] pb-3">
+              <div className="text-[10px] uppercase font-mono tracking-[0.25em] text-[#9E7F3C] font-semibold flex items-center gap-1.5">
+                <span>✦</span> Civara Salon · Surat Atelier
+              </div>
+              <div className="text-[9px] uppercase font-mono text-[#6E6459] tracking-widest bg-[#F4EDE2] px-2.5 py-1 rounded-full border border-[#E6DFD3]">
+                BIS 750 Certified
+              </div>
+            </div>
+
+            {/* Horizontal Swipeable Category Gallery */}
+            <div className="space-y-2.5">
+              <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.2em] text-[#241F1B] font-medium">
+                <span>Curated Categories</span>
+                <Link
+                  href="/collections"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="text-[10px] text-[#9E7F3C] hover:underline"
+                >
+                  View All →
+                </Link>
+              </div>
+              <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2 pt-1 -mx-2 px-2 scroll-smooth">
+                {megaMenuCategories.map((c) => (
+                  <Link
+                    key={c.name}
+                    href={c.href}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="group shrink-0 w-36 flex flex-col gap-1.5 active:scale-95 transition-transform"
+                  >
+                    <div className="relative aspect-[16/9] w-full rounded-[3px] border border-[#E6DFD3] overflow-hidden bg-[#F4EDE2] shadow-xs">
+                      <Image
+                        src={c.image}
+                        alt={c.name}
+                        fill
+                        sizes="144px"
+                        className="object-cover object-center"
+                      />
+                    </div>
+                    <span className="font-serif text-xs font-medium text-center text-[#241F1B] group-hover:text-[#9E7F3C]">
+                      {c.name}
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            {/* Numbered Editorial Navigation */}
+            <div className="space-y-1 border-t border-[#E6DFD3] pt-4">
+              {navItems.map((item, idx) => {
+                const isActive = pathname === item.href;
+                return (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={`flex items-center justify-between py-2.5 border-b border-[#E6DFD3]/40 transition-colors ${
+                      isActive ? "text-[#9E7F3C] font-semibold" : "text-[#241F1B]"
+                    }`}
+                  >
+                    <span className="text-xs uppercase tracking-[0.18em]">{item.name}</span>
+                    <span className="text-[10px] font-mono text-[#9E7F3C]/80">0{idx + 1}</span>
+                  </Link>
+                );
+              })}
               <Link
-                key={item.name}
-                href={item.href}
+                href="/size-guide"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="py-2 border-b border-[#E6DFD3]/60 text-[#241F1B]"
+                className="flex items-center justify-between py-2.5 border-b border-[#E6DFD3]/40 text-[#6E6459]"
               >
-                {item.name}
+                <span className="text-xs uppercase tracking-[0.18em]">Sizing & Fit Guide</span>
+                <span className="text-[10px] font-mono text-[#6E6459]">06</span>
               </Link>
-            ))}
-            <Link
-              href="/viewings"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="py-2 border-b border-[#E6DFD3]/60 text-[#9E7F3C]"
-            >
-              Private Viewings
-            </Link>
-            <Link
-              href="/size-guide"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="py-2 border-b border-[#E6DFD3]/60 text-[#6E6459]"
-            >
-              Sizing & Fit Guide
-            </Link>
-            <button
-              onClick={() => {
-                setIsMobileMenuOpen(false);
-                setIsViewingOpen(true);
-              }}
-              className="mt-2 w-full bg-[#241F1B] text-[#C9A961] py-3 text-xs uppercase tracking-[0.2em]"
-            >
-              Book a viewing
-            </button>
+            </div>
+
+            {/* Quick Actions Strip */}
+            <div className="space-y-2.5 pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  setIsViewingOpen(true);
+                }}
+                className="w-full bg-[#241F1B] text-[#C9A961] py-3.5 rounded-full text-xs uppercase tracking-[0.2em] font-medium shadow-md active:scale-98 transition-transform cursor-pointer"
+              >
+                Book Surat Private Viewing
+              </button>
+
+              <a
+                href="https://wa.me/919876543210?text=Hello%20Civara%20Atelier%2C%20I%20would%20like%20to%20inquire%20about%20a%20bespoke%20piece"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="w-full border border-[#C9A961] text-[#9E7F3C] py-3 rounded-full text-xs uppercase tracking-[0.2em] font-medium flex items-center justify-center gap-2 hover:bg-[#F4EDE2] active:scale-98 transition-transform"
+              >
+                WhatsApp Atelier Concierge
+              </a>
+            </div>
+
+            {/* Bottom Surat Atelier Note */}
+            <div className="text-center pt-2 text-[10px] font-mono text-[#9E9385] uppercase tracking-widest">
+              Civara High Jewellery Atelier · Surat, Gujarat
+            </div>
           </div>
+
+          {/* Backdrop tap to close */}
+          <div
+            className="flex-1"
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
         </div>
       )}
 

@@ -237,27 +237,39 @@ export default function JournalArticlePage() {
             </p>
           ))}
 
-          {/* Mobile Share Action Bar */}
-          <div className="pt-6 lg:hidden flex gap-3">
-            <button
-              type="button"
-              onClick={handleShareWhatsApp}
-              className="flex-1 bg-[#241F1B] text-[#C9A961] py-3.5 text-xs uppercase tracking-wider rounded-full flex items-center justify-center gap-2"
-            >
-              <MessageCircle className="w-4 h-4" /> WhatsApp
-            </button>
-            <button
-              type="button"
-              onClick={handleCopyLink}
-              className="flex-1 border border-[#C9A961] text-[#9E7F3C] py-3.5 text-xs uppercase tracking-wider rounded-full flex items-center justify-center gap-2"
-            >
-              {copied ? <Check className="w-4 h-4 text-[#9E7F3C]" /> : <Share2 className="w-4 h-4" />}
-              {copied ? "Link Copied!" : "Share Link"}
-            </button>
-          </div>
+          {/* Mobile In-Article Featured Creation Card (Visible on mobile screens) */}
+          {relatedProduct && (
+            <div className="lg:hidden p-4 bg-[#F4EDE2] border border-[#C9A961]/50 rounded-sm space-y-3 my-6">
+              <div className="text-[9.5px] uppercase tracking-[0.25em] text-[#9E7F3C] font-semibold flex items-center gap-1.5">
+                <Sparkles className="w-3 h-3" /> Featured Creation in this Essay
+              </div>
+              <Link href={`/products/${relatedProduct.id}`} className="flex gap-3 items-center">
+                <div className="w-16 h-16 relative bg-[#FAF7F0] border border-[#E6DFD3] rounded-sm shrink-0 overflow-hidden">
+                  <Image
+                    src={relatedProduct.mainImage || "/images/home-cc/Rings-cc.png"}
+                    alt={relatedProduct.name}
+                    fill
+                    sizes="64px"
+                    className="object-cover"
+                  />
+                </div>
+                <div>
+                  <h4 className="font-serif text-base font-medium text-[#241F1B] leading-tight">
+                    {relatedProduct.name}
+                  </h4>
+                  <div className="text-xs font-mono text-[#9E7F3C] mt-0.5">
+                    ₹{relatedProduct.priceINR.toLocaleString("en-IN")}
+                  </div>
+                  <span className="text-[10.5px] text-[#241F1B] underline font-medium mt-1 block">
+                    View Piece Details →
+                  </span>
+                </div>
+              </Link>
+            </div>
+          )}
 
           {/* Article Footer & Author Signature */}
-          <div className="pt-10 border-t border-[#E6DFD3] space-y-4">
+          <div className="pt-8 sm:pt-10 border-t border-[#E6DFD3] space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
               <div className="text-[#6E6459]">
                 Published by <span className="text-[#241F1B] font-medium">{article.author}</span> · Civara Jewels Atelier, Surat
@@ -275,14 +287,14 @@ export default function JournalArticlePage() {
 
       {/* 4. NEXT ESSAYS RECOMMENDATION GRID */}
       {otherArticles.length > 0 && (
-        <section className="bg-[#F4EDE2]/50 border-t border-[#E6DFD3] py-16 px-6 lg:px-14">
-          <div className="max-w-6xl mx-auto space-y-8">
-            <div className="flex items-end justify-between border-b border-[#E6DFD3] pb-4">
+        <section className="bg-[#F4EDE2]/50 border-t border-[#E6DFD3] py-12 sm:py-16 px-4 sm:px-6 lg:px-14 pb-28 lg:pb-16">
+          <div className="max-w-6xl mx-auto space-y-6 sm:space-y-8">
+            <div className="flex items-end justify-between border-b border-[#E6DFD3] pb-3 sm:pb-4">
               <div>
-                <div className="text-[10px] uppercase tracking-[0.28em] text-[#9E7F3C] font-semibold">
+                <div className="text-[9.5px] sm:text-[10px] uppercase tracking-[0.28em] text-[#9E7F3C] font-semibold">
                   Continued Reading
                 </div>
-                <h3 className="font-serif text-2xl sm:text-3xl font-medium text-[#241F1B]">
+                <h3 className="font-serif text-xl sm:text-3xl font-medium text-[#241F1B]">
                   Further Atelier Notes
                 </h3>
               </div>
@@ -294,18 +306,18 @@ export default function JournalArticlePage() {
               </Link>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-8">
               {otherArticles.map((art) => (
                 <Link
                   key={art.slug}
                   href={`/journal/${art.slug}`}
-                  className="group bg-[#FBF7F0] border border-[#E6DFD3] hover:border-[#C9A961] p-6 sm:p-7 rounded-sm transition-all duration-500 shadow-xs hover:shadow-lg flex flex-col justify-between space-y-4"
+                  className="group bg-[#FBF7F0] border border-[#E6DFD3] hover:border-[#C9A961] p-5 sm:p-7 rounded-sm transition-all duration-500 shadow-xs hover:shadow-lg active:scale-[0.99] flex flex-col justify-between space-y-3 sm:space-y-4"
                 >
                   <div className="space-y-2">
-                    <div className="text-[10px] uppercase tracking-[0.2em] text-[#9E7F3C] font-semibold">
+                    <div className="text-[9.5px] sm:text-[10px] uppercase tracking-[0.2em] text-[#9E7F3C] font-semibold">
                       {art.category} · {art.readTime}
                     </div>
-                    <h4 className="font-serif text-xl sm:text-2xl font-medium text-[#241F1B] group-hover:text-[#9E7F3C] transition-colors leading-snug">
+                    <h4 className="font-serif text-lg sm:text-2xl font-medium text-[#241F1B] group-hover:text-[#9E7F3C] transition-colors leading-snug">
                       {art.title}
                     </h4>
                     <p className="text-xs font-light text-[#6E6459] line-clamp-2 leading-relaxed">
@@ -321,6 +333,27 @@ export default function JournalArticlePage() {
           </div>
         </section>
       )}
+
+      {/* 5. FLOATING MOBILE ARTICLE ACTION DOCK (Fixed at bottom on Mobile Reader) */}
+      <div className="fixed bottom-3 inset-x-3 z-40 lg:hidden flex justify-center pointer-events-none">
+        <div className="pointer-events-auto bg-[#181412]/95 backdrop-blur-xl border border-[#C9A961]/40 rounded-full px-4 py-2.5 shadow-2xl flex items-center justify-between gap-3 max-w-sm w-full">
+          <button
+            type="button"
+            onClick={handleShareWhatsApp}
+            className="flex-1 bg-[#241F1B] text-[#C9A961] py-2 px-3 rounded-full text-[10.5px] uppercase tracking-wider font-mono flex items-center justify-center gap-1.5 border border-[#C9A961]/30 active:scale-95 transition-transform"
+          >
+            <MessageCircle className="w-3.5 h-3.5" /> WhatsApp
+          </button>
+          <button
+            type="button"
+            onClick={handleCopyLink}
+            className="flex-1 bg-[#C9A961] text-[#181412] py-2 px-3 rounded-full text-[10.5px] uppercase tracking-wider font-mono font-semibold flex items-center justify-center gap-1.5 active:scale-95 transition-transform"
+          >
+            {copied ? <Check className="w-3.5 h-3.5" /> : <Share2 className="w-3.5 h-3.5" />}
+            {copied ? "Copied!" : "Share Link"}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
