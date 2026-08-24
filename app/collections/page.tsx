@@ -18,37 +18,37 @@ export default function CollectionsIndexPage() {
   // Curated High-Res 3:4 Portrait Collection Portfolio Photography
   const accordionItems: AccordionItem[] = [
     {
-      image: "/images/collections-portfolio/Rings-Collection-Cover.webp",
+      image: "/images/collections-portfolio/Rings-Collection-Cover.png",
       label: "Rings",
       link: "/collections/rings",
       alt: "Civara Handcrafted Solitaires & Stacking Rings",
     },
     {
-      image: "/images/collections-portfolio/Necklace-Collection-Cover.webp",
+      image: "/images/collections-portfolio/Necklace-Collection-Cover.png",
       label: "Necklaces",
       link: "/collections/necklaces",
       alt: "Civara Liquid Diamond Tennis Strands & Collars",
     },
     {
-      image: "/images/collections-portfolio/Earrings-Collection-Cover.webp",
+      image: "/images/collections-portfolio/Earrings-Collection-Cover.png",
       label: "Earrings",
       link: "/collections/earrings",
       alt: "Civara Ergonomic Hoops & Diamond Drops",
     },
     {
-      image: "/images/collections-portfolio/Bracelets-Collection-Cover.webp",
+      image: "/images/collections-portfolio/Bracelets-Collection-Cover.png",
       label: "Bracelets",
       link: "/collections/bracelets",
       alt: "Civara Hinged Bangles & Open Diamond Cuffs",
     },
     {
-      image: "/images/collections-portfolio/Bridal-Collection-Cover.webp",
+      image: "/images/collections-portfolio/Bridal-Collection-Cover.png",
       label: "Bridal",
       link: "/collections/bridal",
       alt: "Civara Heirloom Royal Bridal Suites & Kundan Chokers",
     },
     {
-      image: "/images/collections-portfolio/Pendant-Collection-Cover.webp",
+      image: "/images/collections-portfolio/Pendant-Collection-Cover.png",
       label: "Pendants",
       link: "/collections/pendants",
       alt: "Civara Geometric Diamond Cages & Constellation Lockets",
