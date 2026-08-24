@@ -8,26 +8,37 @@ interface Point3D {
   z: number;
 }
 
-interface Edge {
-  from: number;
-  to: number;
-  glow?: boolean;
+interface Face3D {
+  indices: number[];
+  colorBase?: string;
+  isTable?: boolean;
 }
 
 interface DiamondModel {
-  x: number; // screen center offset X
-  y: number; // screen center offset Y
-  z: number; // depth offset
+  x: number; // Normalized center X (-1 to 1)
+  y: number; // Normalized center Y (-1 to 1)
+  z: number;
   scale: number;
   rotX: number;
   rotY: number;
   rotZ: number;
-  spinSpeedX: number;
-  spinSpeedY: number;
-  spinSpeedZ: number;
+  spinX: number;
+  spinY: number;
+  spinZ: number;
   vertices: Point3D[];
-  edges: Edge[];
-  type: "brilliant" | "emerald" | "cushion";
+  faces: Face3D[];
+  edges: [number, number][];
+}
+
+interface SparkleParticle {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  life: number;
+  maxLife: number;
+  size: number;
+  color: string;
 }
 
 export const KineticDiamondWireframe: React.FC<{ className?: string }> = ({
@@ -38,15 +49,23 @@ export const KineticDiamondWireframe: React.FC<{ className?: string }> = ({
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d", { alpha: true });
     if (!ctx) return;
 
     let animationFrameId: number;
-    let width = (canvas.width = canvas.parentElement?.clientWidth || window.innerWidth);
-    let height = (canvas.height = canvas.parentElement?.clientHeight || window.innerHeight);
 
-    // Mouse tracking with inertia
-    let mouse = { x: 0, y: 0, targetX: 0, targetY: 0 };
+    // Mouse tracking with spring inertia
+    const mouse = {
+      x: 0,
+      y: 0,
+      targetX: 0,
+      targetY: 0,
+      speed: 0,
+      lastClientX: 0,
+      lastClientY: 0,
+    };
+
+    const mouseParticles: SparkleParticle[] = [];
 
     const handleMouseMove = (e: MouseEvent) => {
       const rect = canvas.getBoundingClientRect();
@@ -54,6 +73,29 @@ export const KineticDiamondWireframe: React.FC<{ className?: string }> = ({
       const ny = ((e.clientY - rect.top) / rect.height - 0.5) * 2;
       mouse.targetX = nx;
       mouse.targetY = ny;
+
+      // Calculate speed
+      const dx = e.clientX - mouse.lastClientX;
+      const dy = e.clientY - mouse.lastClientY;
+      mouse.speed = Math.sqrt(dx * dx + dy * dy);
+      mouse.lastClientX = e.clientX;
+      mouse.lastClientY = e.clientY;
+
+      // Spawn interactive diamond dust sparks on mouse movement
+      if (mouse.speed > 3 && mouseParticles.length < 50) {
+        for (let i = 0; i < Math.min(3, Math.floor(mouse.speed / 4)); i++) {
+          mouseParticles.push({
+            x: e.clientX - rect.left,
+            y: e.clientY - rect.top,
+            vx: (Math.random() - 0.5) * 2.5,
+            vy: (Math.random() - 0.5) * 2.5 - 0.5,
+            life: 0,
+            maxLife: 25 + Math.random() * 35,
+            size: 1 + Math.random() * 2.5,
+            color: Math.random() > 0.4 ? "#ECC976" : "#FFFFFF",
+          });
+        }
+      }
     };
 
     window.addEventListener("mousemove", handleMouseMove, { passive: true });
@@ -61,98 +103,111 @@ export const KineticDiamondWireframe: React.FC<{ className?: string }> = ({
     const handleResize = () => {
       if (!canvas || !canvas.parentElement) return;
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      width = canvas.width = canvas.parentElement.clientWidth * dpr;
-      height = canvas.height = canvas.parentElement.clientHeight * dpr;
+      canvas.width = canvas.parentElement.clientWidth * dpr;
+      canvas.height = canvas.parentElement.clientHeight * dpr;
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.scale(dpr, dpr);
     };
 
     window.addEventListener("resize", handleResize);
     handleResize();
 
-    // 1. Generate Brilliant Round Cut Diamond 3D Geometry
-    const createBrilliantCut = (): { vertices: Point3D[]; edges: Edge[] } => {
+    // ==========================================
+    // 3D GEOMETRY GENERATORS (FULL FACET FACES)
+    // ==========================================
+
+    // 1. Brilliant Cut Diamond (Table, Crown, Girdle, Pavilion, Culet)
+    const createBrilliantGeometry = () => {
       const vertices: Point3D[] = [];
-      const edges: Edge[] = [];
+      const faces: Face3D[] = [];
+      const edges: [number, number][] = [];
 
-      // Table Octagon (8 vertices at top)
-      const tableRadius = 45;
-      const tableZ = 45;
+      // 0..7: Table Octagon (Top)
+      const tableR = 48;
+      const tableZ = 52;
       for (let i = 0; i < 8; i++) {
-        const angle = (i * Math.PI) / 4;
-        vertices.push({
-          x: Math.cos(angle) * tableRadius,
-          y: Math.sin(angle) * tableRadius,
-          z: tableZ,
-        });
+        const a = (i * Math.PI) / 4 + Math.PI / 8;
+        vertices.push({ x: Math.cos(a) * tableR, y: Math.sin(a) * tableR, z: tableZ });
       }
 
-      // Table edges loop
+      // Table face
+      faces.push({ indices: [0, 1, 2, 3, 4, 5, 6, 7], isTable: true });
+
+      // Table edges
       for (let i = 0; i < 8; i++) {
-        edges.push({ from: i, to: (i + 1) % 8, glow: true });
+        edges.push([i, (i + 1) % 8]);
       }
 
-      // Girdle (16 vertices at middle)
-      const girdleRadius = 90;
-      const girdleZ = 10;
+      // 8..23: Girdle (16-gon)
+      const girdleR = 105;
+      const girdleZ = 12;
       for (let i = 0; i < 16; i++) {
-        const angle = (i * Math.PI) / 8;
-        vertices.push({
-          x: Math.cos(angle) * girdleRadius,
-          y: Math.sin(angle) * girdleRadius,
-          z: girdleZ,
-        });
+        const a = (i * Math.PI) / 8;
+        vertices.push({ x: Math.cos(a) * girdleR, y: Math.sin(a) * girdleR, z: girdleZ });
       }
 
-      // Girdle edges loop
+      // Girdle edges
       for (let i = 0; i < 16; i++) {
-        edges.push({ from: 8 + i, to: 8 + ((i + 1) % 16), glow: false });
+        edges.push([8 + i, 8 + ((i + 1) % 16)]);
       }
 
-      // Crown Facet Bevel Edges (Table to Girdle)
+      // Crown Facets (Table to Girdle triangles and kites)
       for (let i = 0; i < 8; i++) {
-        const tableIdx = i;
-        const girdleIdx1 = i * 2;
-        const girdleIdx2 = (i * 2 + 1) % 16;
-        const girdleIdx3 = (i * 2 + 2) % 16;
-        edges.push({ from: tableIdx, to: 8 + girdleIdx1 });
-        edges.push({ from: tableIdx, to: 8 + girdleIdx2 });
-        edges.push({ from: tableIdx, to: 8 + girdleIdx3 });
+        const t1 = i;
+        const t2 = (i + 1) % 8;
+        const g1 = (i * 2 + 1) % 16;
+        const g2 = (i * 2 + 2) % 16;
+        const g3 = (i * 2 + 3) % 16;
+
+        // Star facet triangle
+        faces.push({ indices: [t1, t2, 8 + g2] });
+        // Kite bezel facet quad
+        faces.push({ indices: [t1, 8 + g1, 8 + g2] });
+        faces.push({ indices: [t2, 8 + g2, 8 + g3] });
+
+        edges.push([t1, 8 + g1]);
+        edges.push([t1, 8 + g2]);
+        edges.push([t2, 8 + g2]);
       }
 
-      // Culet (Bottom Point)
+      // 24: Culet (Bottom Point)
       const culetIdx = vertices.length;
-      vertices.push({ x: 0, y: 0, z: -110 });
+      vertices.push({ x: 0, y: 0, z: -125 });
 
       // Pavilion Facets (Girdle to Culet)
       for (let i = 0; i < 16; i++) {
-        edges.push({ from: 8 + i, to: culetIdx, glow: i % 2 === 0 });
+        const g1 = 8 + i;
+        const g2 = 8 + ((i + 1) % 16);
+        faces.push({ indices: [g1, g2, culetIdx] });
+        edges.push([g1, culetIdx]);
       }
 
-      return { vertices, edges };
+      return { vertices, faces, edges };
     };
 
-    // 2. Generate Emerald Cut 3D Geometry
-    const createEmeraldCut = (): { vertices: Point3D[]; edges: Edge[] } => {
+    // 2. Emerald Step-Cut Geometry (Concentric Step Facets)
+    const createEmeraldGeometry = () => {
       const vertices: Point3D[] = [];
-      const edges: Edge[] = [];
+      const faces: Face3D[] = [];
+      const edges: [number, number][] = [];
 
-      // Step 1: Table (Top rectangle)
-      const tW = 40, tH = 60, tZ = 45;
+      // Step 1: Table (Top Octagon)
+      const tW = 42, tH = 65, tC = 14, tZ = 50;
       vertices.push(
-        { x: -tW, y: -tH, z: tZ },
-        { x: tW, y: -tH, z: tZ },
-        { x: tW, y: tH, z: tZ },
-        { x: -tW, y: tH, z: tZ }
+        { x: -tW + tC, y: -tH, z: tZ },
+        { x: tW - tC, y: -tH, z: tZ },
+        { x: tW, y: -tH + tC, z: tZ },
+        { x: tW, y: tH - tC, z: tZ },
+        { x: tW - tC, y: tH, z: tZ },
+        { x: -tW + tC, y: tH, z: tZ },
+        { x: -tW, y: tH - tC, z: tZ },
+        { x: -tW, y: -tH + tC, z: tZ }
       );
-      edges.push(
-        { from: 0, to: 1, glow: true },
-        { from: 1, to: 2, glow: true },
-        { from: 2, to: 3, glow: true },
-        { from: 3, to: 0, glow: true }
-      );
+      faces.push({ indices: [0, 1, 2, 3, 4, 5, 6, 7], isTable: true });
+      for (let i = 0; i < 8; i++) edges.push([i, (i + 1) % 8]);
 
-      // Step 2: Girdle (Octagonal cut corners rectangle)
-      const gW = 75, gH = 100, gC = 25, gZ = 10;
+      // Step 2: Girdle (Outer Octagon)
+      const gW = 85, gH = 115, gC = 30, gZ = 12;
       const gStart = vertices.length;
       vertices.push(
         { x: -gW + gC, y: -gH, z: gZ },
@@ -164,102 +219,141 @@ export const KineticDiamondWireframe: React.FC<{ className?: string }> = ({
         { x: -gW, y: gH - gC, z: gZ },
         { x: -gW, y: -gH + gC, z: gZ }
       );
+      for (let i = 0; i < 8; i++) edges.push([gStart + i, gStart + ((i + 1) % 8)]);
 
+      // Crown Step Facets (Table to Girdle quads)
       for (let i = 0; i < 8; i++) {
-        edges.push({ from: gStart + i, to: gStart + ((i + 1) % 8) });
+        const next = (i + 1) % 8;
+        faces.push({ indices: [i, next, gStart + next, gStart + i] });
+        edges.push([i, gStart + i]);
       }
 
-      // Crown facets connecting Table to Girdle
-      edges.push({ from: 0, to: gStart + 0 });
-      edges.push({ from: 0, to: gStart + 7 });
-      edges.push({ from: 1, to: gStart + 1 });
-      edges.push({ from: 1, to: gStart + 2 });
-      edges.push({ from: 2, to: gStart + 3 });
-      edges.push({ from: 2, to: gStart + 4 });
-      edges.push({ from: 3, to: gStart + 5 });
-      edges.push({ from: 3, to: gStart + 6 });
-
-      // Step 3: Bottom Culet Line (Keel)
+      // Step 3: Keel Culet (Line at bottom)
       const kStart = vertices.length;
-      const kH = 35, kZ = -80;
+      const kH = 40, kZ = -95;
       vertices.push({ x: 0, y: -kH, z: kZ }, { x: 0, y: kH, z: kZ });
-      edges.push({ from: kStart, to: kStart + 1, glow: true });
+      edges.push([kStart, kStart + 1]);
 
-      // Pavilion facets connecting Girdle to Keel
+      // Pavilion Step Facets
       for (let i = 0; i < 8; i++) {
         const targetKeel = i < 3 || i === 7 ? kStart : kStart + 1;
-        edges.push({ from: gStart + i, to: targetKeel });
+        faces.push({ indices: [gStart + i, gStart + ((i + 1) % 8), targetKeel] });
+        edges.push([gStart + i, targetKeel]);
       }
 
-      return { vertices, edges };
+      return { vertices, faces, edges };
     };
 
-    // 3. Floating Diamond Models Scene Setup
-    const brilliant = createBrilliantCut();
-    const emerald = createEmeraldCut();
+    // 3. Pear / Tear Cut Geometry
+    const createPearGeometry = () => {
+      const vertices: Point3D[] = [];
+      const faces: Face3D[] = [];
+      const edges: [number, number][] = [];
+
+      // Table (Egg shape top)
+      const numPts = 10;
+      const tableZ = 45;
+      for (let i = 0; i < numPts; i++) {
+        const a = (i * Math.PI * 2) / numPts;
+        const r = 40 * (1 + 0.35 * Math.sin(a));
+        vertices.push({ x: Math.cos(a) * r, y: Math.sin(a) * r * 1.35, z: tableZ });
+      }
+      faces.push({ indices: Array.from({ length: numPts }, (_, i) => i), isTable: true });
+      for (let i = 0; i < numPts; i++) edges.push([i, (i + 1) % numPts]);
+
+      // Girdle (Egg shape middle)
+      const gStart = vertices.length;
+      for (let i = 0; i < numPts; i++) {
+        const a = (i * Math.PI * 2) / numPts;
+        const r = 85 * (1 + 0.35 * Math.sin(a));
+        vertices.push({ x: Math.cos(a) * r, y: Math.sin(a) * r * 1.35, z: 8 });
+      }
+      for (let i = 0; i < numPts; i++) edges.push([gStart + i, gStart + ((i + 1) % numPts)]);
+
+      for (let i = 0; i < numPts; i++) {
+        const next = (i + 1) % numPts;
+        faces.push({ indices: [i, next, gStart + next, gStart + i] });
+        edges.push([i, gStart + i]);
+      }
+
+      // Bottom Point
+      const culetIdx = vertices.length;
+      vertices.push({ x: 0, y: 15, z: -105 });
+      for (let i = 0; i < numPts; i++) {
+        faces.push({ indices: [gStart + i, gStart + ((i + 1) % numPts), culetIdx] });
+        edges.push([gStart + i, culetIdx]);
+      }
+
+      return { vertices, faces, edges };
+    };
+
+    const brilliant = createBrilliantGeometry();
+    const emerald = createEmeraldGeometry();
+    const pear = createPearGeometry();
 
     const diamonds: DiamondModel[] = [
-      // Primary Hero Diamond (Center-Right, majestic & prominent)
+      // 1. Primary Grand Solitaire (Center-Right Hero)
       {
-        x: 0.28, // 28% from center to right
-        y: -0.05,
+        x: 0.28,
+        y: -0.04,
         z: 0,
-        scale: 1.45,
+        scale: 1.5,
         rotX: 0.45,
         rotY: 0.6,
-        rotZ: 0.2,
-        spinSpeedX: 0.0022,
-        spinSpeedY: 0.0035,
-        spinSpeedZ: 0.0012,
+        rotZ: 0.15,
+        spinX: 0.002,
+        spinY: 0.0032,
+        spinZ: 0.001,
         vertices: brilliant.vertices,
+        faces: brilliant.faces,
         edges: brilliant.edges,
-        type: "brilliant",
       },
-      // Secondary Diamond (Top-Left, Emerald cut)
+      // 2. Secondary Step-Cut Emerald (Top-Left Accent)
       {
-        x: -0.32,
-        y: -0.22,
+        x: -0.34,
+        y: -0.24,
         z: -120,
-        scale: 0.85,
-        rotX: -0.5,
-        rotY: 0.8,
-        rotZ: -0.3,
-        spinSpeedX: -0.0028,
-        spinSpeedY: 0.003,
-        spinSpeedZ: 0.0018,
+        scale: 0.9,
+        rotX: -0.55,
+        rotY: 0.85,
+        rotZ: -0.25,
+        spinX: -0.0025,
+        spinY: 0.0028,
+        spinZ: 0.0015,
         vertices: emerald.vertices,
+        faces: emerald.faces,
         edges: emerald.edges,
-        type: "emerald",
       },
-      // Tertiary Diamond (Bottom-Left, Brilliant cut accent)
+      // 3. Tertiary Pear Cut (Bottom-Left Accent)
       {
-        x: -0.25,
+        x: -0.26,
         y: 0.28,
-        z: -80,
-        scale: 0.95,
-        rotX: 0.8,
-        rotY: -0.4,
-        rotZ: 0.5,
-        spinSpeedX: 0.003,
-        spinSpeedY: -0.0025,
-        spinSpeedZ: -0.0015,
-        vertices: brilliant.vertices,
-        edges: brilliant.edges,
-        type: "brilliant",
+        z: -90,
+        scale: 1.0,
+        rotX: 0.75,
+        rotY: -0.45,
+        rotZ: 0.4,
+        spinX: 0.0028,
+        spinY: -0.0024,
+        spinZ: -0.0012,
+        vertices: pear.vertices,
+        faces: pear.faces,
+        edges: pear.edges,
       },
     ];
 
-    // Floating Stardust Gemological Sparkles
-    const sparkles = Array.from({ length: 32 }, () => ({
-      x: (Math.random() - 0.5) * 2,
-      y: (Math.random() - 0.5) * 2,
-      size: Math.random() * 2 + 1,
+    // Stardust Sparkles in 3D Space
+    const sparkles = Array.from({ length: 45 }, () => ({
+      x: (Math.random() - 0.5) * 2.2,
+      y: (Math.random() - 0.5) * 2.2,
+      z: (Math.random() - 0.5) * 300,
+      size: Math.random() * 2.2 + 0.8,
       twinkle: Math.random() * Math.PI * 2,
-      speed: 0.02 + Math.random() * 0.03,
-      driftY: 0.0003 + Math.random() * 0.0005,
+      speed: 0.02 + Math.random() * 0.035,
+      driftY: 0.0004 + Math.random() * 0.0006,
     }));
 
-    // Perspective Projection Math
+    // 3D Point Projection Function
     const project = (
       p: Point3D,
       rotX: number,
@@ -269,22 +363,21 @@ export const KineticDiamondWireframe: React.FC<{ className?: string }> = ({
       cx: number,
       cy: number
     ) => {
-      // 3D Rotation Matrix
-      // Rotate around X
+      // Rotation X
       let y1 = p.y * Math.cos(rotX) - p.z * Math.sin(rotX);
       let z1 = p.y * Math.sin(rotX) + p.z * Math.cos(rotX);
 
-      // Rotate around Y
+      // Rotation Y
       let x2 = p.x * Math.cos(rotY) + z1 * Math.sin(rotY);
       let z2 = -p.x * Math.sin(rotY) + z1 * Math.cos(rotY);
 
-      // Rotate around Z
+      // Rotation Z
       let x3 = x2 * Math.cos(rotZ) - y1 * Math.sin(rotZ);
       let y3 = x2 * Math.sin(rotZ) + y1 * Math.cos(rotZ);
 
       // Perspective Projection
-      const fov = 420;
-      const distance = 420;
+      const fov = 450;
+      const distance = 450;
       const zProj = z2 + distance;
       const projScale = (fov / (zProj || 1)) * scale;
 
@@ -292,137 +385,244 @@ export const KineticDiamondWireframe: React.FC<{ className?: string }> = ({
         x: cx + x3 * projScale,
         y: cy + y3 * projScale,
         z: z2,
+        origZ: p.z,
         projScale,
       };
     };
 
+    // Calculate Face Normal for 3D Lighting & Specular Fire
+    const getFaceNormal = (p1: any, p2: any, p3: any) => {
+      const ax = p2.x - p1.x;
+      const ay = p2.y - p1.y;
+      const az = p2.z - p1.z;
+      const bx = p3.x - p1.x;
+      const by = p3.y - p1.y;
+      const bz = p3.z - p1.z;
+      const nx = ay * bz - az * by;
+      const ny = az * bx - ax * bz;
+      const nz = ax * by - ay * bx;
+      const len = Math.sqrt(nx * nx + ny * ny + nz * nz) || 1;
+      return { x: nx / len, y: ny / len, z: nz / len };
+    };
+
     let tick = 0;
 
-    // Main 60fps Render Loop
+    // Draw Extraordinary Anamorphic Star Diamond Flare
+    const drawDiamondFlare = (x: number, y: number, size: number, intensity: number) => {
+      const alpha = Math.min(1, Math.max(0, intensity));
+      if (alpha <= 0.05) return;
+
+      // Glow Core
+      const coreGrad = ctx.createRadialGradient(x, y, 0, x, y, size * 2.5);
+      coreGrad.addColorStop(0, `rgba(255, 250, 230, ${alpha * 0.95})`);
+      coreGrad.addColorStop(0.3, `rgba(236, 201, 118, ${alpha * 0.6})`);
+      coreGrad.addColorStop(1, `rgba(201, 169, 97, 0)`);
+      ctx.fillStyle = coreGrad;
+      ctx.beginPath();
+      ctx.arc(x, y, size * 2.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // 4-Point Long Anamorphic Rays
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = `rgba(255, 245, 210, ${alpha * 0.9})`;
+      ctx.beginPath();
+      // Horizontal ray
+      ctx.moveTo(x - size * 6, y);
+      ctx.lineTo(x + size * 6, y);
+      // Vertical ray
+      ctx.moveTo(x, y - size * 6);
+      ctx.lineTo(x, y + size * 6);
+      ctx.stroke();
+
+      // 4-Point Short Diagonal Rays
+      ctx.strokeStyle = `rgba(230, 200, 117, ${alpha * 0.55})`;
+      ctx.beginPath();
+      ctx.moveTo(x - size * 3, y - size * 3);
+      ctx.lineTo(x + size * 3, y + size * 3);
+      ctx.moveTo(x - size * 3, y + size * 3);
+      ctx.lineTo(x + size * 3, y - size * 3);
+      ctx.stroke();
+    };
+
+    // ==========================================
+    // MAIN 60FPS RENDER PIPELINE
+    // ==========================================
     const render = () => {
       tick++;
-      // Smooth mouse damping
-      mouse.x += (mouse.targetX - mouse.x) * 0.04;
-      mouse.y += (mouse.targetY - mouse.y) * 0.04;
+
+      // Mouse inertia damping
+      mouse.x += (mouse.targetX - mouse.x) * 0.045;
+      mouse.y += (mouse.targetY - mouse.y) * 0.045;
 
       const renderWidth = canvas.parentElement?.clientWidth || window.innerWidth;
       const renderHeight = canvas.parentElement?.clientHeight || window.innerHeight;
 
       ctx.clearRect(0, 0, renderWidth, renderHeight);
 
-      // 1. Draw Ambient Floating Sparkle Nodes
+      // Virtual Moving Light Source (Tracks user cursor in 3D for dynamic specular fire)
+      const lightSource = {
+        x: 0.3 + mouse.x * 0.6,
+        y: -0.6 + mouse.y * 0.6,
+        z: 0.8,
+      };
+      const lightLen = Math.sqrt(
+        lightSource.x * lightSource.x +
+          lightSource.y * lightSource.y +
+          lightSource.z * lightSource.z
+      );
+      lightSource.x /= lightLen;
+      lightSource.y /= lightLen;
+      lightSource.z /= lightLen;
+
+      // 1. Draw Ambient Floating 3D Diamond Stardust
       sparkles.forEach((sp) => {
         sp.y -= sp.driftY;
-        if (sp.y < -1) sp.y = 1;
+        if (sp.y < -1.1) sp.y = 1.1;
         sp.twinkle += sp.speed;
-        const currentAlpha = 0.2 + (Math.sin(sp.twinkle) + 1) * 0.35;
-        const screenX = (sp.x + mouse.x * 0.05 + 1) * 0.5 * renderWidth;
-        const screenY = (sp.y + mouse.y * 0.05 + 1) * 0.5 * renderHeight;
+        const currentAlpha = 0.2 + (Math.sin(sp.twinkle) + 1) * 0.38;
+        const screenX = (sp.x + mouse.x * 0.04 + 1) * 0.5 * renderWidth;
+        const screenY = (sp.y + mouse.y * 0.04 + 1) * 0.5 * renderHeight;
 
-        ctx.fillStyle = `rgba(201, 169, 97, ${currentAlpha})`;
+        ctx.fillStyle = `rgba(201, 169, 97, ${currentAlpha * 0.8})`;
         ctx.beginPath();
         ctx.arc(screenX, screenY, sp.size, 0, Math.PI * 2);
         ctx.fill();
 
-        // Cross sparkle glint
-        if (currentAlpha > 0.6) {
-          ctx.strokeStyle = `rgba(236, 201, 118, ${currentAlpha * 0.8})`;
-          ctx.lineWidth = 0.75;
-          ctx.beginPath();
-          ctx.moveTo(screenX - sp.size * 2.5, screenY);
-          ctx.lineTo(screenX + sp.size * 2.5, screenY);
-          ctx.moveTo(screenX, screenY - sp.size * 2.5);
-          ctx.lineTo(screenX, screenY + sp.size * 2.5);
-          ctx.stroke();
+        if (currentAlpha > 0.7) {
+          drawDiamondFlare(screenX, screenY, sp.size * 0.8, (currentAlpha - 0.7) * 2.5);
         }
       });
 
-      // 2. Render each 3D Wireframe Diamond
-      diamonds.forEach((d, dIdx) => {
-        // Continuous organic rotation + interactive mouse tilt
-        d.rotX += d.spinSpeedX + mouse.y * 0.001;
-        d.rotY += d.spinSpeedY + mouse.x * 0.0015;
-        d.rotZ += d.spinSpeedZ;
+      // 2. Draw Interactive Mouse Diamond Sparks
+      for (let i = mouseParticles.length - 1; i >= 0; i--) {
+        const p = mouseParticles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.03; // gravity
+        p.life++;
 
-        const dynamicRotX = d.rotX + mouse.y * 0.35;
-        const dynamicRotY = d.rotY + mouse.x * 0.45;
+        const pAlpha = 1 - p.life / p.maxLife;
+        if (pAlpha <= 0) {
+          mouseParticles.splice(i, 1);
+          continue;
+        }
 
-        const centerX = renderWidth * 0.5 + d.x * renderWidth;
-        const centerY = renderHeight * 0.5 + d.y * renderHeight;
-
-        // Project all vertices to 2D
-        const projected = d.vertices.map((v) =>
-          project(v, dynamicRotX, dynamicRotY, d.rotZ, d.scale, centerX, centerY)
-        );
-
-        // Draw Soft Radial Glow Halo behind each diamond center
-        const glowGrad = ctx.createRadialGradient(
-          centerX,
-          centerY,
-          10,
-          centerX,
-          centerY,
-          140 * d.scale
-        );
-        glowGrad.addColorStop(0, "rgba(201, 169, 97, 0.14)");
-        glowGrad.addColorStop(0.5, "rgba(230, 200, 117, 0.05)");
-        glowGrad.addColorStop(1, "rgba(251, 247, 240, 0)");
-        ctx.fillStyle = glowGrad;
+        ctx.fillStyle = p.color === "#FFFFFF"
+          ? `rgba(255, 255, 255, ${pAlpha * 0.8})`
+          : `rgba(236, 201, 118, ${pAlpha * 0.9})`;
         ctx.beginPath();
-        ctx.arc(centerX, centerY, 140 * d.scale, 0, Math.PI * 2);
+        ctx.arc(p.x, p.y, p.size * pAlpha, 0, Math.PI * 2);
         ctx.fill();
 
-        // Draw Facet Wireframe Edges
-        d.edges.forEach((edge) => {
-          const p1 = projected[edge.from];
-          const p2 = projected[edge.to];
+        if (p.life < 8) {
+          drawDiamondFlare(p.x, p.y, p.size * 0.7, pAlpha * 0.6);
+        }
+      }
 
-          // Calculate average depth for depth shading
+      // 3. Render 3D Diamond Models with Glass Faces & Specular Fire
+      diamonds.forEach((d, dIdx) => {
+        // Organic continuous 3D rotation + interactive cursor tilt
+        d.rotX += d.spinX + mouse.y * 0.0008;
+        d.rotY += d.spinY + mouse.x * 0.0012;
+        d.rotZ += d.spinZ;
+
+        const dynRotX = d.rotX + mouse.y * 0.35;
+        const dynRotY = d.rotY + mouse.x * 0.45;
+
+        const cx = renderWidth * 0.5 + d.x * renderWidth;
+        const cy = renderHeight * 0.5 + d.y * renderHeight;
+
+        // Project vertices to 2D screen coordinates
+        const projected = d.vertices.map((v) =>
+          project(v, dynRotX, dynRotY, d.rotZ, d.scale, cx, cy)
+        );
+
+        // Ambient Volumetric Golden Halo
+        const haloGrad = ctx.createRadialGradient(cx, cy, 10, cx, cy, 180 * d.scale);
+        haloGrad.addColorStop(0, "rgba(201, 169, 97, 0.18)");
+        haloGrad.addColorStop(0.4, "rgba(230, 200, 117, 0.08)");
+        haloGrad.addColorStop(1, "rgba(251, 247, 240, 0)");
+        ctx.fillStyle = haloGrad;
+        ctx.beginPath();
+        ctx.arc(cx, cy, 180 * d.scale, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Prepare Faces for Painter's Algorithm Depth Sorting
+        const sortedFaces = d.faces
+          .map((face) => {
+            const pts = face.indices.map((idx) => projected[idx]);
+            const avgZ = pts.reduce((sum, p) => sum + p.z, 0) / pts.length;
+            const norm = getFaceNormal(pts[0], pts[1], pts[2]);
+            // Dot product with 3D light source for realistic diamond illumination
+            const dot = Math.max(0, norm.x * lightSource.x + norm.y * lightSource.y + norm.z * lightSource.z);
+            return { face, pts, avgZ, norm, dot };
+          })
+          .sort((a, b) => a.avgZ - b.avgZ); // Sort back-to-front
+
+        // Render Semi-Transparent Glass Facet Planes (Diamond Fire)
+        sortedFaces.forEach(({ face, pts, avgZ, dot }) => {
+          if (pts.length < 3) return;
+
+          ctx.beginPath();
+          ctx.moveTo(pts[0].x, pts[0].y);
+          for (let i = 1; i < pts.length; i++) {
+            ctx.lineTo(pts[i].x, pts[i].y);
+          }
+          ctx.closePath();
+
+          // Depth + lighting modulation
+          const depthFactor = Math.max(0.1, Math.min(1, (avgZ + 120) / 240));
+          const faceAlpha = (0.04 + dot * 0.22) * depthFactor;
+
+          // Prismatic chromatic fire gradient on illuminated facets
+          if (dot > 0.6) {
+            // High fire brilliance (Warm gold with diamond crystalline highlights)
+            ctx.fillStyle = `rgba(255, 242, 190, ${faceAlpha * 1.4})`;
+          } else if (dot > 0.3) {
+            // Champagne reflection
+            ctx.fillStyle = `rgba(201, 169, 97, ${faceAlpha})`;
+          } else {
+            // Deep refraction shadow
+            ctx.fillStyle = `rgba(158, 127, 60, ${faceAlpha * 0.6})`;
+          }
+          ctx.fill();
+        });
+
+        // Render Crisp Gold Facet Wireframe Edges
+        d.edges.forEach(([fromIdx, toIdx]) => {
+          const p1 = projected[fromIdx];
+          const p2 = projected[toIdx];
+
           const avgZ = (p1.z + p2.z) / 2;
-          const depthAlpha = Math.max(0.12, Math.min(0.85, (avgZ + 100) / 200));
+          const depthAlpha = Math.max(0.15, Math.min(0.95, (avgZ + 120) / 240));
 
           ctx.beginPath();
           ctx.moveTo(p1.x, p1.y);
           ctx.lineTo(p2.x, p2.y);
 
-          if (edge.glow) {
-            // Golden highlight edge
-            ctx.strokeStyle = `rgba(217, 178, 102, ${depthAlpha * 0.95})`;
-            ctx.lineWidth = 1.6 * (p1.projScale / d.scale);
-            ctx.shadowColor = "rgba(201, 169, 97, 0.6)";
-            ctx.shadowBlur = 6;
-          } else {
-            // Refined architectural edge
-            ctx.strokeStyle = `rgba(158, 127, 60, ${depthAlpha * 0.55})`;
-            ctx.lineWidth = 0.95 * (p1.projScale / d.scale);
-            ctx.shadowBlur = 0;
-          }
+          // Golden edge with dynamic specular reflection
+          ctx.strokeStyle = `rgba(217, 178, 102, ${depthAlpha * 0.85})`;
+          ctx.lineWidth = 1.15 * (p1.projScale / d.scale);
           ctx.stroke();
-          ctx.shadowBlur = 0;
         });
 
-        // Draw Sparkling Nodal Vertices at facet intersections
+        // Render Sparkling Nodal Vertices & Anamorphic Diamond Lens Flares
         projected.forEach((pt, pIdx) => {
-          const isKeyVertex = pIdx < 8 || pIdx === projected.length - 1;
-          const nodeAlpha = Math.max(0.2, (pt.z + 100) / 200);
+          const isCrownOrTable = pIdx < 8 || pIdx === projected.length - 1;
+          const nodeAlpha = Math.max(0.2, (pt.z + 120) / 240);
 
-          ctx.fillStyle = isKeyVertex
-            ? `rgba(236, 201, 118, ${nodeAlpha * 0.9})`
-            : `rgba(201, 169, 97, ${nodeAlpha * 0.6})`;
+          ctx.fillStyle = isCrownOrTable
+            ? `rgba(255, 235, 175, ${nodeAlpha * 0.95})`
+            : `rgba(201, 169, 97, ${nodeAlpha * 0.65})`;
           ctx.beginPath();
-          ctx.arc(pt.x, pt.y, isKeyVertex ? 2.5 : 1.5, 0, Math.PI * 2);
+          ctx.arc(pt.x, pt.y, isCrownOrTable ? 2.2 : 1.4, 0, Math.PI * 2);
           ctx.fill();
 
-          // Subtle star cross glint on prominent top facets
-          if (isKeyVertex && (tick + pIdx * 15) % 120 < 40) {
-            ctx.strokeStyle = `rgba(255, 235, 175, ${nodeAlpha * 0.9})`;
-            ctx.lineWidth = 0.8;
-            ctx.beginPath();
-            ctx.moveTo(pt.x - 4, pt.y);
-            ctx.lineTo(pt.x + 4, pt.y);
-            ctx.moveTo(pt.x, pt.y - 4);
-            ctx.lineTo(pt.x, pt.y + 4);
-            ctx.stroke();
+          // Trigger Spectacular Diamond Starburst Flare on facing vertices
+          const pulseTiming = (tick * 0.8 + pIdx * 17 + dIdx * 30) % 140;
+          if (isCrownOrTable && pulseTiming < 35 && pt.z > -20) {
+            const flareIntensity = Math.sin((pulseTiming / 35) * Math.PI) * nodeAlpha;
+            drawDiamondFlare(pt.x, pt.y, 3.5 * (pt.projScale / d.scale), flareIntensity);
           }
         });
       });
@@ -448,7 +648,7 @@ export const KineticDiamondWireframe: React.FC<{ className?: string }> = ({
         ref={canvasRef}
         className="w-full h-full block"
         style={{
-          filter: "drop-shadow(0 0 16px rgba(201,169,97,0.12))",
+          filter: "drop-shadow(0 0 20px rgba(201,169,97,0.15))",
         }}
       />
     </div>
