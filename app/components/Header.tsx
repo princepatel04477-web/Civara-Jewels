@@ -195,14 +195,14 @@ export const Header = () => {
         )}
       </nav>
 
-      {/* Mobile Haute Joaillerie Salon Drawer */}
+      {/* Mobile Haute Joaillerie Atelier Drawer */}
       {isMobileMenuOpen && (
         <div className="fixed inset-0 top-[60px] sm:top-[70px] z-50 bg-[#181412]/70 backdrop-blur-md lg:hidden flex flex-col justify-start animate-fadeIn">
           <div className="bg-[#FAF7F0] border-b border-[#C9A961]/40 shadow-2xl max-h-[88vh] overflow-y-auto p-6 space-y-6 animate-slideDown">
-            {/* Salon Header Tag */}
+            {/* Atelier Header Tag */}
             <div className="flex items-center justify-between border-b border-[#E6DFD3] pb-3">
               <div className="text-[10px] uppercase font-mono tracking-[0.25em] text-[#9E7F3C] font-semibold flex items-center gap-1.5">
-                <span>✦</span> Civara Salon · Surat Atelier
+                <span>✦</span> Civara Fine Jewellery · Surat Atelier
               </div>
               <div className="text-[9px] uppercase font-mono text-[#6E6459] tracking-widest bg-[#F4EDE2] px-2.5 py-1 rounded-full border border-[#E6DFD3]">
                 BIS 750 Certified

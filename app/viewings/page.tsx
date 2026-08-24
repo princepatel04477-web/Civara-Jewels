@@ -110,7 +110,7 @@ export default function ViewingsPage() {
             <div className="space-y-4 text-xs font-light text-[#6E6459] pt-2">
               <div className="p-4 bg-[#FAF7F0] border border-[#E6DFD3]">
                 <div className="font-medium text-[#241F1B] flex items-center gap-1.5 mb-1">
-                  <MapPin className="w-3.5 h-3.5 text-[#9E7F3C]" /> Civara Atelier & Salon — Surat, Gujarat
+                  <MapPin className="w-3.5 h-3.5 text-[#9E7F3C]" /> Civara Private Atelier — Surat, Gujarat
                 </div>
                 <div className="text-[11px]">VIP Diamond District, Surat, Gujarat 395007</div>
                 <div className="text-[11px] text-[#9E7F3C] pt-1">Mon – Sun: 10:30 AM – 7:30 PM (By Appointment)</div>
@@ -225,7 +225,7 @@ export default function ViewingsPage() {
                     onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                     className="w-full py-2.5 bg-transparent border-b border-[#C9A961]/50 text-sm text-[#241F1B] cursor-pointer focus:outline-none"
                   >
-                    <option value="Surat Private Atelier">Civara Atelier & Salon (Surat, Gujarat)</option>
+                    <option value="Surat Private Atelier">Civara Private Atelier (Surat, Gujarat)</option>
                     <option value="Virtual Concierge HD">Virtual Concierge (Worldwide 4K HD)</option>
                   </select>
                 </div>

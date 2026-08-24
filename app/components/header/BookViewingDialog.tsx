@@ -258,7 +258,7 @@ export const BookViewingDialog: React.FC<BookViewingDialogProps> = ({
                     onChange={(e) => setCity(e.target.value)}
                     className="w-full py-2.5 bg-transparent border-b border-[#C9A961]/50 focus:border-[#9E7F3C] text-[#241F1B] text-sm focus:outline-none cursor-pointer"
                   >
-                    <option value="Surat Atelier">Civara Atelier & Salon (Surat, Gujarat)</option>
+                    <option value="Surat Atelier">Civara Private Atelier (Surat, Gujarat)</option>
                     <option value="Virtual Concierge HD">Virtual Concierge (Worldwide 4K HD)</option>
                   </select>
                 </div>

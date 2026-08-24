@@ -301,7 +301,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 7. PRIVATE SALON & VIRTUAL VIEWING BOOKING SALON */}
+      {/* 7. PRIVATE ATELIER & VIRTUAL VIEWING BOOKING */}
       <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-14 max-w-6xl mx-auto text-center space-y-10">
         <div className="space-y-3">
           <div className="text-[10px] sm:text-xs uppercase tracking-[0.28em] text-[#9E7F3C] font-semibold">
@@ -316,14 +316,14 @@ export default function HomePage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
-          {/* Salon 1: In-Person */}
+          {/* Location 1: In-Person */}
           <div className="p-8 bg-[#FAF7F0] border border-[#E6DFD3] hover:border-[#C9A961] transition-all rounded-sm space-y-4">
             <div className="w-10 h-10 rounded-full bg-[#F4EDE2] flex items-center justify-center">
               <MapPin className="w-5 h-5 text-[#9E7F3C]" />
             </div>
             <div className="space-y-1">
-              <h3 className="font-serif text-xl font-semibold text-[#241F1B]">Private Atelier Salon</h3>
-              <p className="text-xs text-[#6E6459]">Surat Private Salon, Gujarat</p>
+              <h3 className="font-serif text-xl font-semibold text-[#241F1B]">Private Surat Atelier</h3>
+              <p className="text-xs text-[#6E6459]">Surat Private Atelier, Gujarat</p>
             </div>
             <p className="text-xs font-light text-[#6E6459] leading-relaxed">
               Inspect loose GIA diamonds under 10x gemmological loupes, try physical sample mountings, and discuss custom alloy casting over artisanal refreshments.
@@ -336,7 +336,7 @@ export default function HomePage() {
             </button>
           </div>
 
-          {/* Salon 2: Virtual Concierge */}
+          {/* Location 2: Virtual Concierge */}
           <div className="p-8 bg-[#FAF7F0] border border-[#E6DFD3] hover:border-[#C9A961] transition-all rounded-sm space-y-4">
             <div className="w-10 h-10 rounded-full bg-[#F4EDE2] flex items-center justify-center">
               <Video className="w-5 h-5 text-[#9E7F3C]" />

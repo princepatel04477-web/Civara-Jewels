@@ -126,7 +126,7 @@ export const MobileBottomNav = () => {
             className="bg-gradient-to-r from-[#9E7F3C] via-[#C9A961] to-[#D4B66E] text-[#181412] px-3.5 py-2 rounded-full text-[10px] uppercase tracking-[0.16em] font-semibold flex items-center gap-1.5 shadow-md active:scale-95 transition-transform shrink-0"
           >
             <Calendar className="w-3.5 h-3.5" />
-            <span>Salon</span>
+            <span>Viewing</span>
           </button>
         </div>
       </nav>

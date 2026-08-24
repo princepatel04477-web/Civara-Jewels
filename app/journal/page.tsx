@@ -394,7 +394,7 @@ export default function JournalIndexPage() {
           </h2>
 
           <p className="text-xs sm:text-sm font-light text-[#B8AEA2] max-w-xl mx-auto leading-relaxed">
-            Bi-weekly gemmological dissections, private Surat salon viewing invitations, and early previews of newly completed bespoke heirlooms.
+            Bi-weekly gemmological dissections, private Surat atelier viewing invitations, and early previews of newly completed bespoke heirlooms.
           </p>
 
           {newsletterSubscribed ? (
