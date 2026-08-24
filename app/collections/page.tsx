@@ -5,40 +5,40 @@ import { AccordionGallery, AccordionItem } from "../components/ui/AccordionGalle
 import { Sparkles } from "lucide-react";
 
 export default function CollectionsIndexPage() {
-  // High-Resolution 16:9 Photography Items for AccordionGallery
+  // High-Resolution Atelier Photography Items for AccordionGallery (Centered & Clean)
   const accordionItems: AccordionItem[] = [
     {
-      image: "/images/home-m-cc/Rings-m.png",
+      image: "/images/collections-gallery/rings.jpg",
       label: "Rings",
       link: "/collections/rings",
       alt: "Civara Handcrafted Solitaires & Stacking Rings",
     },
     {
-      image: "/images/home-m-cc/Necklaces-m.png",
+      image: "/images/collections-gallery/necklaces.jpg",
       label: "Necklaces",
       link: "/collections/necklaces",
       alt: "Civara Liquid Diamond Tennis Strands & Collars",
     },
     {
-      image: "/images/home-m-cc/earrings-m.png",
+      image: "/images/collections-gallery/earrings.jpg",
       label: "Earrings",
       link: "/collections/earrings",
       alt: "Civara Ergonomic Hoops & Diamond Drops",
     },
     {
-      image: "/images/home-m-cc/bracelets-m.png",
+      image: "/images/collections-gallery/bracelets.jpg",
       label: "Bracelets",
       link: "/collections/bracelets",
       alt: "Civara Hinged Bangles & Open Diamond Cuffs",
     },
     {
-      image: "/images/home-m-cc/bridal-m.png",
+      image: "/images/collections-gallery/bridal.jpg",
       label: "Bridal",
       link: "/collections/bridal",
       alt: "Civara Heirloom Royal Bridal Suites & Kundan Chokers",
     },
     {
-      image: "/images/home-m-cc/pendants-m.png",
+      image: "/images/collections-gallery/pendants.jpg",
       label: "Pendants",
       link: "/collections/pendants",
       alt: "Civara Geometric Diamond Cages & Constellation Lockets",
