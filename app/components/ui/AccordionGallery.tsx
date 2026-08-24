@@ -37,12 +37,12 @@ export interface AccordionGalleryProps {
 }
 
 const DEFAULT_ITEMS: AccordionItem[] = [
-  { image: "/images/home-cc/Rings-cc.png", label: "Rings", link: "/collections/rings" },
-  { image: "/images/home-cc/Necklaces-cc.png", label: "Necklaces", link: "/collections/necklaces" },
-  { image: "/images/home-cc/Earrings-cc.png", label: "Earrings", link: "/collections/earrings" },
-  { image: "/images/home-cc/Bracelets-cc.png", label: "Bracelets", link: "/collections/bracelets" },
-  { image: "/images/home-m-cc/bridal-m.png", label: "Bridal", link: "/collections/bridal" },
-  { image: "/images/home-cc/Pendants=cc.png", label: "Pendants", link: "/collections/pendants" },
+  { image: "/images/collections-gallery/rings.jpg", label: "Rings", link: "/collections/rings" },
+  { image: "/images/collections-gallery/necklaces.jpg", label: "Necklaces", link: "/collections/necklaces" },
+  { image: "/images/collections-gallery/earrings.jpg", label: "Earrings", link: "/collections/earrings" },
+  { image: "/images/collections-gallery/bracelets.jpg", label: "Bracelets", link: "/collections/bracelets" },
+  { image: "/images/collections-gallery/bridal.jpg", label: "Bridal", link: "/collections/bridal" },
+  { image: "/images/collections-gallery/pendants.jpg", label: "Pendants", link: "/collections/pendants" },
 ];
 
 export const AccordionGallery: React.FC<AccordionGalleryProps> = ({
@@ -51,15 +51,15 @@ export const AccordionGallery: React.FC<AccordionGalleryProps> = ({
   accentColor = "#C9A961",
   overlayColor = "#181412",
   textColor = "#ffffff",
-  height = 500,
+  height = 520,
   gap = 12,
   radius = 8,
-  expandRatio = 0.48,
+  expandRatio = 0.5,
   orientation = "horizontal",
   duration = 0.6,
   ease = "power3.out",
-  parallax = 0.5,
-  tilt = 8,
+  parallax = 0.4,
+  tilt = 6,
   stagger = 0.06,
   trigger = "hover",
   showLabels = true,
@@ -71,6 +71,7 @@ export const AccordionGallery: React.FC<AccordionGalleryProps> = ({
   const mediaRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const barRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const textRefs = useRef<(HTMLSpanElement | null)[]>([]);
+  const subtextRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const tlRef = useRef<gsap.core.Timeline | null>(null);
   const firstRunRef = useRef(true);
   const mediaSizeRef = useRef(380);
@@ -103,6 +104,7 @@ export const AccordionGallery: React.FC<AccordionGalleryProps> = ({
         const media = mediaRefs.current[i];
         const bar = barRefs.current[i];
         const text = textRefs.current[i];
+        const subtext = subtextRefs.current[i];
 
         const rot = isActive ? 0 : i < active ? tilt : -tilt;
         const rotProp = vertical ? { rotateX: -rot } : { rotateY: rot };
@@ -131,13 +133,15 @@ export const AccordionGallery: React.FC<AccordionGalleryProps> = ({
 
         if (showLabels && bar && text) {
           if (isActive) {
+            const targets = subtext ? [bar, text, subtext] : [bar, text];
             tl.to(
-              [bar, text],
+              targets,
               { opacity: 1, x: 0, duration: dur, ease, stagger: prefersReduced ? 0 : stagger },
               0
             );
           } else {
-            tl.to([bar, text], { opacity: 0, x: -14, duration: dur * 0.6, ease }, 0);
+            const targets = subtext ? [bar, text, subtext] : [bar, text];
+            tl.to(targets, { opacity: 0, x: -12, duration: dur * 0.6, ease }, 0);
           }
         }
       });
@@ -238,6 +242,7 @@ export const AccordionGallery: React.FC<AccordionGalleryProps> = ({
 
         const content = (
           <>
+            {/* Background Media Frame */}
             <span className="ag-panel__frame">
               <span
                 className="ag-panel__media"
@@ -250,6 +255,16 @@ export const AccordionGallery: React.FC<AccordionGalleryProps> = ({
               </span>
               <span className="ag-panel__overlay" aria-hidden="true" />
             </span>
+
+            {/* Permanent Collapsed Label (Always visible on inactive panels) */}
+            <span className="ag-panel__collapsed-label" aria-hidden="true">
+              <span className="ag-panel__collapsed-badge">
+                <span className="ag-panel__collapsed-pip" />
+                <span className="ag-panel__collapsed-text font-serif">{item.label}</span>
+              </span>
+            </span>
+
+            {/* Active Expanded Label (Revealed on active panel) */}
             {showLabels && (
               <span className="ag-panel__label" aria-hidden="true">
                 <span
@@ -258,13 +273,23 @@ export const AccordionGallery: React.FC<AccordionGalleryProps> = ({
                     barRefs.current[i] = el;
                   }}
                 />
-                <span
-                  className="ag-panel__text font-serif"
-                  ref={(el) => {
-                    textRefs.current[i] = el;
-                  }}
-                >
-                  {item.label}
+                <span className="ag-panel__text-container">
+                  <span
+                    className="ag-panel__text font-serif"
+                    ref={(el) => {
+                      textRefs.current[i] = el;
+                    }}
+                  >
+                    {item.label}
+                  </span>
+                  <span
+                    className="ag-panel__subtext"
+                    ref={(el) => {
+                      subtextRefs.current[i] = el;
+                    }}
+                  >
+                    Explore Collection →
+                  </span>
                 </span>
               </span>
             )}
