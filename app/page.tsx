@@ -13,7 +13,7 @@ import { CollectionsGrid } from "./components/home/CollectionsGrid";
 import { PressStrip } from "./components/home/PressStrip";
 import { WhatsAppConcierge } from "./components/floating/WhatsAppConcierge";
 import { BookViewingDialog } from "./components/header/BookViewingDialog";
-import { LiquidGoldAurora } from "./components/ui/LiquidGoldAurora";
+import { KineticDiamondWireframe } from "./components/ui/KineticDiamondWireframe";
 import { formatINR } from "../lib/pricing/compute";
 import {
   ArrowRight,
@@ -77,8 +77,8 @@ export default function HomePage() {
     <div className="w-full bg-[#FBF7F0]">
       {/* 1. HERO (CONCEPT B: CINEMATIC FULL-WIDTH ATELIER CANVAS) */}
       <section className="relative min-h-[85vh] lg:min-h-[92vh] flex flex-col justify-between pt-16 sm:pt-24 pb-10 sm:pb-12 px-4 sm:px-6 lg:px-14 text-center bg-[#FBF7F0] border-b border-[#E6DFD3] overflow-hidden">
-        {/* Animated Liquid Gold Aurora Background */}
-        <LiquidGoldAurora intensity="medium" />
+        {/* Interactive 3D Kinetic Diamond Geometry & Wireframe Facets Background */}
+        <KineticDiamondWireframe />
 
         {/* Hero Content Centerpiece */}
         <div className="max-w-5xl mx-auto space-y-6 sm:space-y-8 relative z-10 my-auto">
