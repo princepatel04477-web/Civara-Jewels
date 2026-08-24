@@ -23,8 +23,8 @@ export const CollectionsGrid: React.FC = () => {
       slug: collections.rings.slug,
       name: collections.rings.name,
       count: collections.rings.count,
-      image: collections.rings.coverImage || "/images/home-cc/Rings-cc.png",
-      mobileImage: collections.rings.mobileCoverImage || "/images/home-m-cc/Rings-m.png",
+      image: "/images/collections-portfolio/Rings-Collection-Cover.png",
+      mobileImage: "/images/collections-portfolio/Rings-Collection-Cover.png",
       desktopSpan: "lg:col-span-2 lg:row-span-1",
       tabletSpan: "md:col-span-1",
     },
@@ -32,8 +32,8 @@ export const CollectionsGrid: React.FC = () => {
       slug: collections.necklaces.slug,
       name: collections.necklaces.name,
       count: collections.necklaces.count,
-      image: collections.necklaces.coverImage || "/images/home-cc/Necklaces-cc.png",
-      mobileImage: collections.necklaces.mobileCoverImage || "/images/home-m-cc/Necklaces-m.png",
+      image: "/images/collections-portfolio/Necklace-Collection-Cover.png",
+      mobileImage: "/images/collections-portfolio/Necklace-Collection-Cover.png",
       desktopSpan: "lg:col-span-1 lg:row-span-1",
       tabletSpan: "md:col-span-1",
     },
@@ -41,8 +41,8 @@ export const CollectionsGrid: React.FC = () => {
       slug: collections.earrings.slug,
       name: collections.earrings.name,
       count: collections.earrings.count,
-      image: collections.earrings.coverImage || "/images/home-cc/Earrings-cc.png",
-      mobileImage: collections.earrings.mobileCoverImage || "/images/home-m-cc/earrings-m.png",
+      image: "/images/collections-portfolio/Earrings-Collection-Cover.png",
+      mobileImage: "/images/collections-portfolio/Earrings-Collection-Cover.png",
       desktopSpan: "lg:col-span-1 lg:row-span-1",
       tabletSpan: "md:col-span-1",
     },
@@ -50,8 +50,8 @@ export const CollectionsGrid: React.FC = () => {
       slug: collections.bracelets.slug,
       name: collections.bracelets.name,
       count: collections.bracelets.count,
-      image: collections.bracelets.coverImage || "/images/home-cc/Bracelets-cc.png",
-      mobileImage: collections.bracelets.mobileCoverImage || "/images/home-m-cc/bracelets-m.png",
+      image: "/images/collections-portfolio/Bracelets-Collection-Cover.png",
+      mobileImage: "/images/collections-portfolio/Bracelets-Collection-Cover.png",
       desktopSpan: "lg:col-span-2 lg:row-span-1",
       tabletSpan: "md:col-span-1",
     },
@@ -59,8 +59,8 @@ export const CollectionsGrid: React.FC = () => {
       slug: collections.bridal.slug,
       name: collections.bridal.name,
       count: collections.bridal.count,
-      image: collections.bridal.mobileCoverImage || "/images/home-m-cc/bridal-m.png",
-      mobileImage: collections.bridal.mobileCoverImage || "/images/home-m-cc/bridal-m.png",
+      image: "/images/collections-portfolio/Bridal-Collection-Cover.png",
+      mobileImage: "/images/collections-portfolio/Bridal-Collection-Cover.png",
       desktopSpan: "lg:col-span-2 lg:row-span-1",
       tabletSpan: "md:col-span-1",
     },
@@ -68,8 +68,8 @@ export const CollectionsGrid: React.FC = () => {
       slug: collections.pendants.slug,
       name: collections.pendants.name,
       count: collections.pendants.count,
-      image: collections.pendants.coverImage || "/images/home-cc/Pendants=cc.png",
-      mobileImage: collections.pendants.mobileCoverImage || "/images/home-m-cc/pendants-m.png",
+      image: "/images/collections-portfolio/Pendant-Collection-Cover.png",
+      mobileImage: "/images/collections-portfolio/Pendant-Collection-Cover.png",
       desktopSpan: "lg:col-span-1 lg:row-span-1",
       tabletSpan: "md:col-span-1",
     },
@@ -78,12 +78,12 @@ export const CollectionsGrid: React.FC = () => {
   return (
     <div className="w-full">
       {/* Editorial Bento Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 auto-rows-[minmax(260px,22vw)] max-w-7xl mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 auto-rows-[minmax(280px,24vw)] max-w-7xl mx-auto">
         {tiles.map((tile) => (
           <Link
             key={tile.slug}
             href={`/collections/${tile.slug}`}
-            className={`group relative block overflow-hidden bg-[#F4EDE2] border border-[#E6DFD3] hover:border-[#C9A961] transition-colors duration-500 ${tile.desktopSpan} ${tile.tabletSpan} h-full min-h-[260px] max-h-[420px] lg:max-h-none`}
+            className={`group relative block overflow-hidden bg-[#F4EDE2] border border-[#E6DFD3] hover:border-[#C9A961] transition-all duration-500 rounded-sm shadow-xs hover:shadow-md ${tile.desktopSpan} ${tile.tabletSpan} h-full min-h-[280px] max-h-[440px] lg:max-h-none`}
           >
             {/* Background Image with 1.03 scale over 600ms */}
             <div className="absolute inset-0 overflow-hidden">
@@ -97,12 +97,12 @@ export const CollectionsGrid: React.FC = () => {
               />
             </div>
 
-            {/* Subtle bottom-to-top gradient scrim */}
-            <div className="absolute inset-0 bg-gradient-to-t from-[#181412]/80 via-[#181412]/20 to-transparent pointer-events-none" />
+            {/* Luxury bottom-to-top gradient scrim */}
+            <div className="absolute inset-0 bg-gradient-to-t from-[#181412]/85 via-[#181412]/25 to-transparent pointer-events-none" />
 
             {/* Bottom-left label overlay, shifts up 4px on hover */}
-            <div className="absolute bottom-0 left-0 p-5 sm:p-7 z-10 transform transition-transform duration-600 ease-out group-hover:-translate-y-1">
-              <span className="text-[10px] uppercase tracking-[0.25em] text-[#C9A961] font-sans font-medium block mb-1">
+            <div className="absolute bottom-0 left-0 p-6 sm:p-8 z-10 transform transition-transform duration-600 ease-out group-hover:-translate-y-1">
+              <span className="text-[10px] uppercase tracking-[0.25em] text-[#C9A961] font-sans font-semibold block mb-1">
                 {tile.count} Curated Pieces
               </span>
               <h3 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-medium tracking-wide text-[#FBF7F0]">
