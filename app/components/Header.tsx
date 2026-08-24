@@ -40,7 +40,6 @@ export const Header = () => {
     { name: "Curated Edits", href: "/collections" },
     { name: "The Atelier", href: "/about" },
     { name: "Bespoke", href: "/bespoke" },
-    { name: "Studio", href: "/studio" },
     { name: "Journal", href: "/journal" },
   ];
 

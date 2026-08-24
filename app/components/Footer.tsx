@@ -84,7 +84,6 @@ export const Footer = () => {
             <li><Link href="/craft" className="hover:text-[#C9A961] transition-colors">Craft & Provenance</Link></li>
             <li><Link href="/about" className="hover:text-[#C9A961] transition-colors">The Atelier Story</Link></li>
             <li><Link href="/bespoke" className="hover:text-[#C9A961] transition-colors">Bespoke Commissions</Link></li>
-            <li><Link href="/studio" className="hover:text-[#C9A961] transition-colors">Civara Studio</Link></li>
             <li><Link href="/viewings" className="hover:text-[#C9A961] transition-colors">Private Viewings</Link></li>
             <li><Link href="/education/4cs" className="hover:text-[#C9A961] transition-colors">Diamond Education</Link></li>
             <li><Link href="/education/metals" className="hover:text-[#C9A961] transition-colors">18k Gold Standards</Link></li>

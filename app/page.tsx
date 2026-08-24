@@ -127,10 +127,10 @@ export default function HomePage() {
             </p>
             <div className="pt-2">
               <Link
-                href="/studio"
+                href="/bespoke"
                 className="inline-flex items-center justify-center gap-2 bg-[#241F1B] text-[#C9A961] px-7 sm:px-8 py-3.5 sm:py-4 text-xs uppercase tracking-[0.2em] sm:tracking-[0.22em] font-medium rounded-full hover:bg-[#181412] transition-colors w-full sm:w-auto"
               >
-                Enter the Studio <ArrowRight className="w-4 h-4" />
+                Explore Bespoke Journey <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
           </div>
