@@ -18,12 +18,12 @@ export const Header = () => {
   const [savedCount, setSavedCount] = useState(0);
 
   const megaMenuCategories = [
-    { name: "Rings", href: "/collections/rings", count: "64 PIECES", image: "/images/home-cc/Rings-cc.png" },
-    { name: "Necklaces", href: "/collections/necklaces", count: "48 PIECES", image: "/images/home-cc/Necklaces-cc.png" },
-    { name: "Earrings", href: "/collections/earrings", count: "52 PIECES", image: "/images/home-cc/Earrings-cc.png" },
-    { name: "Bracelets", href: "/collections/bracelets", count: "31 PIECES", image: "/images/home-cc/Bracelets-cc.png" },
-    { name: "Bridal", href: "/collections/bridal", count: "27 PIECES", image: "/images/home-cc/bridal-cc.png" },
-    { name: "Pendants", href: "/collections/pendants", count: "39 PIECES", image: "/images/home-cc/Pendants-cc.png" },
+    { name: "Rings", href: "/collections/rings", image: "/images/home-m-cc/Rings-m.png" },
+    { name: "Necklaces", href: "/collections/necklaces", image: "/images/home-m-cc/Necklaces-m.png" },
+    { name: "Earrings", href: "/collections/earrings", image: "/images/home-m-cc/earrings-m.png" },
+    { name: "Bracelets", href: "/collections/bracelets", image: "/images/home-m-cc/bracelets-m.png" },
+    { name: "Bridal", href: "/collections/bridal", image: "/images/home-m-cc/bridal-m.png" },
+    { name: "Pendants", href: "/collections/pendants", image: "/images/home-m-cc/pendants-m.png" },
   ];
 
   const updateCount = () => {
@@ -143,33 +143,27 @@ export const Header = () => {
         <div
           onMouseEnter={() => setIsMegaMenuOpen(true)}
           onMouseLeave={() => setIsMegaMenuOpen(false)}
-          className="fixed inset-x-0 top-[70px] z-50 bg-[#FAF7F0] border-b border-[#E6DFD3] p-8 hidden lg:block shadow-2xl animate-fadeIn"
+          className="fixed inset-x-0 top-[70px] z-50 bg-[#FAF7F0] border-b border-[#E6DFD3] py-6 px-6 lg:px-14 hidden lg:block shadow-2xl animate-fadeIn"
         >
           <div className="max-w-7xl mx-auto">
-            <div className="grid grid-cols-6 gap-4 text-center">
+            <div className="grid grid-cols-6 gap-3.5 xl:gap-4">
               {megaMenuCategories.map((c) => (
                 <Link
                   key={c.name}
                   href={c.href}
                   onClick={() => setIsMegaMenuOpen(false)}
-                  className="group relative overflow-hidden h-36 border border-[#E6DFD3] hover:border-[#C9A961] transition-all duration-500 rounded-sm text-left shadow-xs hover:shadow-xl flex flex-col justify-end p-3.5"
+                  className="group relative overflow-hidden aspect-[16/9] border border-[#E6DFD3] hover:border-[#C9A961] transition-all duration-300 rounded-sm shadow-xs hover:shadow-lg block bg-[#F4EDE2]"
                 >
                   <Image
                     src={c.image}
-                    alt={c.name}
+                    alt={`Civara ${c.name} Collection`}
                     fill
                     sizes="16vw"
-                    className="object-cover object-center transition-transform duration-700 ease-out group-hover:scale-110"
+                    priority
+                    className="object-cover object-center transition-transform duration-500 ease-out group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#181412]/92 via-[#181412]/45 to-transparent group-hover:via-[#181412]/30 transition-colors duration-300" />
-                  <div className="relative z-10 flex flex-col justify-end">
-                    <div className="font-serif text-base font-medium text-[#FBF7F0] group-hover:text-[#C9A961] transition-colors leading-tight">
-                      {c.name}
-                    </div>
-                    <div className="text-[9.5px] uppercase tracking-[0.2em] text-[#C9A961] font-mono font-medium mt-0.5">
-                      {c.count}
-                    </div>
-                  </div>
+                  {/* Subtle luxury edge glow on hover */}
+                  <div className="absolute inset-0 border border-transparent group-hover:border-[#C9A961]/70 transition-colors duration-300 pointer-events-none" />
                 </Link>
               ))}
             </div>
