@@ -10,6 +10,7 @@ import { isInWishlist, toggleWishlistId } from "../../../lib/wishlist";
 import { ProductGallery } from "../../components/product/ProductGallery";
 import { RingSizeSelector } from "../../components/product/RingSizeSelector";
 import { ProductSpecsAccordion } from "../../components/product/ProductSpecsAccordion";
+import { ProductDossierSection } from "../../components/product/ProductDossierSection";
 import { BookViewingDialog } from "../../components/header/BookViewingDialog";
 import { WhatsAppConcierge } from "../../components/floating/WhatsAppConcierge";
 import { extractPurityFromMetalOption } from "../../../lib/pricing/compute";
@@ -282,64 +283,76 @@ export default function ProductDetailPage() {
             </div>
           </div>
 
-          {/* Metal & Karat Selection Configurator (18K, 16K, 14K, 10K in White / Yellow / Rose) */}
-          <div className="space-y-4 pt-1">
-            <div className="flex items-center justify-between border-b border-[#E6DFD3] pb-2">
-              <div className="text-[11px] uppercase tracking-[0.22em] text-[#6E6459]">
-                Selected Metal: <strong className="text-[#241F1B] font-serif">{selectedMetal}</strong>
+          {/* Metal & Karat Selection Configurator (Sleek Jared-style Horizontal Swatches) */}
+          <div className="space-y-3 pt-1">
+            <div className="flex items-center justify-between border-b border-[#E6DFD3] pb-1.5">
+              <div className="text-[11px] uppercase tracking-[0.2em] text-[#6E6459]">
+                Metal: <strong className="text-[#241F1B] font-serif">{selectedMetal}</strong>
               </div>
               <span className="text-[11px] font-mono text-[#9E7F3C] font-medium">
                 ₹{calculatedPricing.rateUsed.toLocaleString("en-IN")}/10g
               </span>
             </div>
 
-            {/* Karat Categories & Variations */}
-            <div className="space-y-3">
-              {karatGroups.map((group) => (
-                <div key={group.label} className="p-3 bg-[#FAF7F0] border border-[#E6DFD3] space-y-2">
-                  <div className="flex items-center justify-between text-[10px] uppercase tracking-[0.2em] text-[#6E6459] font-medium">
-                    <span className="text-[#241F1B] font-serif">{group.label}</span>
-                    <span className="text-[#9E7F3C] font-mono">₹{group.rate.toLocaleString("en-IN")}/-</span>
-                  </div>
+            {/* Karat Pills */}
+            <div className="flex items-center gap-2">
+              {["18K", "14K", "10K"].map((k) => {
+                const isSelectedKarat = selectedMetal.startsWith(k);
+                return (
+                  <button
+                    key={k}
+                    type="button"
+                    onClick={() => {
+                      const colorPart = selectedMetal.toLowerCase().includes("white")
+                        ? "White Gold"
+                        : selectedMetal.toLowerCase().includes("rose")
+                        ? "Rose Gold"
+                        : "Yellow Gold";
+                      setSelectedMetal(`${k} ${colorPart}`);
+                    }}
+                    className={`flex-1 py-2 px-3 text-xs tracking-wider border transition-all text-center cursor-pointer ${
+                      isSelectedKarat
+                        ? "border-[#241F1B] bg-[#241F1B] text-[#C9A961] font-medium shadow-xs"
+                        : "border-[#E6DFD3] bg-[#FAF7F0] text-[#6E6459] hover:border-[#9E7F3C]"
+                    }`}
+                  >
+                    {k} Gold
+                  </button>
+                );
+              })}
+            </div>
 
-                  <div className="grid grid-cols-3 gap-2">
-                    {group.options.map((m) => {
-                      const isSelected = selectedMetal === m;
-                      const isWhite = m.toLowerCase().includes("white");
-                      const isRose = m.toLowerCase().includes("rose");
-                      const isYellow = m.toLowerCase().includes("yellow");
+            {/* Color Swatch Pills */}
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                { name: "Yellow Gold", color: "bg-[#DDB466]", border: "border-amber-400", label: "Yellow" },
+                { name: "White Gold", color: "bg-[#E5E5E5]", border: "border-gray-300", label: "White" },
+                { name: "Rose Gold", color: "bg-[#E8C2B3]", border: "border-rose-300", label: "Rose" },
+              ].map((swatch) => {
+                const currentKarat = selectedMetal.startsWith("14K")
+                  ? "14K"
+                  : selectedMetal.startsWith("10K")
+                  ? "10K"
+                  : "18K";
+                const targetMetal = `${currentKarat} ${swatch.name}`;
+                const isSelected = selectedMetal === targetMetal;
 
-                      return (
-                        <button
-                          key={m}
-                          type="button"
-                          onClick={() => setSelectedMetal(m)}
-                          className={`px-3 py-2 text-xs tracking-wider transition-all border flex flex-col items-center justify-center gap-1 cursor-pointer ${
-                            isSelected
-                              ? "border-[#241F1B] bg-[#241F1B] text-[#C9A961] font-medium shadow-sm"
-                              : "border-[#E6DFD3] bg-[#FFFFFF] text-[#6E6459] hover:border-[#9E7F3C]"
-                          }`}
-                        >
-                          <div className="flex items-center gap-1.5">
-                            <span
-                              className={`w-2.5 h-2.5 rounded-full border ${
-                                isWhite
-                                  ? "bg-[#E5E5E5] border-gray-300"
-                                  : isRose
-                                  ? "bg-[#E8C2B3] border-rose-300"
-                                  : "bg-[#DDB466] border-amber-300"
-                              }`}
-                            />
-                            <span className="text-[11px] font-medium">
-                              {isWhite ? "White" : isRose ? "Rose" : isYellow ? "Yellow" : m}
-                            </span>
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              ))}
+                return (
+                  <button
+                    key={swatch.name}
+                    type="button"
+                    onClick={() => setSelectedMetal(targetMetal)}
+                    className={`py-2 px-3 text-xs tracking-wider border transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                      isSelected
+                        ? "border-[#241F1B] bg-[#241F1B] text-[#C9A961] font-medium shadow-xs"
+                        : "border-[#E6DFD3] bg-[#FFFFFF] text-[#6E6459] hover:border-[#9E7F3C]"
+                    }`}
+                  >
+                    <span className={`w-3 h-3 rounded-full border ${swatch.color} ${swatch.border}`} />
+                    <span className="text-[11px] font-medium">{swatch.label}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -434,6 +447,14 @@ export default function ProductDetailPage() {
           />
         </div>
       </section>
+
+      {/* Full-width Product Dossier & Gemmological Sheet */}
+      <ProductDossierSection
+        product={product}
+        selectedMetal={selectedMetal}
+        selectedSize={selectedSize}
+        calculatedPricing={calculatedPricing}
+      />
 
       {/* RELATED PIECES */}
       <section className="py-16 px-6 lg:px-14 bg-[#F4EDE2] border-t border-[#E6DFD3] mt-12">
