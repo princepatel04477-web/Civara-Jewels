@@ -8,14 +8,12 @@ import { useCurrency } from "../../context/CurrencyContext";
 import { ProductCard } from "../../components/ProductCard";
 import { isInWishlist, toggleWishlistId } from "../../../lib/wishlist";
 import { ProductGallery } from "../../components/product/ProductGallery";
-import { PriceBreakdown } from "../../components/product/PriceBreakdown";
 import { RingSizeSelector } from "../../components/product/RingSizeSelector";
-import { CertificationStrip } from "../../components/product/CertificationStrip";
 import { ProductSpecsAccordion } from "../../components/product/ProductSpecsAccordion";
 import { BookViewingDialog } from "../../components/header/BookViewingDialog";
 import { WhatsAppConcierge } from "../../components/floating/WhatsAppConcierge";
 import { extractPurityFromMetalOption } from "../../../lib/pricing/compute";
-import { MessageCircle, Calendar, Heart, Sparkles } from "lucide-react";
+import { MessageCircle, Calendar, Heart } from "lucide-react";
 
 export default function ProductDetailPage() {
   const params = useParams();
@@ -264,11 +262,16 @@ export default function ProductDetailPage() {
             </button>
           </div>
 
-          {/* Heading & Reconciled Dynamic Price */}
-          <div className="space-y-1">
+          {/* Heading & Jared-style Total Carat Weights & Reconciled Dynamic Price */}
+          <div className="space-y-2">
             <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-medium text-[#241F1B]">
               {product.name}
             </h1>
+            <div className="text-xs text-[#6E6459] flex items-center gap-1.5">
+              <span>Total Carat Weights</span>
+              <span className="text-[#9E7F3C] cursor-help" title="Total Carat Weight of all diamonds set into this piece">ⓘ</span>
+              <span>: <strong>{product.stoneType || "1.00 CT. T.W."}</strong></span>
+            </div>
             <div className="flex items-baseline gap-3 pt-1">
               <div className="font-serif text-2xl sm:text-3xl text-[#9E7F3C] font-medium">
                 {formatPrice(calculatedPricing.totalPrice)}
@@ -278,10 +281,6 @@ export default function ProductDetailPage() {
               </span>
             </div>
           </div>
-
-          <p className="text-xs sm:text-sm font-light leading-relaxed text-[#6E6459]">
-            {product.description}
-          </p>
 
           {/* Metal & Karat Selection Configurator (18K, 16K, 14K, 10K in White / Yellow / Rose) */}
           <div className="space-y-4 pt-1">
@@ -386,43 +385,12 @@ export default function ProductDetailPage() {
             </div>
           ) : null}
 
-          {/* Transparent Price Breakdown Block backed by Live Karat Arithmetic */}
-          <PriceBreakdown
-            metalLabel={`Metal (${selectedMetal}, ${(product.netWeightG || 3.4).toFixed(2)}g)`}
-            metalAmount={calculatedPricing.metalAmount}
-            diamondLabel={product.stoneType ? `Diamonds (${product.stoneType})` : undefined}
-            diamondAmount={calculatedPricing.diamondAmount}
-            makingCharges={calculatedPricing.makingCharges}
-            gstAmount={calculatedPricing.gstAmount}
-            totalAmount={calculatedPricing.totalPrice}
-            metalPurityLabel={calculatedPricing.purityLabel}
-            metalRate={calculatedPricing.rateUsed}
-          />
-
-          {/* Hallmark & Certificate Strip */}
-          <CertificationStrip
-            hallmark={calculatedPricing.hallmarkString}
-            lab="GIA & IGI"
-            certNumber={`CIV-${product.id.substring(0, 4).toUpperCase()}8912`}
-            productName={product.name}
-          />
-
-          {/* Education Link */}
-          <div className="text-xs text-[#9E7F3C] flex items-center gap-4 pt-1">
-            <Link href="/education/4cs" className="hover:underline flex items-center gap-1">
-              <Sparkles className="w-3.5 h-3.5" /> Learn about diamond 4Cs →
-            </Link>
-            <Link href="/education/metals" className="hover:underline flex items-center gap-1">
-              Atelier gold purity guide →
-            </Link>
-          </div>
-
           {/* Conversion Actions */}
           <div className="flex flex-col gap-3 pt-2">
             <button
               type="button"
               onClick={handleEnquireWhatsApp}
-              className="w-full bg-[#241F1B] text-[#C9A961] py-4 px-8 text-xs uppercase tracking-[0.2em] text-center font-medium rounded-full hover:bg-[#181412] transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-sm"
+              className="w-full bg-[#241F1B] text-[#C9A961] py-4 px-8 text-xs uppercase tracking-[0.2em] text-center font-medium rounded-full hover:bg-[#181412] transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-sm active:scale-98"
             >
               <MessageCircle className="w-4 h-4" />
               Enquire on WhatsApp
@@ -430,13 +398,30 @@ export default function ProductDetailPage() {
             <button
               type="button"
               onClick={() => setIsViewingOpen(true)}
-              className="w-full border border-[#C9A961] text-[#9E7F3C] py-4 px-8 text-xs uppercase tracking-[0.2em] text-center font-medium rounded-full hover:bg-[#241F1B] hover:text-[#FBF7F0] hover:border-[#241F1B] transition-all flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full border border-[#C9A961] text-[#9E7F3C] py-4 px-8 text-xs uppercase tracking-[0.2em] text-center font-medium rounded-full hover:bg-[#241F1B] hover:text-[#FBF7F0] hover:border-[#241F1B] transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98"
             >
               <Calendar className="w-4 h-4" />
               Book a private viewing
             </button>
-            <div className="text-xs font-light text-[#6E6459] text-center">
-              Every piece is made to order. Enquire, view, own.
+          </div>
+
+          {/* Jared-style Quick Service & Trust Badges */}
+          <div className="py-3 border-y border-[#E6DFD3]/70 space-y-2 text-xs text-[#6E6459]">
+            <div className="flex items-center gap-2.5">
+              <span className="text-base">🚚</span>
+              <span><strong>Complimentary Insured Delivery</strong> — Dispatched within 7–10 days</span>
+            </div>
+            <div className="flex items-center gap-2.5">
+              <span className="text-base">🏛️</span>
+              <span><strong>Free Surat Atelier Private Viewing</strong> — In-Person or 4K Virtual</span>
+            </div>
+            <div className="flex items-center gap-2.5">
+              <span className="text-base">💎</span>
+              <span><strong>Expert Guidance & Care</strong> — Direct gemmologist consultation</span>
+            </div>
+            <div className="flex items-center gap-2.5">
+              <span className="text-base">🔄</span>
+              <span><strong>Free And Easy 30-Day Returns</strong> & Lifetime Care</span>
             </div>
           </div>
 

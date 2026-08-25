@@ -68,27 +68,33 @@ export const RingSizeSelector: React.FC<RingSizeSelectorProps> = ({
         </button>
       </div>
 
-      {/* Grid of half-sizes (3, 3.5, 4, ... 15) */}
-      <div className="flex flex-wrap gap-1.5 sm:gap-2 max-h-36 overflow-y-auto p-1.5 border border-[#E6DFD3]/60 bg-[#FAF7F0]/60">
-        {sizes.map((size) => {
-          const isSelected = selectedSize === size;
+      {/* Jared-style Clean Size Dropdown & Guide Link */}
+      <div className="flex items-center gap-3">
+        <div className="flex-1 relative">
+          <select
+            value={selectedSize}
+            onChange={(e) => onSelectSize(e.target.value)}
+            className="w-full bg-[#FAF7F0] border border-[#E6DFD3] focus:border-[#9E7F3C] text-[#241F1B] px-3.5 py-2.5 text-xs rounded-none cursor-pointer focus:outline-none appearance-none font-medium"
+            aria-label="Select a Size"
+          >
+            {sizes.map((size) => (
+              <option key={size} value={size}>
+                Size {size} (Standard Indian / US Scale)
+              </option>
+            ))}
+          </select>
+          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-[#9E7F3C]">
+            ▼
+          </div>
+        </div>
 
-          return (
-            <button
-              key={size}
-              type="button"
-              onClick={() => onSelectSize(size)}
-              className={`min-w-[42px] h-9 px-2 text-xs flex items-center justify-center border transition-all ${
-                isSelected
-                  ? "border-[#241F1B] bg-[#241F1B] text-[#C9A961] font-medium shadow-sm"
-                  : "border-[#E6DFD3] bg-[#FAF7F0] text-[#241F1B] hover:border-[#9E7F3C]"
-              }`}
-              title={`Ring Size ${size} (Crafted to order)`}
-            >
-              {size}
-            </button>
-          );
-        })}
+        <button
+          type="button"
+          onClick={() => setIsGuideOpen(true)}
+          className="text-xs text-[#9E7F3C] hover:underline inline-flex items-center gap-1 shrink-0 p-2"
+        >
+          <HelpCircle className="w-3.5 h-3.5" /> Size Guide
+        </button>
       </div>
 
       {/* Size Guide Modal */}
