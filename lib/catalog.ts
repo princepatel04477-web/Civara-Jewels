@@ -695,39 +695,65 @@ export class Catalog {
   }
 
   static mapDbProductToProduct(p: any): Product {
-    let sizes = ["10", "11", "12", "13", "14", "15", "16"];
+    const staticProduct = this.getProductById(p.slug) || this.getProductById(p.id);
+
+    let sizes = staticProduct?.sizeOptions || STANDARD_RING_SIZES;
     if (p.available_sizes) {
       try {
-        sizes = typeof p.available_sizes === "string" ? JSON.parse(p.available_sizes) : p.available_sizes;
+        const parsedSizes = typeof p.available_sizes === "string" ? JSON.parse(p.available_sizes) : p.available_sizes;
+        if (Array.isArray(parsedSizes) && parsedSizes.length > 0) {
+          sizes = parsedSizes;
+        }
       } catch {
-        sizes = [p.available_sizes];
+        if (typeof p.available_sizes === "string" && p.available_sizes.trim()) {
+          sizes = [p.available_sizes];
+        }
       }
     }
 
+    let metals = staticProduct?.metalOptions || STANDARD_METAL_OPTIONS;
+    if (p.metal_options) {
+      try {
+        const parsedM = typeof p.metal_options === "string" ? JSON.parse(p.metal_options) : p.metal_options;
+        if (Array.isArray(parsedM) && parsedM.length > 0) {
+          metals = parsedM;
+        }
+      } catch {}
+    }
+
     const images = p.images?.map((img: any) => img.path) || [];
-    const mainImg = p.primary_image || images[0] || undefined;
+    const mainImg = p.primary_image || images[0] || staticProduct?.mainImage || undefined;
+    const altImg = images[1] || staticProduct?.altImage || mainImg;
+    const allThumbnails = images.length > 0
+      ? images
+      : staticProduct?.thumbnails && staticProduct.thumbnails.length > 0
+      ? staticProduct.thumbnails
+      : mainImg
+      ? [mainImg]
+      : [];
 
     return {
-      id: p.slug,
-      name: p.name,
-      category: p.collection_slug || "rings",
-      categoryName: p.collection_name || "Rings & Solitaires",
-      priceINR: Math.round(p.price_inr / 100),
-      tagline: p.is_featured ? "Atelier Featured Edit" : "Civara Edit",
-      description: p.description || "Handcrafted in hallmarked 18k gold and certified diamonds.",
-      metalOptions: [p.metal || "18k Yellow Gold"],
-      sizeType: "ring",
-      sizeOptions: sizes && sizes.length > 0 ? sizes : STANDARD_RING_SIZES,
-      stoneType: p.diamond_carat ? `${p.diamond_carat}ct Diamond` : "Natural Diamond",
-      imagePlaceholder: p.name,
+      id: p.slug || staticProduct?.id || "civara-jewel",
+      name: p.name || staticProduct?.name || "Civara Fine Jewel",
+      category: p.collection_slug || staticProduct?.category || "rings",
+      categoryName: p.collection_name || staticProduct?.categoryName || "Rings & Solitaires",
+      priceINR: p.price_inr ? Math.round(p.price_inr / 100) : (staticProduct?.priceINR || 84500),
+      tagline: staticProduct?.tagline || p.tagline || (p.is_featured ? "Atelier Featured Edit" : "Civara Edit"),
+      description: p.description || staticProduct?.description || "Handcrafted in hallmarked 18k solid gold and certified diamonds.",
+      metalOptions: metals,
+      sizeType: p.size_type || staticProduct?.sizeType || "ring",
+      sizeOptions: sizes,
+      stoneType: staticProduct?.stoneType || p.stone_type || (p.diamond_carat ? `${p.diamond_carat}ct Diamond` : "Natural Diamond"),
+      imagePlaceholder: p.name || staticProduct?.name,
       mainImage: mainImg,
-      altImage: images[1] || mainImg,
-      thumbnails: images.length > 0 ? images : mainImg ? [mainImg] : [],
-      hallmark: "BIS 750 (18k Gold)",
+      altImage: altImg,
+      thumbnails: allThumbnails,
+      hallmark: staticProduct?.hallmark || "BIS 750 (18k Gold)",
+      netWeightG: p.metal_weight_g || staticProduct?.netWeightG || 3.4,
       details: {
-        materials: `Hallmarked ${p.metal || "18k gold"}${p.diamond_carat ? ` with ${p.diamond_carat}ct ${p.diamond_clarity || "VS1"} diamond` : ""}.`,
-        craft: "Hand-finished to order by master goldsmiths in our private atelier over 2–3 weeks.",
-        care: "Complimentary annual ultrasonic cleaning and lifetime claw inspection.",
+        materials: staticProduct?.details?.materials || `Hallmarked ${p.metal || "18k gold"}${p.diamond_carat ? ` with ${p.diamond_carat}ct ${p.diamond_clarity || "VS1"} diamond` : ""}.`,
+        craft: staticProduct?.details?.craft || "Hand-finished to order by master goldsmiths in our private atelier over 2–3 weeks.",
+        care: staticProduct?.details?.care || "Complimentary annual ultrasonic cleaning and lifetime claw inspection.",
       },
     };
   }

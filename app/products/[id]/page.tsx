@@ -61,10 +61,11 @@ export default function ProductDetailPage() {
           }
 
           if (mapped.metalOptions && mapped.metalOptions.length > 0) {
-            setSelectedMetal(mapped.metalOptions[0]);
+            setSelectedMetal((prev) => mapped.metalOptions.includes(prev) ? prev : mapped.metalOptions[0]);
           }
           if (mapped.sizeOptions && mapped.sizeOptions.length > 0) {
-            setSelectedSize(mapped.sizeOptions[0]);
+            const availableSizes = mapped.sizeOptions;
+            setSelectedSize((prev) => availableSizes.includes(prev) ? prev : availableSizes[0]);
           }
         }
       })
