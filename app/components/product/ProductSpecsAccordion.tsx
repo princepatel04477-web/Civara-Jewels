@@ -63,9 +63,26 @@ export const ProductSpecsAccordion: React.FC<ProductSpecsAccordionProps> = ({
     setTimeout(() => setCopiedSku(false), 2000);
   };
 
-  // Derive dynamic stone details
-  const isSolitaire = product.name.toLowerCase().includes("solitaire") || product.category === "rings";
-  const stoneWeightVal = product.stoneType?.includes("ct") ? product.stoneType.replace(/ct/i, "").trim() : "1";
+  // Derive dynamic category and design label
+  const categoryLower = (product.category || "").toLowerCase();
+  const isRing = product.sizeType === "ring" || categoryLower.includes("ring");
+  const isNecklace = categoryLower.includes("necklace") || categoryLower.includes("pendant") || categoryLower.includes("mangalsutra");
+  const isEarring = categoryLower.includes("earring");
+  const isBracelet = categoryLower.includes("bracelet") || categoryLower.includes("bangle");
+
+  const categoryItemLabel = isRing
+    ? "ring"
+    : isNecklace
+    ? "necklace"
+    : isEarring
+    ? "earrings"
+    : isBracelet
+    ? "bracelet"
+    : "piece";
+
+  const stoneWeightVal = product.stoneType?.includes("ct") 
+    ? product.stoneType.replace(/ct/i, "").trim() 
+    : "1";
   
   const stoneShape = product.name.toLowerCase().includes("oval")
     ? "Oval"
@@ -77,7 +94,6 @@ export const ProductSpecsAccordion: React.FC<ProductSpecsAccordionProps> = ({
     ? "Cushion"
     : "Round";
 
-  // Derive metal color and karat
   const isWhite = selectedMetal.toLowerCase().includes("white");
   const isRose = selectedMetal.toLowerCase().includes("rose");
   const metalColor = isWhite ? "White" : isRose ? "Rose" : "Yellow";
@@ -87,6 +103,10 @@ export const ProductSpecsAccordion: React.FC<ProductSpecsAccordionProps> = ({
   else if (selectedMetal.startsWith("16K")) goldKarat = "16K";
   else if (selectedMetal.startsWith("10K")) goldKarat = "10K";
   else if (selectedMetal.toLowerCase().includes("silver")) goldKarat = "925 Silver";
+
+  const defaultOverviewText = product.description && product.description.length > 30
+    ? product.description
+    : `A brilliant ${stoneShape.toLowerCase()} diamond rests within a dynamic carved center setting in this exquisite ${categoryItemLabel}. Rows of even more fiery round diamonds border the architectural silhouette to complete the regal look. Fashioned in ${selectedMetal}, the total diamond weight of the ${categoryItemLabel} is ${stoneWeightVal} carat.`;
 
   // Tooltip descriptions
   const tooltips: Record<string, string> = {
@@ -129,11 +149,7 @@ export const ProductSpecsAccordion: React.FC<ProductSpecsAccordionProps> = ({
 
         {openSections.overview && (
           <div className="pb-6 space-y-4 text-xs sm:text-[13px] leading-relaxed text-[#4A4238] font-light animate-fadeIn">
-            <p>
-              {product.description || (
-                `A brilliant ${stoneShape.toLowerCase()} diamond rests within a dynamic carved center channel in this handsome creation. Rows of even more fiery round diamonds border above and below the center to complete the look. Fashioned in ${selectedMetal}, the total diamond weight of the ring is ${stoneWeightVal} carat.`
-              )}
-            </p>
+            <p>{defaultOverviewText}</p>
 
             <div className="pt-2 flex items-center gap-2 text-xs font-mono text-[#6E6459]">
               <span className="font-semibold text-[#241F1B]">Item #:</span>
@@ -335,7 +351,7 @@ export const ProductSpecsAccordion: React.FC<ProductSpecsAccordionProps> = ({
 
                 <li className="flex items-center gap-2">
                   <span className="text-[#241F1B] text-base leading-none">•</span>
-                  <span>Stone Setting: <strong>{isSolitaire ? "Talon Claw / Channel" : "Channel"}</strong></span>
+                  <span>Stone Setting: <strong>{isRing ? "Talon Claw / Channel" : "Precision Bezel / Prong"}</strong></span>
                 </li>
 
                 <li className="flex items-center gap-2">
@@ -418,21 +434,33 @@ export const ProductSpecsAccordion: React.FC<ProductSpecsAccordionProps> = ({
               </ul>
             </div>
 
-            {/* 2C. RING DESIGN SUBSECTION */}
+            {/* 2C. DESIGN & CATEGORY SPECIFIC SUBSECTION */}
             <div className="space-y-2.5 pt-2">
               <h4 className="font-serif font-semibold text-sm sm:text-base text-[#241F1B]">
-                Ring Design
+                {isRing ? "Ring Design" : isNecklace ? "Necklace & Pendant Design" : isEarring ? "Earring Design" : isBracelet ? "Bracelet Design" : "Jewellery Design"}
               </h4>
               <ul className="space-y-2 pl-2 text-[#4A4238]">
                 <li className="flex items-center gap-2">
                   <span className="text-[#241F1B] text-base leading-none">•</span>
-                  <span>Ring Style: <strong>{product.categoryName || "Solitaire / Fashion"}</strong></span>
+                  <span>{isRing ? "Ring Style" : "Style"}: <strong>{product.categoryName || "Haute Joaillerie Fine Creation"}</strong></span>
                 </li>
 
-                <li className="flex items-center gap-2">
-                  <span className="text-[#241F1B] text-base leading-none">•</span>
-                  <span>Standard Ring Size: <strong>{selectedSize}</strong></span>
-                </li>
+                {isRing ? (
+                  <li className="flex items-center gap-2">
+                    <span className="text-[#241F1B] text-base leading-none">•</span>
+                    <span>Standard Ring Size: <strong>{selectedSize}</strong></span>
+                  </li>
+                ) : isNecklace ? (
+                  <li className="flex items-center gap-2">
+                    <span className="text-[#241F1B] text-base leading-none">•</span>
+                    <span>Chain Length: <strong>18 Inches (Includes 2" Extender)</strong></span>
+                  </li>
+                ) : isBracelet ? (
+                  <li className="flex items-center gap-2">
+                    <span className="text-[#241F1B] text-base leading-none">•</span>
+                    <span>Standard Wrist Size: <strong>7.0 Inches</strong></span>
+                  </li>
+                ) : null}
               </ul>
             </div>
 
@@ -444,7 +472,7 @@ export const ProductSpecsAccordion: React.FC<ProductSpecsAccordionProps> = ({
               <ul className="space-y-2 pl-2 text-[#4A4238]">
                 <li className="flex items-center gap-2">
                   <span className="text-[#241F1B] text-base leading-none">•</span>
-                  <span>Height: <strong>10.2 mm</strong></span>
+                  <span>{isRing ? "Height" : "Dimensions"}: <strong>10.2 mm</strong></span>
                 </li>
 
                 <li className="flex items-center justify-between">
