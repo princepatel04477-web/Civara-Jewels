@@ -11,10 +11,11 @@ import { ProductGallery } from "../../components/product/ProductGallery";
 import { PriceBreakdown } from "../../components/product/PriceBreakdown";
 import { RingSizeSelector } from "../../components/product/RingSizeSelector";
 import { CertificationStrip } from "../../components/product/CertificationStrip";
+import { ProductSpecsAccordion } from "../../components/product/ProductSpecsAccordion";
 import { BookViewingDialog } from "../../components/header/BookViewingDialog";
 import { WhatsAppConcierge } from "../../components/floating/WhatsAppConcierge";
 import { extractPurityFromMetalOption } from "../../../lib/pricing/compute";
-import { Plus, Minus, MessageCircle, Calendar, Heart, Sparkles, ShieldCheck } from "lucide-react";
+import { MessageCircle, Calendar, Heart, Sparkles } from "lucide-react";
 
 export default function ProductDetailPage() {
   const params = useParams();
@@ -42,7 +43,6 @@ export default function ProductDetailPage() {
   const [selectedSize, setSelectedSize] = useState(
     product.sizeOptions ? product.sizeOptions[0] : "12"
   );
-  const [openAccordion, setOpenAccordion] = useState<string>("Materials & certification");
   const [isViewingOpen, setIsViewingOpen] = useState(false);
   const [isSaved, setIsSaved] = useState(() => isInWishlist(product.id));
 
@@ -165,21 +165,6 @@ export default function ProductDetailPage() {
           ...(product.thumbnails || []),
         ]
   ).filter((v, i, a) => a.indexOf(v) === i && Boolean(v));
-
-  const accordions = [
-    {
-      title: "Materials & certification",
-      content: product.details?.materials || "Recycled hallmarked gold. Centre stone certified by GIA/IGI.",
-    },
-    {
-      title: "Craft & delivery",
-      content: product.details?.craft || "Hand-finished to order by a single master goldsmith over 2–3 weeks. Complimentary insured delivery.",
-    },
-    {
-      title: "Care & lifetime service",
-      content: product.details?.care || "Complimentary lifetime cleaning and inspection. One free resizing within the first year.",
-    },
-  ];
 
   const handleToggleWishlist = () => {
     const updated = toggleWishlistId(product.id);
@@ -455,31 +440,13 @@ export default function ProductDetailPage() {
             </div>
           </div>
 
-          {/* Accordions */}
-          <div className="border-t border-[#E6DFD3] pt-2">
-            {accordions.map((acc) => {
-              const isOpen = openAccordion === acc.title;
-              return (
-                <div key={acc.title} className="border-b border-[#E6DFD3]/70">
-                  <button
-                    type="button"
-                    onClick={() => setOpenAccordion(isOpen ? "" : acc.title)}
-                    className="w-full py-4 flex items-center justify-between text-left text-xs uppercase tracking-[0.16em] text-[#241F1B] hover:text-[#9E7F3C] transition-colors"
-                  >
-                    <span>{acc.title}</span>
-                    <span className="text-[#9E7F3C]">
-                      {isOpen ? <Minus className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
-                    </span>
-                  </button>
-                  {isOpen && (
-                    <p className="text-xs sm:text-sm font-light leading-relaxed text-[#6E6459] pb-5 animate-fadeIn">
-                      {acc.content}
-                    </p>
-                  )}
-                </div>
-              );
-            })}
-          </div>
+          {/* Jared / Luxury Fine Jewellery Specifications & Overview Accordion */}
+          <ProductSpecsAccordion
+            product={product}
+            selectedMetal={selectedMetal}
+            selectedSize={selectedSize}
+            calculatedPricing={calculatedPricing}
+          />
         </div>
       </section>
 
