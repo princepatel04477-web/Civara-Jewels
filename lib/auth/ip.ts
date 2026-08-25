@@ -61,8 +61,22 @@ export function isAdminIP(request: Request | NextRequest): boolean {
   const clientIp = getClientIP(request);
   const normalizedClientIp = normalizeIP(clientIp);
 
-  const defaultAllowed =
-    "127.0.0.1,::1,localhost,192.168.29.44,10.209.18.108,2409:40c1:10bc:ca57:e5b9:7768:d3ab:c4ea,2409:40c1:10bc:ca57,fe80::adb5:c64d:6728:c274";
+  const defaultAllowed = [
+    "127.0.0.1",
+    "::1",
+    "localhost",
+    "192.168.29.44",
+    "10.29.117.108",
+    "10.29.117",
+    "10.209.18.108",
+    "2409:40c1:10da:967c:1270:1e43:9bf7:ab76",
+    "2409:40c1:10da:967c",
+    "2409:40c1:10da",
+    "2409:40c1:10bc:ca57:e5b9:7768:d3ab:c4ea",
+    "2409:40c1:10bc:ca57",
+    "2409:40c1:10bc",
+    "fe80::adb5:c64d:6728:c274",
+  ].join(",");
 
   const rawAllowed = process.env.ADMIN_ALLOWED_IPS
     ? `${process.env.ADMIN_ALLOWED_IPS},${defaultAllowed}`
@@ -88,9 +102,14 @@ export function isAdminIP(request: Request | NextRequest): boolean {
 
   // Check subnet / prefix match (for IPv6 /64 blocks or IPv4 /24 subnets)
   for (const allowed of allowedList) {
-    if (allowed.includes(":") && allowed.length >= 14) {
-      // IPv6 prefix comparison (e.g. 2409:40c1:10bc:ca57)
+    if (allowed.includes(":") && allowed.length >= 10) {
+      // IPv6 prefix comparison (e.g. 2409:40c1:10da or 2409:40c1:10da:967c)
       if (normalizedClientIp.startsWith(allowed) || clientIp.toLowerCase().startsWith(allowed)) {
+        return true;
+      }
+    } else if (allowed.includes(".") && allowed.split(".").length >= 3) {
+      // IPv4 prefix comparison (e.g. 10.29.117)
+      if (normalizedClientIp.startsWith(allowed) || clientIp.startsWith(allowed)) {
         return true;
       }
     }
