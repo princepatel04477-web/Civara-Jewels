@@ -401,12 +401,12 @@ export default function AdminRatesPage() {
               </h3>
             </div>
             <span className="text-[11px] uppercase tracking-wider text-[#9E7F3C] font-semibold">
-              Standard 25 Size Matrix · Same Price All Sizes
+              Standard 25 Size Matrix (Size 3.0 to 15.0)
             </span>
           </div>
 
           <p className="text-xs text-[#6E6459] leading-relaxed">
-            All solitaire and band rings are available in half-size increments from <strong>3.0 to 15.0</strong>. Every size is priced uniformly under our equal value policy.
+            All solitaire and band rings are available in half-size increments from <strong>3.0 to 15.0</strong>. Handcrafted with precision in our Surat Atelier.
           </p>
 
           <div className="flex flex-wrap gap-1.5 pt-1">

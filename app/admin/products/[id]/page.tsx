@@ -543,11 +543,11 @@ export default function AdminEditProductPage() {
                   <Sparkles className="w-4 h-4 text-[#9E7F3C]" /> Ring Sizing Configuration
                 </h3>
                 <span className="text-[11px] text-[#9E7F3C] font-medium uppercase tracking-wider">
-                  Rule: All sizes same price
+                  Scale: Size 3 to 15
                 </span>
               </div>
               <p className="text-xs text-[#6E6459]">
-                Configured sizes (3 to 15 in 0.5 increments). All ring sizes have identical crafted pricing.
+                Configured sizes (3 to 15 in 0.5 increments) available on the public product selector.
               </p>
               <ChipInput
                 label="Available Ring Sizes"

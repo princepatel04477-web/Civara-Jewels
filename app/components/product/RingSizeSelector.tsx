@@ -86,9 +86,6 @@ export const RingSizeSelector: React.FC<RingSizeSelectorProps> = ({
           <span className="font-serif text-sm font-medium text-[#241F1B]">
             Size {selectedSize}
           </span>
-          <span className="text-[10px] text-[#9E7F3C] font-normal pl-1">
-            (Same price all sizes)
-          </span>
         </div>
 
         <button
@@ -153,7 +150,7 @@ export const RingSizeSelector: React.FC<RingSizeSelectorProps> = ({
                 Official Ring Sizing &amp; Fit Guide
               </h3>
               <p className="text-xs text-[#6E6459] font-light">
-                Handcrafted from Size 3 to Size 15. All sizes priced identically with 1 free resizing.
+                Handcrafted from Size 3 to Size 15 with 1 complimentary resizing included.
               </p>
             </div>
 

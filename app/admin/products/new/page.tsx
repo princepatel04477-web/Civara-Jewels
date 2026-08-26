@@ -382,7 +382,7 @@ export default function AdminNewProductPage() {
                 <Sparkles className="w-4 h-4 text-[#9E7F3C]" /> Ring Sizing Configuration
               </h3>
               <span className="text-[11px] text-[#9E7F3C] font-medium uppercase tracking-wider">
-                Rule: All sizes same price
+                Scale: Size 3 to 15
               </span>
             </div>
             <p className="text-xs text-[#6E6459]">

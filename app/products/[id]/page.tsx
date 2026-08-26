@@ -357,7 +357,7 @@ export default function ProductDetailPage() {
             </div>
           </div>
 
-          {/* Ring Size UX: 3 to 15 in 0.5 increments (All sizes same price rule) */}
+          {/* Ring Size UX: 3 to 15 in 0.5 increments */}
           {product.sizeType === "ring" ? (
             <RingSizeSelector
               selectedSize={selectedSize}
