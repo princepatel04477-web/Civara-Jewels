@@ -26,7 +26,7 @@ export const RingSizeSelector: React.FC<RingSizeSelectorProps> = ({
   ];
 
   const [sizes, setSizes] = useState<string[]>(defaultSizes);
-  const [chartImageUrl, setChartImageUrl] = useState<string>("/images/ring-size-chart.svg");
+  const [chartImageUrl, setChartImageUrl] = useState<string>("/images/Civaraa_Ring_size.png");
 
   useEffect(() => {
     fetch("/api/public/ring-sizes")
@@ -56,7 +56,7 @@ export const RingSizeSelector: React.FC<RingSizeSelectorProps> = ({
     const text = encodeURIComponent(
       `Hello Civara Jewels, I would like to request a complimentary ring sizing kit for the ${productName}.`
     );
-    window.open(`https://wa.me/919999900000?text=${text}`, "_blank", "noopener,noreferrer");
+    window.open(`https://wa.me/918866077237?text=${text}`, "_blank", "noopener,noreferrer");
   };
 
   const ringConversionData = [

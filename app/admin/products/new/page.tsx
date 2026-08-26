@@ -143,7 +143,7 @@ export default function AdminNewProductPage() {
         throw new Error(data.error || "Failed to create design.");
       }
 
-      router.push(`/admin/products/${data.product.id}`);
+      router.push(`/admin/products/${data.product.id}?tab=photos`);
     } catch (err: any) {
       setErrorMessage(err.message || "Failed to create piece.");
     } finally {

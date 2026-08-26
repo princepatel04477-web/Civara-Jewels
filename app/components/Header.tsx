@@ -288,7 +288,7 @@ export const Header = () => {
               </button>
 
               <a
-                href="https://wa.me/919876543210?text=Hello%20Civara%20Atelier%2C%20I%20would%20like%20to%20inquire%20about%20a%20bespoke%20piece"
+                href="https://wa.me/918866077237?text=Hello%20Civara%20Atelier%2C%20I%20would%20like%20to%20inquire%20about%20a%20bespoke%20piece"
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => setIsMobileMenuOpen(false)}

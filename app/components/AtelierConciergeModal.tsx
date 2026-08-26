@@ -81,7 +81,7 @@ export function AtelierConciergeModal({
     `----------------------------------------\n` +
     `Hello Atelier Concierge, I would like to lock this rate and proceed with my bespoke order.`;
 
-  const whatsappUrl = `https://wa.me/919876543210?text=${encodeURIComponent(whatsappMessageText)}`;
+  const whatsappUrl = `https://wa.me/918866077237?text=${encodeURIComponent(whatsappMessageText)}`;
 
   const handleViewingSubmit = (e: React.FormEvent) => {
     e.preventDefault();

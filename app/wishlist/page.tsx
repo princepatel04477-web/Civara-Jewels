@@ -88,7 +88,7 @@ export default function WishlistPage() {
                 {savedProducts.length} {savedProducts.length === 1 ? "Piece Saved" : "Pieces Saved"}
               </div>
               <a
-                href={`https://wa.me/919999900000?text=${combinedWhatsAppMessage}`}
+                href={`https://wa.me/918866077237?text=${combinedWhatsAppMessage}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="bg-[#241F1B] text-[#C9A961] px-8 py-3.5 text-xs uppercase tracking-[0.2em] font-medium hover:bg-[#181412] transition-colors flex items-center gap-2"

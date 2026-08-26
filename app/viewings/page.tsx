@@ -51,7 +51,7 @@ export default function ViewingsPage() {
       `• *Date:* ${formData.date}\n` +
       (formData.interests ? `• *Piece:* ${formData.interests}` : "")
     );
-    window.open(`https://wa.me/919999900000?text=${waText}`, "_blank", "noopener,noreferrer");
+    window.open(`https://wa.me/918866077237?text=${waText}`, "_blank", "noopener,noreferrer");
     setSubmitted(true);
   };
 
@@ -130,8 +130,8 @@ export default function ViewingsPage() {
               Direct Contact
             </h3>
             <div className="space-y-2 text-xs text-[#6E6459]">
-              <a href="tel:+919999900000" className="flex items-center gap-2 hover:text-[#241F1B]">
-                <Phone className="w-3.5 h-3.5 text-[#9E7F3C]" /> +91 99999 00000
+              <a href="tel:+918866077237" className="flex items-center gap-2 hover:text-[#241F1B]">
+                <Phone className="w-3.5 h-3.5 text-[#9E7F3C]" /> +91 88660 77237
               </a>
               <a href="mailto:concierge@civarajewels.com" className="flex items-center gap-2 hover:text-[#241F1B]">
                 <Mail className="w-3.5 h-3.5 text-[#9E7F3C]" /> concierge@civarajewels.com

@@ -34,7 +34,7 @@ export function CategoryGrid({ products, category }: CategoryGridProps) {
 
           <div className="flex flex-wrap justify-center items-center gap-4 pt-4">
             <a
-              href={`https://wa.me/919876543210?text=${encodeURIComponent(
+              href={`https://wa.me/918866077237?text=${encodeURIComponent(
                 `Hello Civara Jewels, I would like to commission a bespoke ${category.singularNoun}.`
               )}`}
               target="_blank"

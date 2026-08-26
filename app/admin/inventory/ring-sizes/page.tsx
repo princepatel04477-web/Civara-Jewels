@@ -23,7 +23,7 @@ export default function AdminRingSizesConfigPage() {
   const [maxSize, setMaxSize] = useState("15");
   const [increment, setIncrement] = useState("0.5");
   const [pricingMode, setPricingMode] = useState("SAME_PRICE");
-  const [chartImageUrl, setChartImageUrl] = useState("/images/ring-size-chart.svg");
+  const [chartImageUrl, setChartImageUrl] = useState("/images/Civaraa_Ring_size.png");
   const [generatedSizes, setGeneratedSizes] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -198,7 +198,7 @@ export default function AdminRingSizesConfigPage() {
             <div className="flex items-center gap-2">
               <button
                 type="button"
-                onClick={() => setChartImageUrl("/images/ring-size-chart.svg")}
+                onClick={() => setChartImageUrl("/images/Civaraa_Ring_size.png")}
                 className="text-xs text-[#6E6459] hover:text-[#9E7F3C] border border-[#E6DFD3] px-2.5 py-1 inline-flex items-center gap-1 cursor-pointer bg-[#FFFFFF]"
                 title="Reset to official Civara Atelier default chart"
               >

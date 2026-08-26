@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useRef } from "react";
-import Image from "next/image";
 import {
   Upload,
   Star,
@@ -11,7 +10,8 @@ import {
   CheckCircle2,
   ArrowLeft,
   ArrowRight,
-  Sparkles,
+  Link as LinkIcon,
+  Plus,
 } from "lucide-react";
 
 export interface ProductImageItem {
@@ -35,53 +35,76 @@ export const ImageDropzone: React.FC<ImageDropzoneProps> = ({
   onImagesChange,
 }) => {
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
+  const [urlInput, setUrlInput] = useState("");
+  const [showUrlInput, setShowUrlInput] = useState(false);
+  const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const photoCount = images.length;
   const isRecommendedRange = photoCount >= 6 && photoCount <= 8;
   const isBelowRecommended = photoCount < 6;
 
+  // Convert File to Base64
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
+  // Upload a single file with fallback
+  const uploadSingleFile = async (file: File, index: number, total: number) => {
+    setUploadProgress(`Uploading photo ${index + 1} of ${total}: ${file.name}...`);
+
+    // 1. Try Multipart FormData first
+    const formData = new FormData();
+    formData.append("file", file);
+
+    let res = await fetch(`/api/admin/products/${productId}/images`, {
+      method: "POST",
+      body: formData,
+    }).catch(() => null);
+
+    // 2. If FormData failed or rejected, fallback to Base64 payload
+    if (!res || !res.ok) {
+      try {
+        const dataUrl = await fileToBase64(file);
+        res = await fetch(`/api/admin/products/${productId}/images`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ dataUrl, alt: file.name }),
+        });
+      } catch (err: any) {
+        throw new Error(err.message || `Failed to process ${file.name}`);
+      }
+    }
+
+    if (!res || !res.ok) {
+      const data = res ? await res.json().catch(() => ({})) : {};
+      throw new Error(data.error || `Upload failed for ${file.name}`);
+    }
+  };
+
   const handleUploadBatch = async (files: FileList | File[]) => {
     if (!files || files.length === 0) return;
     setIsUploading(true);
     setError(null);
 
-    const formData = new FormData();
-    for (let i = 0; i < files.length; i++) {
-      formData.append("files", files[i]);
+    const fileList = Array.from(files).filter((f) => f.type.startsWith("image/") || /\.(jpe?g|png|webp|avif|gif|svg)$/i.test(f.name));
+
+    if (fileList.length === 0) {
+      setError("Please select valid image files (JPG, PNG, WebP, AVIF, SVG).");
+      setIsUploading(false);
+      return;
     }
 
     try {
-      let res = await fetch(`/api/admin/products/${productId}/images`, {
-        method: "POST",
-        body: formData,
-      });
-
-      // If FormData is rejected, fallback to Base64 payload upload
-      if (!res.ok) {
-        const base64List: Array<{ dataUrl: string; alt: string }> = [];
-        for (let i = 0; i < files.length; i++) {
-          const file = files[i];
-          const dataUrl = await new Promise<string>((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(reader.result as string);
-            reader.onerror = reject;
-            reader.readAsDataURL(file);
-          });
-          base64List.push({ dataUrl, alt: file.name });
-        }
-
-        res = await fetch(`/api/admin/products/${productId}/images`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ images: base64List }),
-        });
-      }
-
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error || "Failed to upload images");
+      for (let i = 0; i < fileList.length; i++) {
+        await uploadSingleFile(fileList[i], i, fileList.length);
       }
 
       onImagesChange();
@@ -89,9 +112,10 @@ export const ImageDropzone: React.FC<ImageDropzoneProps> = ({
         fileInputRef.current.value = "";
       }
     } catch (err: any) {
-      setError(err.message || "Upload failed. Please try a different image.");
+      setError(err.message || "An error occurred while uploading. Please check the file and try again.");
     } finally {
       setIsUploading(false);
+      setUploadProgress("");
     }
   };
 
@@ -102,8 +126,38 @@ export const ImageDropzone: React.FC<ImageDropzoneProps> = ({
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
+    setIsDragOver(false);
     const files = e.dataTransfer.files;
     if (files && files.length > 0) handleUploadBatch(files);
+  };
+
+  const handleAddUrl = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!urlInput.trim()) return;
+
+    setIsUploading(true);
+    setError(null);
+    setUploadProgress("Adding photo URL...");
+
+    try {
+      const res = await fetch(`/api/admin/products/${productId}/images`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: urlInput.trim() }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to add image URL");
+
+      setUrlInput("");
+      setShowUrlInput(false);
+      onImagesChange();
+    } catch (err: any) {
+      setError(err.message || "Failed to add photo URL.");
+    } finally {
+      setIsUploading(false);
+      setUploadProgress("");
+    }
   };
 
   const handleDelete = async (imageId: number) => {
@@ -166,11 +220,11 @@ export const ImageDropzone: React.FC<ImageDropzoneProps> = ({
             </span>
             {isRecommendedRange ? (
               <span className="px-2 py-0.5 bg-emerald-100 text-emerald-800 text-[10px] uppercase tracking-wider font-medium flex items-center gap-1">
-                <CheckCircle2 className="w-3 h-3 text-emerald-700" /> Complete Gallery
+                <CheckCircle2 className="w-3 h-3 text-emerald-700" /> Complete Gallery (6–8 Photos)
               </span>
             ) : isBelowRecommended ? (
               <span className="px-2 py-0.5 bg-amber-100 text-amber-800 text-[10px] uppercase tracking-wider font-medium flex items-center gap-1">
-                <AlertCircle className="w-3 h-3 text-amber-700" /> Recommended: 6–8 photos
+                <AlertCircle className="w-3 h-3 text-amber-700" /> Recommended: 6–8 photos ({6 - photoCount} more needed)
               </span>
             ) : (
               <span className="px-2 py-0.5 bg-blue-100 text-blue-800 text-[10px] uppercase tracking-wider font-medium">
@@ -179,56 +233,95 @@ export const ImageDropzone: React.FC<ImageDropzoneProps> = ({
             )}
           </div>
           <p className="text-[11px] text-[#6E6459]">
-            Upload 6 to 8 multi-angle views (Cover, Front, Side, Back, Macro Stone, Lifestyle).
+            Upload 6 to 8 multi-angle views (Cover, Front, 45° Angle, Side, Back, Stone Close-up, Lifestyle).
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={() => fileInputRef.current?.click()}
-          className="bg-[#241F1B] text-[#C9A961] hover:bg-[#181412] px-4 py-2 text-xs uppercase tracking-wider font-medium transition-colors inline-flex items-center gap-1.5 shrink-0 cursor-pointer"
-        >
-          <Upload className="w-3.5 h-3.5" /> Upload Photos
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setShowUrlInput(!showUrlInput)}
+            className="border border-[#C9A961]/70 text-[#6E6459] hover:text-[#241F1B] hover:bg-[#FAF7F0] px-3 py-2 text-xs uppercase tracking-wider font-medium transition-colors inline-flex items-center gap-1.5 shrink-0 cursor-pointer"
+          >
+            <LinkIcon className="w-3.5 h-3.5" /> {showUrlInput ? "Hide URL Input" : "Add Image URL"}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="bg-[#241F1B] text-[#C9A961] hover:bg-[#181412] px-4 py-2 text-xs uppercase tracking-wider font-medium transition-colors inline-flex items-center gap-1.5 shrink-0 cursor-pointer shadow-sm"
+          >
+            <Upload className="w-3.5 h-3.5" /> Browse & Upload
+          </button>
+        </div>
       </div>
+
+      {/* URL Input Bar */}
+      {showUrlInput && (
+        <form onSubmit={handleAddUrl} className="p-4 bg-[#FAF7F0] border border-[#E6DFD3] flex gap-3">
+          <input
+            type="url"
+            placeholder="https://example.com/images/piece-front.jpg"
+            value={urlInput}
+            onChange={(e) => setUrlInput(e.target.value)}
+            className="flex-1 bg-white border border-[#E6DFD3] px-3 py-2 text-xs text-[#241F1B] outline-none focus:border-[#C9A961]"
+          />
+          <button
+            type="submit"
+            disabled={!urlInput.trim() || isUploading}
+            className="bg-[#241F1B] text-[#FAF7F0] px-4 py-2 text-xs uppercase tracking-wider font-medium disabled:opacity-50 cursor-pointer flex items-center gap-1"
+          >
+            <Plus className="w-3.5 h-3.5" /> Save Image
+          </button>
+        </form>
+      )}
 
       {/* Drag & Drop Multi-Image Uploader */}
       <div
-        onDragOver={(e) => e.preventDefault()}
+        onDragOver={(e) => {
+          e.preventDefault();
+          setIsDragOver(true);
+        }}
+        onDragLeave={() => setIsDragOver(false)}
         onDrop={handleDrop}
-        onClick={() => fileInputRef.current?.click()}
-        className="border-2 border-dashed border-[#C9A961]/60 hover:border-[#9E7F3C] bg-[#FAF7F0] p-8 text-center cursor-pointer transition-colors space-y-3"
+        onClick={() => {
+          if (!isUploading) fileInputRef.current?.click();
+        }}
+        className={`border-2 border-dashed ${
+          isDragOver ? "border-[#9E7F3C] bg-[#F4EDE2]" : "border-[#C9A961]/60 hover:border-[#9E7F3C] bg-[#FAF7F0]"
+        } p-8 text-center cursor-pointer transition-colors space-y-3 select-none`}
       >
         <input
           ref={fileInputRef}
           type="file"
           multiple
-          accept="image/*"
+          accept="image/png,image/jpeg,image/jpg,image/webp,image/avif,image/svg+xml,image/gif"
           onChange={handleFileChange}
           className="hidden"
         />
         {isUploading ? (
           <div className="flex flex-col items-center gap-2">
             <Loader2 className="w-8 h-8 text-[#C9A961] animate-spin" />
-            <p className="text-xs text-[#6E6459] uppercase tracking-wider">
-              Processing & uploading photos...
+            <p className="text-xs font-medium text-[#241F1B] uppercase tracking-wider">
+              {uploadProgress || "Processing & uploading photos..."}
             </p>
+            <p className="text-[11px] text-[#6E6459]">Optimizing and saving to atelier database...</p>
           </div>
         ) : (
           <div className="flex flex-col items-center gap-2">
             <Upload className="w-8 h-8 text-[#9E7F3C]" />
             <div className="font-serif text-lg text-[#241F1B]">
-              Drop single or bulk design photos here or click to browse
+              Drop single or multiple photos here, or click anywhere to browse
             </div>
             <div className="text-[11px] text-[#6E6459]">
-              Select multiple photos at once or drop them here (JPG, PNG, WebP, AVIF, HEIC).
+              Select up to 8 high-res photos at once (JPG, PNG, WebP, AVIF, SVG).
             </div>
           </div>
         )}
       </div>
 
       {error && (
-        <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs flex items-center gap-2">
+        <div className="p-3.5 bg-red-50 border border-red-200 text-red-700 text-xs flex items-center gap-2">
           <AlertCircle className="w-4 h-4 shrink-0" />
           <span>{error}</span>
         </div>
@@ -241,13 +334,13 @@ export const ImageDropzone: React.FC<ImageDropzoneProps> = ({
             Photo Order & Primary Cover ({images.length} photos)
           </h4>
           <span className="text-[10px] text-[#6E6459]">
-            First photo is primary cover on catalog cards and store listings.
+            First photo (#1) is automatically used as the main cover across store cards.
           </span>
         </div>
 
         {images.length === 0 ? (
           <p className="text-xs text-[#6E6459] italic bg-[#F4EDE2] p-4 border border-[#E6DFD3]">
-            No photos uploaded yet. Designs should feature 6–8 photos before publishing.
+            No photos uploaded yet. Click the box above or use Browse to add photos for this jewelry piece.
           </p>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -335,3 +428,4 @@ export const ImageDropzone: React.FC<ImageDropzoneProps> = ({
     </div>
   );
 };
+

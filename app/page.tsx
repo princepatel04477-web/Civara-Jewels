@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Catalog } from "../lib/catalog";
@@ -14,14 +14,12 @@ import { PressStrip } from "./components/home/PressStrip";
 import { WhatsAppConcierge } from "./components/floating/WhatsAppConcierge";
 import { BookViewingDialog } from "./components/header/BookViewingDialog";
 import { KineticDiamondWireframe } from "./components/ui/KineticDiamondWireframe";
-import { formatINR } from "../lib/pricing/compute";
 import {
   ArrowRight,
   Sparkles,
   Award,
   ShieldCheck,
   Compass,
-  TrendingUp,
   MapPin,
   Video,
   CheckCircle,
@@ -31,38 +29,6 @@ import {
 export default function HomePage() {
   const featuredProducts = Catalog.getFeaturedProducts(4);
   const [isViewingOpen, setIsViewingOpen] = useState(false);
-
-  // Live Metal Benchmark Rates State
-  const [metalRates, setMetalRates] = useState<{ [key: string]: number }>({
-    "18 KT": 69999,
-    "16 KT": 62221,
-    "14 KT": 55999,
-    "10 KT": 42999,
-    "Silver": 26999,
-  });
-
-  useEffect(() => {
-    fetch("/api/public/metal-rates")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data && Array.isArray(data.rates)) {
-          const map: { [key: string]: number } = {};
-          data.rates.forEach((r: any) => {
-            map[r.purity] = r.rate_inr;
-          });
-          setMetalRates((prev) => ({ ...prev, ...map }));
-        }
-      })
-      .catch(() => {});
-  }, []);
-
-  const benchmarkTiers = [
-    { label: "18K Gold", hallmark: "BIS 750", rateKey: "18 KT", defaultRate: 69999 },
-    { label: "16K Gold", hallmark: "BIS 667", rateKey: "16 KT", defaultRate: 62221 },
-    { label: "14K Gold", hallmark: "BIS 585", rateKey: "14 KT", defaultRate: 55999 },
-    { label: "10K Gold", hallmark: "BIS 417", rateKey: "10 KT", defaultRate: 42999 },
-    { label: "Fine Silver", hallmark: "925 Silver", rateKey: "Silver", defaultRate: 26999, unit: "/ 1kg" },
-  ];
 
   return (
     <div className="w-full bg-[#FBF7F0]">
@@ -115,50 +81,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 2. LIVE ATELIER BENCHMARK VALUATION BAR */}
-      <section className="bg-[#FAF7F0] border-b border-[#E6DFD3] py-5 px-4 sm:px-6 lg:px-14">
-        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-          <div className="flex items-center gap-3 shrink-0">
-            <div className="w-8 h-8 rounded-full bg-[#F4EDE2] border border-[#C9A961] flex items-center justify-center">
-              <TrendingUp className="w-4 h-4 text-[#9E7F3C]" />
-            </div>
-            <div>
-              <div className="text-xs uppercase tracking-[0.2em] text-[#241F1B] font-semibold flex items-center gap-2">
-                Live Atelier Benchmark Rates
-                <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              </div>
-              <div className="text-[10.5px] text-[#6E6459] font-light">
-                100% BIS Hallmarked · Daily transparent valuation standards
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3 flex-1">
-            {benchmarkTiers.map((b) => {
-              const rate = metalRates[b.rateKey] || b.defaultRate;
-              return (
-                <div
-                  key={b.label}
-                  className="px-3 py-2 bg-[#FFFFFF] border border-[#E6DFD3] rounded-xs flex flex-col justify-center"
-                >
-                  <div className="flex justify-between items-baseline text-[10px] text-[#6E6459]">
-                    <span className="font-medium text-[#241F1B]">{b.label}</span>
-                    <span className="text-[#9E7F3C] font-mono">{b.hallmark}</span>
-                  </div>
-                  <div className="font-serif text-xs sm:text-sm font-bold text-[#241F1B] mt-0.5">
-                    ₹{formatINR(rate).replace("₹", "")}
-                    <span className="text-[9px] font-sans font-normal text-[#6E6459] ml-1">
-                      {b.unit ? "/ 1kg" : "/ 10g"}
-                    </span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* 3. CURATED ATELIER EDITS (BENTO 2.0) */}
+      {/* 2. CURATED ATELIER EDITS (BENTO 2.0) */}
       <section className="py-16 sm:py-24 md:py-28 px-4 sm:px-6 lg:px-14 max-w-7xl mx-auto">
         <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-16 space-y-2 sm:space-y-3">
           <div className="text-[10px] sm:text-xs uppercase tracking-[0.25em] sm:tracking-[0.3em] text-[#9E7F3C] font-semibold">

@@ -125,7 +125,7 @@ export const BookViewingDialog: React.FC<BookViewingDialogProps> = ({
         (notes.trim() ? `• *Notes:* ${notes.trim()}\n` : "")
       );
 
-      const waUrl = `https://wa.me/919999900000?text=${waText}`;
+      const waUrl = `https://wa.me/918866077237?text=${waText}`;
       window.open(waUrl, "_blank", "noopener,noreferrer");
 
       setIsSuccess(true);

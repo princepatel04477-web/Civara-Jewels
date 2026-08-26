@@ -97,14 +97,14 @@ export const Footer = () => {
             Concierge
           </div>
           <div className="space-y-2.5 font-light text-[#E6DFD3]">
-            <a href="tel:+919999900000" className="hover:text-[#C9A961] transition-colors flex items-center gap-1.5">
-              <Phone className="w-3.5 h-3.5 text-[#C9A961]" /> +91 99999 00000
+            <a href="tel:+918866077237" className="hover:text-[#C9A961] transition-colors flex items-center gap-1.5">
+              <Phone className="w-3.5 h-3.5 text-[#C9A961]" /> +91 88660 77237
             </a>
             <a href="mailto:hello@civarajewels.com" className="hover:text-[#C9A961] transition-colors flex items-center gap-1.5">
               <Mail className="w-3.5 h-3.5 text-[#C9A961]" /> hello@civarajewels.com
             </a>
             <a
-              href="https://wa.me/919999900000?text=Hello%20Civara%20Jewels%2C%20I%20would%20like%20to%20enquire%20about%20a%20viewing."
+              href="https://wa.me/918866077237?text=Hello%20Civara%20Jewels%2C%20I%20would%20like%20to%20enquire%20about%20a%20viewing."
               target="_blank"
               rel="noopener noreferrer"
               className="text-[#C9A961] hover:underline flex items-center gap-1.5 pt-1"

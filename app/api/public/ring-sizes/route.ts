@@ -13,7 +13,7 @@ export async function GET() {
         max_size: config.max_size,
         increment: config.increment,
         pricing_mode: config.pricing_mode,
-        chart_image_url: config.chart_image_url || "/images/ring-size-chart.svg",
+        chart_image_url: config.chart_image_url || "/images/Civaraa_Ring_size.png",
       }, 
       sizes 
     }, {

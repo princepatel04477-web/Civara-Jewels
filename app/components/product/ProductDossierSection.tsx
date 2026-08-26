@@ -1,9 +1,6 @@
-"use client";
-
 import React, { useState } from "react";
 import { Product } from "../../../lib/catalog";
-import { formatINR } from "../../../lib/pricing/compute";
-import { ShieldCheck, Truck, Sparkles, Check, Copy, Award, Gem, FileText, Info } from "lucide-react";
+import { ShieldCheck, Truck, Sparkles, Check, Copy, Gem, FileText, Info } from "lucide-react";
 
 interface ProductDossierSectionProps {
   product: Product;
@@ -27,7 +24,7 @@ export const ProductDossierSection: React.FC<ProductDossierSectionProps> = ({
   selectedSize = "10.0",
   calculatedPricing,
 }) => {
-  const [activeTab, setActiveTab] = useState<"overview" | "specs" | "pricing" | "delivery">("specs");
+  const [activeTab, setActiveTab] = useState<"overview" | "specs" | "delivery">("specs");
   const [copied, setCopied] = useState(false);
 
   const itemSku = `7902${(product.id.split("").reduce((acc, char) => acc + char.charCodeAt(0), 100) % 90000 + 10000).toString()}00`;
@@ -140,20 +137,6 @@ export const ProductDossierSection: React.FC<ProductDossierSectionProps> = ({
 
             <button
               type="button"
-              onClick={() => setActiveTab("pricing")}
-              className={`pb-3 px-3 text-xs uppercase tracking-[0.16em] font-medium transition-all relative cursor-pointer ${
-                activeTab === "pricing"
-                  ? "text-[#241F1B] border-b-2 border-[#9E7F3C]"
-                  : "text-[#6E6459] hover:text-[#241F1B]"
-              }`}
-            >
-              <span className="flex items-center gap-1.5">
-                <Award className="w-3.5 h-3.5" /> Valuation Breakdown
-              </span>
-            </button>
-
-            <button
-              type="button"
               onClick={() => setActiveTab("delivery")}
               className={`pb-3 px-3 text-xs uppercase tracking-[0.16em] font-medium transition-all relative cursor-pointer ${
                 activeTab === "delivery"
@@ -229,45 +212,7 @@ export const ProductDossierSection: React.FC<ProductDossierSectionProps> = ({
           </div>
         )}
 
-        {/* TAB 3: PRICING ARITHMETIC */}
-        {activeTab === "pricing" && (
-          <div className="bg-[#FFFFFF] border border-[#E6DFD3] p-6 sm:p-8 animate-fadeIn space-y-6">
-            <h3 className="font-serif text-xl font-medium text-[#241F1B]">
-              Transparent Valuation Breakdown
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="p-4 bg-[#FAF7F0] border border-[#E6DFD3] space-y-1">
-                <span className="text-[11px] text-[#6E6459] uppercase tracking-wider block">Net Gold Value</span>
-                <span className="font-serif text-lg font-medium text-[#241F1B] block">{formatINR(calculatedPricing.metalAmount)}</span>
-                <span className="text-[10px] text-[#6E6459]">{(product.netWeightG || 3.4).toFixed(2)}g @ ₹{calculatedPricing.rateUsed.toLocaleString("en-IN")}/10g</span>
-              </div>
-
-              <div className="p-4 bg-[#FAF7F0] border border-[#E6DFD3] space-y-1">
-                <span className="text-[11px] text-[#6E6459] uppercase tracking-wider block">Certified Diamonds</span>
-                <span className="font-serif text-lg font-medium text-[#241F1B] block">{formatINR(calculatedPricing.diamondAmount)}</span>
-                <span className="text-[10px] text-[#6E6459]">{stoneWeightVal} CT. T.W. Natural Diamond</span>
-              </div>
-
-              <div className="p-4 bg-[#FAF7F0] border border-[#E6DFD3] space-y-1">
-                <span className="text-[11px] text-[#6E6459] uppercase tracking-wider block">Making Charges</span>
-                <span className="font-serif text-lg font-medium text-[#241F1B] block">{formatINR(calculatedPricing.makingCharges)}</span>
-                <span className="text-[10px] text-[#6E6459]">Surat Master Bench Goldsmithing</span>
-              </div>
-
-              <div className="p-4 bg-[#FAF7F0] border border-[#E6DFD3] space-y-1">
-                <span className="text-[11px] text-[#6E6459] uppercase tracking-wider block">Statutory GST (3%)</span>
-                <span className="font-serif text-lg font-medium text-[#241F1B] block">{formatINR(calculatedPricing.gstAmount)}</span>
-                <span className="text-[10px] text-[#6E6459]">Includes BIS Assay & Hallmarking</span>
-              </div>
-            </div>
-            <div className="p-4 bg-[#241F1B] text-[#FBF7F0] flex items-center justify-between">
-              <span className="text-xs uppercase tracking-widest text-[#C9A961]">Total Dynamic Price</span>
-              <span className="font-serif text-xl sm:text-2xl font-medium text-[#C9A961]">{formatINR(calculatedPricing.totalPrice)}</span>
-            </div>
-          </div>
-        )}
-
-        {/* TAB 4: DELIVERY & CARE */}
+        {/* TAB 3: DELIVERY & CARE */}
         {activeTab === "delivery" && (
           <div className="bg-[#FFFFFF] border border-[#E6DFD3] p-6 sm:p-8 animate-fadeIn space-y-6">
             <h3 className="font-serif text-xl font-medium text-[#241F1B]">

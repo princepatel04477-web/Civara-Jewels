@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter, useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -30,9 +30,14 @@ const DEFAULT_COLLECTIONS = [
 export default function AdminEditProductPage() {
   const router = useRouter();
   const params = useParams();
+  const searchParams = useSearchParams();
   const id = params.id as string;
 
-  const [activeTab, setActiveTab] = useState<"details" | "photos" | "preview">("details");
+  const tabParam = searchParams.get("tab");
+  const [activeTab, setActiveTab] = useState<"details" | "photos" | "preview">(
+    tabParam === "photos" ? "photos" : tabParam === "preview" ? "preview" : "details"
+  );
+
   const [collections, setCollections] = useState<Array<{ id: number; name: string; slug: string }>>(DEFAULT_COLLECTIONS);
   const [metalRates, setMetalRates] = useState<Array<{ purity: string; rate_inr: number }>>([]);
   const [images, setImages] = useState<ProductImageItem[]>([]);

@@ -19,17 +19,17 @@ export const RingSizesRepo = {
       | undefined;
 
     if (!row) {
-      // Seed default config (3 to 15, step 0.5, SAME_PRICE, /images/ring-size-chart.svg)
+      // Seed default config (3 to 15, step 0.5, SAME_PRICE, /images/Civaraa_Ring_size.png)
       db.prepare(`
         INSERT INTO ring_sizes (min_size, max_size, increment, pricing_mode, chart_image_url, is_active, updated_at)
-        VALUES (3.0, 15.0, 0.5, 'SAME_PRICE', '/images/ring-size-chart.svg', 1, datetime('now'))
+        VALUES (3.0, 15.0, 0.5, 'SAME_PRICE', '/images/Civaraa_Ring_size.png', 1, datetime('now'))
       `).run();
 
       row = db.prepare("SELECT * FROM ring_sizes WHERE is_active = 1 ORDER BY id DESC LIMIT 1").get() as DbRingSizeConfig;
     }
 
     if (row && !row.chart_image_url) {
-      row.chart_image_url = "/images/ring-size-chart.svg";
+      row.chart_image_url = "/images/Civaraa_Ring_size.png";
     }
 
     return row;
@@ -61,7 +61,7 @@ export const RingSizesRepo = {
   }): DbRingSizeConfig {
     const current = this.getConfig();
     const pricingMode = input.pricing_mode || current.pricing_mode || "SAME_PRICE";
-    const chartImageUrl = input.chart_image_url !== undefined ? input.chart_image_url : (current.chart_image_url || "/images/ring-size-chart.svg");
+    const chartImageUrl = input.chart_image_url !== undefined ? input.chart_image_url : (current.chart_image_url || "/images/Civaraa_Ring_size.png");
 
     db.prepare(`
       UPDATE ring_sizes 

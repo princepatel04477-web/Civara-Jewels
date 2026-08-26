@@ -2,6 +2,10 @@ import { NextResponse } from "next/server";
 import { RingSizesRepo } from "@/lib/db/repo/ring-sizes";
 import { getAdminSession } from "@/lib/auth/session";
 import { getClientIP } from "@/lib/auth/ip";
+import { getUploadsDir } from "@/lib/db/client";
+import fs from "fs";
+import path from "path";
+import crypto from "crypto";
 import { z } from "zod";
 
 const updateRingConfigSchema = z.object({
@@ -42,8 +46,31 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Minimum size must be less than maximum size" }, { status: 400 });
     }
 
+    let chartUrl = parsed.data.chart_image_url;
+    if (chartUrl && chartUrl.startsWith("data:image/")) {
+      const match = chartUrl.match(/^data:image\/([a-zA-Z0-9+]+);base64,(.+)$/);
+      if (match) {
+        const rawExt = match[1].toLowerCase().replace("jpeg", "jpg");
+        const base64Data = match[2];
+        const buffer = Buffer.from(base64Data, "base64");
+        const filename = `ring-size-chart-${crypto.randomUUID().slice(0, 8)}.${rawExt}`;
+        
+        const uploadsDir = getUploadsDir();
+        const publicUploadsDir = path.join(process.cwd(), "public", "uploads");
+        if (!fs.existsSync(publicUploadsDir)) {
+          try { fs.mkdirSync(publicUploadsDir, { recursive: true }); } catch {}
+        }
+
+        try { fs.writeFileSync(path.join(uploadsDir, filename), buffer); } catch {}
+        try { fs.writeFileSync(path.join(publicUploadsDir, filename), buffer); } catch {}
+
+        chartUrl = `/uploads/${filename}`;
+      }
+    }
+
     const updated = RingSizesRepo.updateConfig({
       ...parsed.data,
+      chart_image_url: chartUrl,
       adminEmail,
       ipAddress: ip,
     });
@@ -54,3 +81,4 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: error.message || "Failed to update ring config" }, { status: 500 });
   }
 }
+

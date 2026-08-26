@@ -14,7 +14,6 @@ import {
   ArrowRight,
   ShieldCheck,
   Diamond,
-  TrendingUp,
   RefreshCw,
 } from "lucide-react";
 
@@ -189,47 +188,6 @@ export default function BespokePage() {
           <p className="text-sm sm:text-base font-light leading-relaxed text-[#6E6459] max-w-2xl mx-auto">
             Every bespoke piece at Civara is handcrafted to order over 2 to 3 weeks. A single dedicated goldsmith guides your piece from initial gouache drawing to official BIS hallmarking.
           </p>
-        </div>
-      </section>
-
-      {/* Live Metal Benchmark Rates Ticker Section */}
-      <section className="bg-[#FAF7F0] border-b border-[#E6DFD3] py-6 px-6 lg:px-20">
-        <div className="max-w-6xl mx-auto space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <div className="flex items-center gap-2 text-xs uppercase tracking-[0.22em] text-[#9E7F3C] font-semibold">
-              <TrendingUp className="w-4 h-4 text-[#9E7F3C]" /> Active Atelier Benchmark Valuation Rates
-            </div>
-            <div className="text-[11px] text-[#6E6459] flex items-center gap-1.5 font-mono">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" /> Live Transparent Pricing Standard
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-            {karatTiers.filter(k => k.id !== "Platinum").map((k) => {
-              const rate = metalRates[k.rateKey] || k.defaultRate;
-              const isSelected = selectedKarat === k.id;
-              return (
-                <div
-                  key={k.id}
-                  onClick={() => setSelectedKarat(k.id)}
-                  className={`p-3.5 border transition-all cursor-pointer rounded-sm ${
-                    isSelected
-                      ? "border-[#C9A961] bg-[#FFFFFF] shadow-sm ring-1 ring-[#C9A961]"
-                      : "border-[#E6DFD3] bg-[#FBF7F0] hover:border-[#9E7F3C]"
-                  }`}
-                >
-                  <div className="flex justify-between items-baseline">
-                    <span className="font-serif text-sm font-semibold text-[#241F1B]">{k.label}</span>
-                    <span className="text-[9px] uppercase tracking-wider text-[#9E7F3C] font-mono">{k.hallmark}</span>
-                  </div>
-                  <div className="text-base font-serif font-bold text-[#241F1B] mt-1">
-                    ₹{formatINR(rate).replace("₹", "")}/-
-                  </div>
-                  <div className="text-[10px] text-[#6E6459] font-mono">per {k.unit ? "1 kg" : "10 grams"}</div>
-                </div>
-              );
-            })}
-          </div>
         </div>
       </section>
 
@@ -629,7 +587,7 @@ export default function BespokePage() {
                 <ShieldCheck className="w-4 h-4 text-[#9E7F3C]" /> Confidential atelier consultation · Verified BIS benchmark rates
               </div>
               <a
-                href={`https://wa.me/919999900000?text=${whatsappMessage}`}
+                href={`https://wa.me/918866077237?text=${whatsappMessage}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-[#241F1B] text-[#C9A961] px-8 py-3.5 text-xs uppercase tracking-[0.22em] font-medium hover:bg-[#181412] transition-colors rounded-sm cursor-pointer shadow-sm"

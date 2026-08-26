@@ -11,7 +11,6 @@ import {
   Check 
 } from "lucide-react";
 import { Product } from "../../../lib/catalog";
-import { formatINR } from "../../../lib/pricing/compute";
 
 interface ProductSpecsAccordionProps {
   product: Product;
@@ -519,30 +518,11 @@ export const ProductSpecsAccordion: React.FC<ProductSpecsAccordionProps> = ({
 
         {openSections.financing && (
           <div className="pb-6 space-y-3 text-xs sm:text-[13px] text-[#4A4238] font-light leading-relaxed animate-fadeIn">
-            <div className="bg-[#FAF7F0] p-4 border border-[#E6DFD3] space-y-2">
-              <div className="flex justify-between text-xs pb-1 border-b border-[#E6DFD3]/60">
-                <span>Net Gold ({(product.netWeightG || 3.4).toFixed(2)}g @ ₹{calculatedPricing.rateUsed.toLocaleString("en-IN")}/10g)</span>
-                <span className="font-mono text-[#241F1B] font-medium">{formatINR(calculatedPricing.metalAmount)}</span>
-              </div>
-              <div className="flex justify-between text-xs pb-1 border-b border-[#E6DFD3]/60">
-                <span>Certified Diamond ({stoneWeightVal} CT. T.W.)</span>
-                <span className="font-mono text-[#241F1B] font-medium">{formatINR(calculatedPricing.diamondAmount)}</span>
-              </div>
-              <div className="flex justify-between text-xs pb-1 border-b border-[#E6DFD3]/60">
-                <span>Master Goldsmith Making Charges</span>
-                <span className="font-mono text-[#241F1B] font-medium">{formatINR(calculatedPricing.makingCharges)}</span>
-              </div>
-              <div className="flex justify-between text-xs pb-1 border-b border-[#E6DFD3]/60">
-                <span>3% Statutory GST & Hallmarking</span>
-                <span className="font-mono text-[#241F1B] font-medium">{formatINR(calculatedPricing.gstAmount)}</span>
-              </div>
-              <div className="flex justify-between text-sm font-serif font-medium text-[#241F1B] pt-1">
-                <span>Total Dynamic Value</span>
-                <span className="text-[#9E7F3C] font-mono font-semibold">{formatINR(calculatedPricing.totalPrice)}</span>
-              </div>
-            </div>
+            <p>
+              We offer bespoke atelier installment plans and flexible payment schedules. Secure payments are accepted via UPI, credit/debit cards, bank wire transfers, and verified concierge links.
+            </p>
             <p className="text-[11px] text-[#6E6459]">
-              Transparent pricing with no hidden charges. Flexible atelier installment options available upon enquiry.
+              All valuations include BIS assay hallmarking, transit insurance, and statutory GST with zero hidden costs. Contact your client advisor to arrange split-payment milestones.
             </p>
           </div>
         )}

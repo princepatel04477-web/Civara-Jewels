@@ -180,7 +180,7 @@ export default function ProductDetailPage() {
       `*Dynamic Atelier Value:* ₹${calculatedPricing.totalPrice.toLocaleString("en-IN")}\n\n` +
       `Please connect me with an Atelier Private Client Advisor.`
     );
-    window.open(`https://wa.me/919999900000?text=${text}`, "_blank", "noopener,noreferrer");
+    window.open(`https://wa.me/918866077237?text=${text}`, "_blank", "noopener,noreferrer");
   };
 
   const metalOptionList = product.metalOptions && product.metalOptions.length > 0 

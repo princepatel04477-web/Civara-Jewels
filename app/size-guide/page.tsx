@@ -7,7 +7,7 @@ import { Download, Maximize2, X, Image as ImageIcon, Sparkles, MessageCircle } f
 
 export default function SizeGuidePage() {
   const [activeChain, setActiveChain] = useState<string | null>("18 inch");
-  const [chartImageUrl, setChartImageUrl] = useState<string>("/images/ring-size-chart.svg");
+  const [chartImageUrl, setChartImageUrl] = useState<string>("/images/Civaraa_Ring_size.png");
   const [isZoomOpen, setIsZoomOpen] = useState(false);
 
   useEffect(() => {

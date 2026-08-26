@@ -225,11 +225,11 @@ function seedDatabaseIfNeeded(database: Database.Database) {
     if (!existingRing) {
       database.prepare(`
         INSERT INTO ring_sizes (id, min_size, max_size, increment, pricing_mode, chart_image_url, updated_at)
-        VALUES (1, 3.0, 15.0, 0.5, 'SAME_PRICE', '/images/ring-size-chart.svg', datetime('now'))
+        VALUES (1, 3.0, 15.0, 0.5, 'SAME_PRICE', '/images/Civaraa_Ring_size.png', datetime('now'))
       `).run();
-    } else if (!existingRing.chart_image_url) {
+    } else if (!existingRing.chart_image_url || existingRing.chart_image_url === '/images/ring-size-chart.svg') {
       database.prepare(`
-        UPDATE ring_sizes SET chart_image_url = '/images/ring-size-chart.svg' WHERE id = 1
+        UPDATE ring_sizes SET chart_image_url = '/images/Civaraa_Ring_size.png' WHERE id = 1
       `).run();
     }
 

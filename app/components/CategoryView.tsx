@@ -186,7 +186,7 @@ export const CategoryView: React.FC<CategoryViewProps> = ({ categorySlug }) => {
               <Calendar className="w-4 h-4" /> Book a Private Viewing
             </Link>
             <a
-              href={`https://wa.me/919999900000?text=Hello%20Civara%20Jewels%2C%20I%20am%20interested%20in%20the%20${encodeURIComponent(categoryName)}%20collection.`}
+              href={`https://wa.me/918866077237?text=Hello%20Civara%20Jewels%2C%20I%20am%20interested%20in%20the%20${encodeURIComponent(categoryName)}%20collection.`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 border border-[#C9A961] text-[#C9A961] px-8 py-4 text-xs uppercase tracking-[0.22em] font-medium hover:bg-[#C9A961] hover:text-[#241F1B] transition-colors"

@@ -8,16 +8,54 @@ import path from "path";
 import crypto from "crypto";
 import { getUploadsDir } from "@/lib/db/client";
 
+function resolveProduct(idOrSlug: string) {
+  const numericId = parseInt(idOrSlug, 10);
+  if (!isNaN(numericId)) {
+    const p = ProductRepo.getProductById(numericId);
+    if (p) return p;
+  }
+  return ProductRepo.getProductBySlug(idOrSlug);
+}
+
+function saveBufferToUploads(filename: string, buffer: Buffer): string {
+  const uploadsDir = getUploadsDir();
+  const publicUploadsDir = path.join(process.cwd(), "public", "uploads");
+
+  if (!fs.existsSync(publicUploadsDir)) {
+    try {
+      fs.mkdirSync(publicUploadsDir, { recursive: true });
+    } catch {
+      // ignore
+    }
+  }
+
+  // 1. Write to persistent uploads dir
+  try {
+    fs.writeFileSync(path.join(uploadsDir, filename), buffer);
+  } catch (err) {
+    console.error("[Disk Upload Write Error: Data Dir]", err);
+  }
+
+  // 2. Write to public uploads dir for instant static serving
+  try {
+    fs.writeFileSync(path.join(publicUploadsDir, filename), buffer);
+  } catch (err) {
+    console.error("[Disk Upload Write Error: Public Dir]", err);
+  }
+
+  return `/uploads/${filename}`;
+}
+
 export async function GET(
   request: Request,
   { params }: { params: { id: string } }
 ) {
-  const productId = parseInt(params.id, 10);
-  if (isNaN(productId)) {
-    return NextResponse.json({ error: "Invalid product ID" }, { status: 400 });
+  const product = resolveProduct(params.id);
+  if (!product) {
+    return NextResponse.json({ error: "Product not found" }, { status: 404 });
   }
 
-  const images = ProductRepo.listProductImages(productId);
+  const images = ProductRepo.listProductImages(product.id);
   return NextResponse.json({ images });
 }
 
@@ -25,15 +63,11 @@ export async function POST(
   request: Request,
   { params }: { params: { id: string } }
 ) {
-  const productId = parseInt(params.id, 10);
-  if (isNaN(productId)) {
-    return NextResponse.json({ error: "Invalid product ID" }, { status: 400 });
-  }
-
-  const product = ProductRepo.getProductById(productId);
+  const product = resolveProduct(params.id);
   if (!product) {
     return NextResponse.json({ error: "Product not found" }, { status: 404 });
   }
+  const productId = product.id;
 
   const session = await getAdminSession();
   const adminEmail = session.email || "Admin";
@@ -41,7 +75,6 @@ export async function POST(
 
   try {
     const contentType = request.headers.get("content-type") || "";
-    const uploadsDir = getUploadsDir();
     const currentImages = ProductRepo.listProductImages(productId);
     const existingCount = currentImages.length;
     const savedImages = [];
@@ -49,15 +82,15 @@ export async function POST(
     // Mode 1: JSON payload with Base64 / URL strings
     if (contentType.includes("application/json")) {
       const body = await request.json();
-      const items: Array<{ path?: string; dataUrl?: string; alt?: string }> = Array.isArray(body.images)
+      const items: Array<{ path?: string; dataUrl?: string; url?: string; alt?: string }> = Array.isArray(body.images)
         ? body.images
-        : body.dataUrl || body.path
+        : body.dataUrl || body.path || body.url
         ? [body]
         : [];
 
       for (let i = 0; i < items.length; i++) {
         const item = items[i];
-        let imagePath = item.path || "";
+        let imagePath = item.path || item.url || "";
 
         if (item.dataUrl && item.dataUrl.startsWith("data:image/")) {
           const match = item.dataUrl.match(/^data:image\/([a-zA-Z0-9+]+);base64,(.+)$/);
@@ -67,11 +100,9 @@ export async function POST(
             const buffer = Buffer.from(base64Data, "base64");
             const uuid = crypto.randomUUID();
             const filename = `${uuid}.${rawExt}`;
-            const diskPath = path.join(uploadsDir, filename);
 
             try {
-              fs.writeFileSync(diskPath, buffer);
-              imagePath = `/uploads/${filename}`;
+              imagePath = saveBufferToUploads(filename, buffer);
             } catch {
               // fallback to storing dataUrl directly if disk write is constrained
               imagePath = item.dataUrl;
@@ -120,7 +151,6 @@ export async function POST(
 
         // Try sharp optimization if available, otherwise preserve raw buffer
         try {
-          // Dynamic import of sharp to prevent hard crash if binary binding differs
           const sharpModule = await import("sharp");
           const sharp = sharpModule.default || sharpModule;
           const imagePipeline = sharp(buffer);
@@ -133,7 +163,7 @@ export async function POST(
               fit: "inside",
               withoutEnlargement: true,
             })
-            .webp({ quality: 88, effort: 4 })
+            .webp({ quality: 90, effort: 4 })
             .toBuffer();
           finalExt = ".webp";
         } catch {
@@ -144,13 +174,11 @@ export async function POST(
 
         const uuid = crypto.randomUUID();
         const filename = `${uuid}${finalExt}`;
-        const diskPath = path.join(uploadsDir, filename);
 
         let relativeWebPath = `/uploads/${filename}`;
         try {
-          fs.writeFileSync(diskPath, outputBuffer);
+          relativeWebPath = saveBufferToUploads(filename, outputBuffer);
         } catch {
-          // If filesystem write fails, fallback to inline base64 data URI
           const mimeType = finalExt === ".webp" ? "image/webp" : file.type || "image/jpeg";
           relativeWebPath = `data:${mimeType};base64,${outputBuffer.toString("base64")}`;
         }
@@ -196,10 +224,11 @@ export async function PUT(
   request: Request,
   { params }: { params: { id: string } }
 ) {
-  const productId = parseInt(params.id, 10);
-  if (isNaN(productId)) {
-    return NextResponse.json({ error: "Invalid product ID" }, { status: 400 });
+  const product = resolveProduct(params.id);
+  if (!product) {
+    return NextResponse.json({ error: "Product not found" }, { status: 404 });
   }
+  const productId = product.id;
 
   try {
     const session = await getAdminSession();
@@ -233,3 +262,4 @@ export async function PUT(
     return NextResponse.json({ error: error.message || "Failed to reorder images" }, { status: 500 });
   }
 }
+
