@@ -39,8 +39,11 @@ export default function ProductDetailPage() {
   const [selectedMetal, setSelectedMetal] = useState(
     product.metalOptions?.[0] || "18K Yellow Gold"
   );
+  const [selectedDiamondType, setSelectedDiamondType] = useState<"Natural Diamond" | "Lab Grown Diamond">(
+    "Natural Diamond"
+  );
   const [selectedSize, setSelectedSize] = useState(
-    product.sizeOptions ? product.sizeOptions[0] : "12"
+    product.sizeOptions ? product.sizeOptions[0] : "3"
   );
   const [isViewingOpen, setIsViewingOpen] = useState(false);
   const [isSaved, setIsSaved] = useState(() => isInWishlist(product.id));
@@ -176,6 +179,7 @@ export default function ProductDetailPage() {
       `*Civara Atelier Enquiry*\n\n` +
       `I would like to enquire about ordering the *${product.name}*.\n\n` +
       `*Metal:* ${selectedMetal} (${calculatedPricing.hallmarkString})\n` +
+      `*Diamond:* ${selectedDiamondType}\n` +
       (product.sizeType === "ring" ? `*Ring Size:* ${selectedSize}\n` : "") +
       `*Dynamic Atelier Value:* ₹${calculatedPricing.totalPrice.toLocaleString("en-IN")}\n\n` +
       `Please connect me with an Atelier Private Client Advisor.`
@@ -351,6 +355,41 @@ export default function ProductDetailPage() {
                   >
                     <span className={`w-3 h-3 rounded-full border ${swatch.color} ${swatch.border}`} />
                     <span className="text-[11px] font-medium">{swatch.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Diamond Selection (Natural Diamond vs Lab Grown Diamond) */}
+          <div className="space-y-2 pt-1">
+            <div className="flex items-center justify-between border-b border-[#E6DFD3] pb-1.5">
+              <div className="text-[11px] uppercase tracking-[0.2em] text-[#6E6459]">
+                Diamond: <strong className="text-[#241F1B] font-serif">{selectedDiamondType}</strong>
+              </div>
+              <span className="text-[11px] text-[#9E7F3C] font-medium">
+                {selectedDiamondType === "Natural Diamond" ? "GIA / IGI Certified Natural" : "IGI Certified Lab Grown"}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                { name: "Natural Diamond", label: "Natural Diamond" },
+                { name: "Lab Grown Diamond", label: "Lab Grown Diamond" },
+              ].map((dia) => {
+                const isSelected = selectedDiamondType === dia.name;
+                return (
+                  <button
+                    key={dia.name}
+                    type="button"
+                    onClick={() => setSelectedDiamondType(dia.name as any)}
+                    className={`py-2 px-3 text-xs tracking-wider border transition-all text-center cursor-pointer ${
+                      isSelected
+                        ? "border-[#241F1B] bg-[#241F1B] text-[#C9A961] font-medium shadow-xs"
+                        : "border-[#E6DFD3] bg-[#FFFFFF] text-[#6E6459] hover:border-[#9E7F3C] hover:text-[#241F1B]"
+                    }`}
+                  >
+                    {dia.label}
                   </button>
                 );
               })}

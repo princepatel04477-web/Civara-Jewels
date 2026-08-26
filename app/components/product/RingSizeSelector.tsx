@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { HelpCircle, X, Download, MessageCircle, Maximize2, Image as ImageIcon, Table as TableIcon, Check } from "lucide-react";
+import { HelpCircle, X, Download, MessageCircle, Maximize2, Image as ImageIcon, Table as TableIcon, Check, ChevronDown, ChevronUp } from "lucide-react";
 
 interface RingSizeSelectorProps {
   selectedSize: string;
@@ -17,6 +17,9 @@ export const RingSizeSelector: React.FC<RingSizeSelectorProps> = ({
   const [isGuideOpen, setIsGuideOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"chart" | "table">("chart");
   const [isFullImageZoom, setIsFullImageZoom] = useState(false);
+  const [showAllSizes, setShowAllSizes] = useState<boolean>(
+    Boolean(selectedSize && parseFloat(selectedSize) > 6.0)
+  );
 
   // Default half-size increments from 3 to 15
   const defaultSizes = [
@@ -51,6 +54,17 @@ export const RingSizeSelector: React.FC<RingSizeSelectorProps> = ({
           .catch(() => {});
       });
   }, []);
+
+  // Ensure expanded view if a large size is selected
+  useEffect(() => {
+    if (selectedSize && parseFloat(selectedSize) > 6.0) {
+      setShowAllSizes(true);
+    }
+  }, [selectedSize]);
+
+  const visibleSizes = showAllSizes
+    ? sizes
+    : sizes.filter((s) => parseFloat(s) <= 6.0);
 
   const handleRequestSizerWhatsApp = () => {
     const text = encodeURIComponent(
@@ -109,25 +123,46 @@ export const RingSizeSelector: React.FC<RingSizeSelectorProps> = ({
         </button>
       </div>
 
-      {/* Grid of Clickable Size Boxes (Size 3 to 15 in 0.5 increments) */}
-      <div className="flex flex-wrap gap-2 pt-1">
-        {sizes.map((size) => {
-          const isSelected = String(selectedSize) === String(size);
-          return (
-            <button
-              key={size}
-              type="button"
-              onClick={() => onSelectSize(size)}
-              className={`min-w-[42px] py-2 px-2.5 text-center text-xs font-medium border transition-all cursor-pointer ${
-                isSelected
-                  ? "border-[#241F1B] bg-[#241F1B] text-[#C9A961] shadow-xs"
-                  : "border-[#E6DFD3] bg-[#FFFFFF] text-[#6E6459] hover:border-[#9E7F3C] hover:text-[#241F1B] hover:bg-[#FAF7F0]"
-              }`}
-            >
-              {size}
-            </button>
-          );
-        })}
+      {/* Grid of Clickable Size Boxes (3 to 6 initially visible, expandable to 15) */}
+      <div className="space-y-2">
+        <div className="flex flex-wrap gap-2 pt-1">
+          {visibleSizes.map((size) => {
+            const isSelected = String(selectedSize) === String(size);
+            return (
+              <button
+                key={size}
+                type="button"
+                onClick={() => onSelectSize(size)}
+                className={`min-w-[42px] py-2 px-2.5 text-center text-xs font-medium border transition-all cursor-pointer ${
+                  isSelected
+                    ? "border-[#241F1B] bg-[#241F1B] text-[#C9A961] shadow-xs"
+                    : "border-[#E6DFD3] bg-[#FFFFFF] text-[#6E6459] hover:border-[#9E7F3C] hover:text-[#241F1B] hover:bg-[#FAF7F0]"
+                }`}
+              >
+                {size}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* View More Sizes Toggle */}
+        <div className="pt-0.5">
+          <button
+            type="button"
+            onClick={() => setShowAllSizes(!showAllSizes)}
+            className="text-xs text-[#9E7F3C] hover:text-[#241F1B] underline font-medium inline-flex items-center gap-1 cursor-pointer"
+          >
+            {showAllSizes ? (
+              <>
+                <ChevronUp className="w-3.5 h-3.5" /> Show Standard Sizes (3 to 6)
+              </>
+            ) : (
+              <>
+                <ChevronDown className="w-3.5 h-3.5" /> + View More Sizes (6.5 to 15)
+              </>
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Size Guide Modal with Visual Ring Size Chart Photo */}
