@@ -89,13 +89,13 @@ export const RingSizeSelector: React.FC<RingSizeSelectorProps> = ({
 
   return (
     <div className="w-full space-y-3">
-      {/* Header Row: Label, Selected Badge & Guide Link */}
-      <div className="flex items-center justify-between text-xs">
+      {/* Header Row: Label, Selected Badge & SINGLE Guide Link */}
+      <div className="flex items-center justify-between text-xs border-b border-[#E6DFD3] pb-1.5">
         <div className="flex items-center gap-2">
-          <span className="uppercase tracking-[0.16em] text-[11px] text-[#6E6459] font-medium">
+          <span className="uppercase tracking-[0.2em] text-[11px] text-[#6E6459] font-medium">
             Ring Size:
           </span>
-          <span className="font-serif text-sm font-medium text-[#241F1B]">
+          <span className="font-serif text-sm font-semibold text-[#241F1B]">
             Size {selectedSize}
           </span>
         </div>
@@ -103,39 +103,31 @@ export const RingSizeSelector: React.FC<RingSizeSelectorProps> = ({
         <button
           type="button"
           onClick={() => setIsGuideOpen(true)}
-          className="text-[11px] text-[#9E7F3C] hover:underline inline-flex items-center gap-1 cursor-pointer"
+          className="text-[11px] text-[#9E7F3C] hover:text-[#241F1B] hover:underline inline-flex items-center gap-1 cursor-pointer font-medium"
         >
           <HelpCircle className="w-3.5 h-3.5" /> Size Guide
         </button>
       </div>
 
-      {/* Jared-style Clean Size Dropdown & Guide Link */}
-      <div className="flex items-center gap-3">
-        <div className="flex-1 relative">
-          <select
-            value={selectedSize}
-            onChange={(e) => onSelectSize(e.target.value)}
-            className="w-full bg-[#FAF7F0] border border-[#E6DFD3] focus:border-[#9E7F3C] text-[#241F1B] px-3.5 py-2.5 text-xs rounded-none cursor-pointer focus:outline-none appearance-none font-medium"
-            aria-label="Select a Size"
-          >
-            {sizes.map((size) => (
-              <option key={size} value={size}>
-                Size {size} (Standard Indian / US Scale)
-              </option>
-            ))}
-          </select>
-          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-[#9E7F3C]">
-            ▼
-          </div>
-        </div>
-
-        <button
-          type="button"
-          onClick={() => setIsGuideOpen(true)}
-          className="text-xs text-[#9E7F3C] hover:underline inline-flex items-center gap-1 shrink-0 p-2 cursor-pointer"
-        >
-          <HelpCircle className="w-3.5 h-3.5" /> Size Guide
-        </button>
+      {/* Grid of Clickable Size Boxes (Size 3 to 15 in 0.5 increments) */}
+      <div className="flex flex-wrap gap-2 pt-1">
+        {sizes.map((size) => {
+          const isSelected = String(selectedSize) === String(size);
+          return (
+            <button
+              key={size}
+              type="button"
+              onClick={() => onSelectSize(size)}
+              className={`min-w-[42px] py-2 px-2.5 text-center text-xs font-medium border transition-all cursor-pointer ${
+                isSelected
+                  ? "border-[#241F1B] bg-[#241F1B] text-[#C9A961] shadow-xs"
+                  : "border-[#E6DFD3] bg-[#FFFFFF] text-[#6E6459] hover:border-[#9E7F3C] hover:text-[#241F1B] hover:bg-[#FAF7F0]"
+              }`}
+            >
+              {size}
+            </button>
+          );
+        })}
       </div>
 
       {/* Size Guide Modal with Visual Ring Size Chart Photo */}
