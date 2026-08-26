@@ -137,6 +137,14 @@ export function runMigrations(database: Database.Database = db) {
         console.log(`[Database Schema] Added column: products.${col.name}`);
       }
     }
+
+    // Ensure ring_sizes table has chart_image_url column
+    const ringTableInfo = database.prepare("PRAGMA table_info(ring_sizes)").all() as Array<{ name: string }>;
+    const existingRingCols = new Set(ringTableInfo.map((c) => c.name));
+    if (!existingRingCols.has("chart_image_url")) {
+      database.exec("ALTER TABLE ring_sizes ADD COLUMN chart_image_url TEXT;");
+      console.log("[Database Schema] Added column: ring_sizes.chart_image_url");
+    }
   } catch (err) {
     console.error("[Database Schema Ensure Error]", err);
   }
@@ -212,16 +220,16 @@ function seedDatabaseIfNeeded(database: Database.Database) {
       }
     }
 
-    // 4. Seed & Sync Ring Size Config (Size 3 to 15 in 0.5 increments)
-    const existingRing = database.prepare("SELECT id FROM ring_sizes WHERE id = 1").get() as { id: number } | undefined;
+    // 4. Seed & Sync Ring Size Config (Size 3 to 15 in 0.5 increments + Chart Image)
+    const existingRing = database.prepare("SELECT id, chart_image_url FROM ring_sizes WHERE id = 1").get() as { id: number; chart_image_url?: string | null } | undefined;
     if (!existingRing) {
       database.prepare(`
-        INSERT INTO ring_sizes (id, min_size, max_size, increment, pricing_mode, updated_at)
-        VALUES (1, 3.0, 15.0, 0.5, 'SAME_PRICE', datetime('now'))
+        INSERT INTO ring_sizes (id, min_size, max_size, increment, pricing_mode, chart_image_url, updated_at)
+        VALUES (1, 3.0, 15.0, 0.5, 'SAME_PRICE', '/images/ring-size-chart.svg', datetime('now'))
       `).run();
-    } else {
+    } else if (!existingRing.chart_image_url) {
       database.prepare(`
-        UPDATE ring_sizes SET min_size = 3.0, max_size = 15.0, increment = 0.5, pricing_mode = 'SAME_PRICE' WHERE id = 1
+        UPDATE ring_sizes SET chart_image_url = '/images/ring-size-chart.svg' WHERE id = 1
       `).run();
     }
 

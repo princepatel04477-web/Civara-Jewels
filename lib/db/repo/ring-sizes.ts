@@ -7,6 +7,7 @@ export interface DbRingSizeConfig {
   max_size: number;
   increment: number;
   pricing_mode: string; // 'SAME_PRICE' | 'VARIABLE'
+  chart_image_url?: string | null;
   is_active: number;
   updated_at: string;
 }
@@ -18,13 +19,17 @@ export const RingSizesRepo = {
       | undefined;
 
     if (!row) {
-      // Seed default config (3 to 15, step 0.5, SAME_PRICE)
+      // Seed default config (3 to 15, step 0.5, SAME_PRICE, /images/ring-size-chart.svg)
       db.prepare(`
-        INSERT INTO ring_sizes (min_size, max_size, increment, pricing_mode, is_active, updated_at)
-        VALUES (3.0, 15.0, 0.5, 'SAME_PRICE', 1, datetime('now'))
+        INSERT INTO ring_sizes (min_size, max_size, increment, pricing_mode, chart_image_url, is_active, updated_at)
+        VALUES (3.0, 15.0, 0.5, 'SAME_PRICE', '/images/ring-size-chart.svg', 1, datetime('now'))
       `).run();
 
       row = db.prepare("SELECT * FROM ring_sizes WHERE is_active = 1 ORDER BY id DESC LIMIT 1").get() as DbRingSizeConfig;
+    }
+
+    if (row && !row.chart_image_url) {
+      row.chart_image_url = "/images/ring-size-chart.svg";
     }
 
     return row;
@@ -50,17 +55,19 @@ export const RingSizesRepo = {
     max_size: number;
     increment: number;
     pricing_mode?: string;
+    chart_image_url?: string | null;
     adminEmail?: string;
     ipAddress?: string | null;
   }): DbRingSizeConfig {
     const current = this.getConfig();
     const pricingMode = input.pricing_mode || current.pricing_mode || "SAME_PRICE";
+    const chartImageUrl = input.chart_image_url !== undefined ? input.chart_image_url : (current.chart_image_url || "/images/ring-size-chart.svg");
 
     db.prepare(`
       UPDATE ring_sizes 
-      SET min_size = ?, max_size = ?, increment = ?, pricing_mode = ?, updated_at = datetime('now')
+      SET min_size = ?, max_size = ?, increment = ?, pricing_mode = ?, chart_image_url = ?, updated_at = datetime('now')
       WHERE id = ?
-    `).run(input.min_size, input.max_size, input.increment, pricingMode, current.id);
+    `).run(input.min_size, input.max_size, input.increment, pricingMode, chartImageUrl, current.id);
 
     AuditRepo.log({
       action: "RING_SIZES_CONFIG_UPDATED",
@@ -68,7 +75,7 @@ export const RingSizesRepo = {
       entityId: current.id,
       adminEmail: input.adminEmail || "Admin",
       ipAddress: input.ipAddress || null,
-      details: { min_size: input.min_size, max_size: input.max_size, increment: input.increment, pricingMode },
+      details: { min_size: input.min_size, max_size: input.max_size, increment: input.increment, pricingMode, chartImageUrl },
     });
 
     return this.getConfig();

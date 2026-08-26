@@ -9,6 +9,7 @@ const updateRingConfigSchema = z.object({
   max_size: z.number().positive(),
   increment: z.number().positive(),
   pricing_mode: z.enum(["SAME_PRICE", "VARIABLE"]).optional(),
+  chart_image_url: z.string().nullable().optional(),
 });
 
 export async function GET() {

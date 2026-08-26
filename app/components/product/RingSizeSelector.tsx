@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { HelpCircle, X, Download, MessageCircle, Check } from "lucide-react";
+import { HelpCircle, X, Download, MessageCircle, Maximize2, Image as ImageIcon, Table as TableIcon, Check } from "lucide-react";
 
 interface RingSizeSelectorProps {
   selectedSize: string;
@@ -15,8 +15,10 @@ export const RingSizeSelector: React.FC<RingSizeSelectorProps> = ({
   productName = "Solitaire Ring",
 }) => {
   const [isGuideOpen, setIsGuideOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<"chart" | "table">("chart");
+  const [isFullImageZoom, setIsFullImageZoom] = useState(false);
 
-  // Default half-size increments from 3 to 15 (per civara-admin.md)
+  // Default half-size increments from 3 to 15
   const defaultSizes = [
     "3", "3.5", "4", "4.5", "5", "5.5", "6", "6.5", "7", "7.5",
     "8", "8.5", "9", "9.5", "10", "10.5", "11", "11.5", "12", "12.5",
@@ -24,16 +26,30 @@ export const RingSizeSelector: React.FC<RingSizeSelectorProps> = ({
   ];
 
   const [sizes, setSizes] = useState<string[]>(defaultSizes);
+  const [chartImageUrl, setChartImageUrl] = useState<string>("/images/ring-size-chart.svg");
 
   useEffect(() => {
-    fetch("/api/admin/inventory/ring-sizes")
+    fetch("/api/public/ring-sizes")
       .then((res) => res.json())
       .then((data) => {
-        if (data && Array.isArray(data.sizes) && data.sizes.length > 0) {
-          setSizes(data.sizes);
+        if (data) {
+          if (Array.isArray(data.sizes) && data.sizes.length > 0) {
+            setSizes(data.sizes);
+          }
+          if (data.config?.chart_image_url) {
+            setChartImageUrl(data.config.chart_image_url);
+          }
         }
       })
-      .catch(() => {});
+      .catch(() => {
+        // Fallback to admin route if needed
+        fetch("/api/admin/inventory/ring-sizes")
+          .then((r) => r.json())
+          .then((d) => {
+            if (d?.config?.chart_image_url) setChartImageUrl(d.config.chart_image_url);
+          })
+          .catch(() => {});
+      });
   }, []);
 
   const handleRequestSizerWhatsApp = () => {
@@ -42,6 +58,22 @@ export const RingSizeSelector: React.FC<RingSizeSelectorProps> = ({
     );
     window.open(`https://wa.me/919999900000?text=${text}`, "_blank", "noopener,noreferrer");
   };
+
+  const ringConversionData = [
+    { us: "3.0", inSize: "5", mm: "14.1 mm", circ: "44.2 mm" },
+    { us: "4.0", inSize: "7", mm: "14.9 mm", circ: "46.8 mm" },
+    { us: "5.0", inSize: "9 / 10", mm: "15.7 mm", circ: "49.3 mm" },
+    { us: "6.0", inSize: "12", mm: "16.5 mm", circ: "51.8 mm" },
+    { us: "7.0", inSize: "14 / 15", mm: "17.3 mm", circ: "54.4 mm" },
+    { us: "8.0", inSize: "17", mm: "18.2 mm", circ: "57.0 mm" },
+    { us: "9.0", inSize: "19 / 20", mm: "19.0 mm", circ: "59.5 mm" },
+    { us: "10.0", inSize: "22", mm: "19.8 mm", circ: "62.1 mm" },
+    { us: "11.0", inSize: "24 / 25", mm: "20.6 mm", circ: "64.6 mm" },
+    { us: "12.0", inSize: "27", mm: "21.4 mm", circ: "67.2 mm" },
+    { us: "13.0", inSize: "29", mm: "22.2 mm", circ: "69.7 mm" },
+    { us: "14.0", inSize: "31", mm: "23.0 mm", circ: "72.3 mm" },
+    { us: "15.0", inSize: "33 / 34", mm: "23.8 mm", circ: "74.8 mm" },
+  ];
 
   return (
     <div className="w-full space-y-3">
@@ -62,7 +94,7 @@ export const RingSizeSelector: React.FC<RingSizeSelectorProps> = ({
         <button
           type="button"
           onClick={() => setIsGuideOpen(true)}
-          className="text-[11px] text-[#9E7F3C] hover:underline inline-flex items-center gap-1"
+          className="text-[11px] text-[#9E7F3C] hover:underline inline-flex items-center gap-1 cursor-pointer"
         >
           <HelpCircle className="w-3.5 h-3.5" /> Size Guide
         </button>
@@ -91,73 +123,172 @@ export const RingSizeSelector: React.FC<RingSizeSelectorProps> = ({
         <button
           type="button"
           onClick={() => setIsGuideOpen(true)}
-          className="text-xs text-[#9E7F3C] hover:underline inline-flex items-center gap-1 shrink-0 p-2"
+          className="text-xs text-[#9E7F3C] hover:underline inline-flex items-center gap-1 shrink-0 p-2 cursor-pointer"
         >
           <HelpCircle className="w-3.5 h-3.5" /> Size Guide
         </button>
       </div>
 
-      {/* Size Guide Modal */}
+      {/* Size Guide Modal with Visual Ring Size Chart Photo */}
       {isGuideOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#181412]/75 backdrop-blur-sm animate-fadeIn"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#181412]/80 backdrop-blur-sm animate-fadeIn"
           role="dialog"
           aria-modal="true"
         >
-          <div className="relative w-full max-w-lg bg-[#FAF7F0] border border-[#C9A961]/40 p-6 sm:p-8 shadow-2xl text-[#241F1B] space-y-5">
+          <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-[#FAF7F0] border border-[#C9A961]/40 p-6 sm:p-8 shadow-2xl text-[#241F1B] space-y-6">
             <button
               onClick={() => setIsGuideOpen(false)}
-              className="absolute top-4 right-4 p-2 text-[#6E6459] hover:text-[#241F1B]"
+              className="absolute top-4 right-4 p-2 text-[#6E6459] hover:text-[#241F1B] cursor-pointer"
               aria-label="Close size guide"
             >
               <X className="w-5 h-5" />
             </button>
 
             <div className="text-center space-y-1">
-              <div className="text-[10px] uppercase tracking-[0.28em] text-[#9E7F3C]">
+              <div className="text-[10px] uppercase tracking-[0.28em] text-[#9E7F3C] font-medium">
                 Civara Atelier Service
               </div>
               <h3 className="font-serif text-2xl sm:text-3xl font-medium text-[#241F1B]">
-                Ring Sizing & Fit Guide
+                Official Ring Sizing &amp; Fit Guide
               </h3>
+              <p className="text-xs text-[#6E6459] font-light">
+                Handcrafted from Size 3 to Size 15. All sizes priced identically with 1 free resizing.
+              </p>
             </div>
 
-            <div className="space-y-3 text-xs font-light text-[#6E6459] leading-relaxed">
-              <p>
-                Our rings are handcrafted in half-size increments from <strong>Size 3 to Size 15</strong>. All ring sizes carry the exact same price. We offer <strong>one complimentary resizing</strong> within the first year of ownership.
-              </p>
-
-              <div className="border border-[#E6DFD3] bg-[#F4EDE2]/40 p-4 space-y-2">
-                <div className="font-medium text-[#241F1B] text-xs">Standard Conversion Reference:</div>
-                <div className="grid grid-cols-3 gap-2 text-[11px] text-[#241F1B]">
-                  <div>Size 5 $\approx$ 15.7mm</div>
-                  <div>Size 6 $\approx$ 16.5mm</div>
-                  <div>Size 7 $\approx$ 17.3mm</div>
-                  <div>Size 8 $\approx$ 18.2mm</div>
-                  <div>Size 10 $\approx$ 19.8mm</div>
-                  <div>Size 12 $\approx$ 21.4mm</div>
-                </div>
-              </div>
-
-              <div className="pt-2 flex flex-col sm:flex-row gap-3">
-                <a
-                  href="/Civara-Ring-Size-Guide.pdf"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex-1 border border-[#C9A961] text-[#9E7F3C] py-3 text-center text-xs uppercase tracking-wider hover:bg-[#C9A961] hover:text-[#FAF7F0] transition-colors inline-flex items-center justify-center gap-1.5"
-                >
-                  <Download className="w-3.5 h-3.5" /> Printable PDF Guide
-                </a>
-
+            {/* View Mode Toggle: Visual Photo vs Table */}
+            <div className="flex justify-center border-b border-[#E6DFD3] pb-2">
+              <div className="flex items-center gap-4 text-xs font-medium">
                 <button
                   type="button"
-                  onClick={handleRequestSizerWhatsApp}
-                  className="flex-1 bg-[#241F1B] text-[#C9A961] py-3 text-center text-xs uppercase tracking-wider hover:bg-[#181412] transition-colors inline-flex items-center justify-center gap-1.5"
+                  onClick={() => setActiveTab("chart")}
+                  className={`pb-1 uppercase tracking-wider flex items-center gap-1.5 cursor-pointer transition-colors ${
+                    activeTab === "chart"
+                      ? "text-[#241F1B] border-b-2 border-[#9E7F3C]"
+                      : "text-[#6E6459] hover:text-[#241F1B]"
+                  }`}
                 >
-                  <MessageCircle className="w-3.5 h-3.5" /> Request Sizing Kit
+                  <ImageIcon className="w-3.5 h-3.5" /> Visual Size Chart Photo
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("table")}
+                  className={`pb-1 uppercase tracking-wider flex items-center gap-1.5 cursor-pointer transition-colors ${
+                    activeTab === "table"
+                      ? "text-[#241F1B] border-b-2 border-[#9E7F3C]"
+                      : "text-[#6E6459] hover:text-[#241F1B]"
+                  }`}
+                >
+                  <TableIcon className="w-3.5 h-3.5" /> Conversion Matrix
                 </button>
               </div>
             </div>
+
+            {/* TAB 1: VISUAL RING SIZE CHART PHOTO */}
+            {activeTab === "chart" && (
+              <div className="space-y-3 animate-fadeIn">
+                <div className="relative group bg-[#FFFFFF] border border-[#E6DFD3] p-2 flex items-center justify-center overflow-hidden">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={chartImageUrl}
+                    alt="Official Civara Ring Size Chart"
+                    className="w-full max-h-[420px] object-contain cursor-zoom-in"
+                    onClick={() => setIsFullImageZoom(true)}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setIsFullImageZoom(true)}
+                    className="absolute bottom-3 right-3 bg-[#241F1B]/90 text-[#C9A961] p-2 text-xs font-medium flex items-center gap-1.5 shadow-md hover:bg-[#181412] cursor-pointer"
+                  >
+                    <Maximize2 className="w-3.5 h-3.5" /> Click to Enlarge
+                  </button>
+                </div>
+                <div className="text-center text-[11px] text-[#6E6459]">
+                  💡 Tip: Match an existing ring&apos;s inside diameter against the visual circle scale.
+                </div>
+              </div>
+            )}
+
+            {/* TAB 2: CONVERSION TABLE */}
+            {activeTab === "table" && (
+              <div className="space-y-3 animate-fadeIn">
+                <div className="overflow-x-auto border border-[#E6DFD3] bg-[#FFFFFF] max-h-72 overflow-y-auto">
+                  <table className="w-full text-left border-collapse text-xs">
+                    <thead className="sticky top-0 bg-[#F4EDE2] border-b border-[#E6DFD3] text-[#241F1B]">
+                      <tr>
+                        <th className="p-2.5 font-medium">US Size</th>
+                        <th className="p-2.5 font-medium">Indian Size</th>
+                        <th className="p-2.5 font-medium">Inside Diameter</th>
+                        <th className="p-2.5 font-medium">Circumference</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[#E6DFD3] text-[#4A4238]">
+                      {ringConversionData.map((row) => (
+                        <tr
+                          key={row.us}
+                          className={`hover:bg-[#FAF7F0] ${
+                            selectedSize === row.us ? "bg-[#F4EDE2] font-semibold text-[#241F1B]" : ""
+                          }`}
+                        >
+                          <td className="p-2.5 font-serif text-sm">Size {row.us}</td>
+                          <td className="p-2.5">{row.inSize}</td>
+                          <td className="p-2.5 font-mono">{row.mm}</td>
+                          <td className="p-2.5 font-mono">{row.circ}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {/* Actions & WhatsApp Sizer Kit */}
+            <div className="pt-2 flex flex-col sm:flex-row gap-3 border-t border-[#E6DFD3]">
+              <a
+                href={chartImageUrl}
+                download="Civara-Ring-Size-Chart.png"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 border border-[#C9A961] text-[#9E7F3C] py-3 text-center text-xs uppercase tracking-wider hover:bg-[#C9A961] hover:text-[#FAF7F0] transition-colors inline-flex items-center justify-center gap-1.5 cursor-pointer"
+              >
+                <Download className="w-3.5 h-3.5" /> Download Size Chart
+              </a>
+
+              <button
+                type="button"
+                onClick={handleRequestSizerWhatsApp}
+                className="flex-1 bg-[#241F1B] text-[#C9A961] py-3 text-center text-xs uppercase tracking-wider hover:bg-[#181412] transition-colors inline-flex items-center justify-center gap-1.5 cursor-pointer"
+              >
+                <MessageCircle className="w-3.5 h-3.5" /> Request Sizing Kit
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {/* Fullscreen Image Lightbox Zoom */}
+      {isFullImageZoom && (
+        <div
+          className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-[#181412]/95 backdrop-blur-md animate-fadeIn"
+          onClick={() => setIsFullImageZoom(false)}
+        >
+          <button
+            onClick={() => setIsFullImageZoom(false)}
+            className="absolute top-6 right-6 p-3 bg-[#241F1B] text-[#FBF7F0] hover:text-[#C9A961] rounded-full cursor-pointer z-70"
+            aria-label="Close enlarged chart"
+          >
+            <X className="w-6 h-6" />
+          </button>
+          <div className="relative max-w-4xl max-h-[90vh] bg-white p-2 border border-[#C9A961] shadow-2xl">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={chartImageUrl}
+              alt="Enlarged Civara Ring Size Chart"
+              className="max-h-[85vh] max-w-full object-contain mx-auto"
+              onClick={(e) => e.stopPropagation()}
+            />
           </div>
         </div>
       )}
