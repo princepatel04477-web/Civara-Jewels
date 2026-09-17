@@ -110,7 +110,12 @@ export default function AdminDashboardPage() {
           </h1>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          <Link href="/seller">
+            <Button variant="secondary" size="md" className="flex items-center gap-1.5 border-[#C9A961]/60 text-[#241F1B] bg-white hover:bg-[#FAF7F0] shadow-xs">
+              <Sparkles className="w-3.5 h-3.5 text-[#9E7F3C]" /> Access Seller Admin ↗
+            </Button>
+          </Link>
           <Link href="/admin/products/new">
             <Button size="md" className="flex items-center gap-1.5 shadow-sm">
               <Plus className="w-3.5 h-3.5" /> Add Design

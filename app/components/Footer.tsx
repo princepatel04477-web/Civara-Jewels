@@ -6,6 +6,19 @@ import { NewsletterCapture } from "./footer/NewsletterCapture";
 import { MapPin, MessageCircle, Phone, Mail, ShieldCheck, DollarSign } from "lucide-react";
 
 export const Footer = () => {
+  const [isAdminAllowed, setIsAdminAllowed] = React.useState(false);
+
+  React.useEffect(() => {
+    fetch("/api/auth/ip-check")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.allowed) {
+          setIsAdminAllowed(true);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   return (
     <footer id="contact" className="bg-[#241F1B] text-[#E6DFD3] border-t border-[#6E6459]/30">
       {/* Top Newsletter Strip (P2-6) */}
@@ -80,38 +93,69 @@ export const Footer = () => {
           <div className="text-[11px] tracking-[0.24em] uppercase text-[#C9A961] mb-2 font-medium">
             Atelier & Craft
           </div>
-          <ul className="space-y-2.5 font-light text-[#E6DFD3]">
-            <li><Link href="/craft" className="hover:text-[#C9A961] transition-colors">Craft & Provenance</Link></li>
-            <li><Link href="/about" className="hover:text-[#C9A961] transition-colors">The Atelier Story</Link></li>
-            <li><Link href="/bespoke" className="hover:text-[#C9A961] transition-colors">Bespoke Commissions</Link></li>
-            <li><Link href="/viewings" className="hover:text-[#C9A961] transition-colors">Private Viewings</Link></li>
-            <li><Link href="/education/4cs" className="hover:text-[#C9A961] transition-colors">Diamond Education</Link></li>
-            <li><Link href="/education/metals" className="hover:text-[#C9A961] transition-colors">18k Gold Standards</Link></li>
-            <li><Link href="/journal" className="hover:text-[#C9A961] transition-colors">Civara Journal</Link></li>
+          <ul className="space-y-2 text-xs">
+            <li><Link href="/collections/rings" className="hover:text-[#C9A961] transition-colors">Rings & Solitaires</Link></li>
+            <li><Link href="/collections/bracelets" className="hover:text-[#C9A961] transition-colors">Bracelets & Cuffs</Link></li>
+            <li><Link href="/collections/necklaces" className="hover:text-[#C9A961] transition-colors">Necklaces & Strands</Link></li>
+            <li><Link href="/collections/pendants" className="hover:text-[#C9A961] transition-colors">Pendants & Lockets</Link></li>
+            <li><Link href="/collections/bridal" className="hover:text-[#C9A961] transition-colors">Bridal Suites</Link></li>
+            <li><Link href="/collections/earrings" className="hover:text-[#C9A961] transition-colors">Earrings & Drops</Link></li>
+            <li><Link href="/collections" className="hover:text-[#C9A961] transition-colors font-medium text-[#C9A961]">Browse All Creations →</Link></li>
           </ul>
         </div>
 
-        {/* Col 4: Concierge & Legal */}
-        <div className="space-y-4 text-xs">
-          <div className="text-[11px] tracking-[0.24em] uppercase text-[#C9A961] mb-2 font-medium">
-            Concierge
+        {/* Col 3: Atelier & Craft */}
+        <div className="space-y-3">
+          <div className="text-[10px] uppercase tracking-[0.26em] text-[#C9A961] font-semibold">
+            The Atelier
           </div>
-          <div className="space-y-2.5 font-light text-[#E6DFD3]">
-            <a href="tel:+918866077237" className="hover:text-[#C9A961] transition-colors flex items-center gap-1.5">
-              <Phone className="w-3.5 h-3.5 text-[#C9A961]" /> +91 88660 77237
-            </a>
-            <a href="mailto:hello@civarajewels.com" className="hover:text-[#C9A961] transition-colors flex items-center gap-1.5">
-              <Mail className="w-3.5 h-3.5 text-[#C9A961]" /> hello@civarajewels.com
-            </a>
-            <a
-              href="https://wa.me/918866077237?text=Hello%20Civara%20Jewels%2C%20I%20would%20like%20to%20enquire%20about%20a%20viewing."
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[#C9A961] hover:underline flex items-center gap-1.5 pt-1"
-            >
-              <MessageCircle className="w-3.5 h-3.5" /> WhatsApp Concierge →
-            </a>
+          <ul className="space-y-2 text-xs">
+            <li><Link href="/about" className="hover:text-[#C9A961] transition-colors">Our Philosophy</Link></li>
+            <li><Link href="/craft" className="hover:text-[#C9A961] transition-colors">Craftsmanship</Link></li>
+            <li><Link href="/bespoke" className="hover:text-[#C9A961] transition-colors">Bespoke Commissions</Link></li>
+            <li><Link href="/viewings" className="hover:text-[#C9A961] transition-colors">Private Viewings</Link></li>
+            <li><Link href="/certification" className="hover:text-[#C9A961] transition-colors">Certification & Hallmarking</Link></li>
+            <li><Link href="/journal" className="hover:text-[#C9A961] transition-colors">The Journal</Link></li>
+            <li><Link href="/size-guide" className="hover:text-[#C9A961] transition-colors">Ring Size Guide</Link></li>
+          </ul>
+        </div>
+
+        {/* Col 4: Concierge */}
+        <div className="space-y-3">
+          <div className="text-[10px] uppercase tracking-[0.26em] text-[#C9A961] font-semibold">
+            Client Concierge
           </div>
+          <div className="space-y-2.5 text-xs text-[#E6DFD3]/80">
+            <div className="flex items-center gap-2">
+              <Phone className="w-3.5 h-3.5 text-[#C9A961]" />
+              <a href="tel:+918866077237" className="hover:text-[#C9A961] transition-colors">+91 88660 77237</a>
+            </div>
+            <div className="flex items-center gap-2">
+              <Mail className="w-3.5 h-3.5 text-[#C9A961]" />
+              <a href="mailto:concierge@civarajewels.com" className="hover:text-[#C9A961] transition-colors">concierge@civarajewels.com</a>
+            </div>
+            <div className="flex items-center gap-2">
+              <MessageCircle className="w-3.5 h-3.5 text-[#C9A961]" />
+              <a href="https://wa.me/918866077237" target="_blank" rel="noopener noreferrer" className="hover:text-[#C9A961] transition-colors">WhatsApp Concierge</a>
+            </div>
+            <div className="pt-2 text-[11px] text-[#6E6459] leading-relaxed">
+              Monday through Saturday<br />
+              10:00 AM – 7:00 PM IST
+            </div>
+          </div>
+        </div>
+
+        {/* Col 5: Client Care & Policies */}
+        <div className="space-y-3">
+          <div className="text-[10px] uppercase tracking-[0.26em] text-[#C9A961] font-semibold">
+            Assurance
+          </div>
+          <ul className="space-y-1.5 text-xs text-[#E6DFD3]/80">
+            <li>✓ Hallmarked Fine Metals</li>
+            <li>✓ IGI &amp; GIA Certified</li>
+            <li>✓ Fully Insured Transit</li>
+            <li>✓ Lifetime Care &amp; Clean</li>
+          </ul>
 
           <div className="pt-4 border-t border-[#6E6459]/40 space-y-1.5 text-[11px]">
             <div><Link href="/shipping-and-returns" className="hover:text-[#C9A961] transition-colors">Shipping & Delivery</Link></div>
@@ -125,12 +169,14 @@ export const Footer = () => {
               >
                 <DollarSign className="w-3.5 h-3.5" /> Seller Panel
               </Link>
-              <Link
-                href="/admin"
-                className="text-[#E6DFD3]/70 hover:text-[#C9A961] hover:underline inline-flex items-center gap-1 font-medium tracking-wider uppercase text-[10px]"
-              >
-                <ShieldCheck className="w-3.5 h-3.5" /> Master Admin
-              </Link>
+              {isAdminAllowed && (
+                <Link
+                  href="/admin"
+                  className="text-[#E6DFD3]/70 hover:text-[#C9A961] hover:underline inline-flex items-center gap-1 font-medium tracking-wider uppercase text-[10px]"
+                >
+                  <ShieldCheck className="w-3.5 h-3.5" /> Master Admin
+                </Link>
+              )}
             </div>
           </div>
         </div>
@@ -144,10 +190,14 @@ export const Footer = () => {
           <Link href="/seller" className="text-[#C9A961]/80 hover:text-[#C9A961] underline text-[10px]">
             Seller Desk
           </Link>
-          <span className="text-[#6E6459]">•</span>
-          <Link href="/admin" className="text-[#C9A961]/80 hover:text-[#C9A961] underline text-[10px]">
-            Atelier Admin
-          </Link>
+          {isAdminAllowed && (
+            <>
+              <span className="text-[#6E6459]">•</span>
+              <Link href="/admin" className="text-[#C9A961]/80 hover:text-[#C9A961] underline text-[10px]">
+                Atelier Admin
+              </Link>
+            </>
+          )}
         </div>
       </div>
     </footer>

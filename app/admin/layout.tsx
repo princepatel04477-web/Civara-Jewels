@@ -18,6 +18,7 @@ import {
   X,
   ChevronDown,
   Sparkles,
+  ArrowRight,
 } from "lucide-react";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -111,17 +112,26 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   return (
     <div className="min-h-screen bg-[#FAF7F0] text-[#211C15] flex flex-col md:flex-row font-sans">
       {/* Mobile Header Bar */}
-      <div className="md:hidden bg-[#241F1B] text-[#FBF7F0] px-6 py-4 flex items-center justify-between border-b border-[#6E6459]/30">
-        <Link href="/admin" className="font-serif text-xl tracking-[0.25em] text-[#FBF7F0]">
+      <div className="md:hidden bg-[#241F1B] text-[#FBF7F0] px-4 py-3 flex items-center justify-between border-b border-[#6E6459]/30">
+        <Link href="/admin" className="font-serif text-lg tracking-[0.22em] text-[#FBF7F0]">
           CIVARA <span className="text-[#C9A961]">ATELIER</span>
         </Link>
-        <button
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="text-[#C9A961]"
-          aria-label="Toggle navigation menu"
-        >
-          {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-        </button>
+        <div className="flex items-center gap-2.5">
+          <Link
+            href="/seller"
+            className="text-[10px] uppercase tracking-wider px-2.5 py-1 bg-[#C9A961] text-[#241F1B] font-semibold flex items-center gap-1 shadow-xs"
+          >
+            <span>Seller Admin</span>
+            <ArrowRight className="w-2.5 h-2.5" />
+          </Link>
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="text-[#C9A961] p-1"
+            aria-label="Toggle navigation menu"
+          >
+            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
+        </div>
       </div>
 
       {/* Left Rail (Desktop 260px, Mobile drawer) */}
@@ -177,6 +187,23 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </nav>
         </div>
 
+        {/* Dedicated Switch to Seller Admin Desk */}
+        <div className="p-4 mx-3 mb-3 bg-[#181412] border border-[#C9A961]/40 space-y-2">
+          <div className="text-[10px] uppercase tracking-[0.2em] text-[#C9A961] font-semibold flex items-center gap-1.5">
+            <Sparkles className="w-3.5 h-3.5" /> Seller Admin Desk
+          </div>
+          <p className="text-[10px] text-[#E6DFD3]/75 leading-relaxed">
+            Manage daily gold rates and live pricing in the dedicated Seller Portal.
+          </p>
+          <Link
+            href="/seller"
+            className="w-full flex items-center justify-center gap-1.5 py-2 px-3 bg-[#C9A961] text-[#241F1B] text-[10.5px] uppercase tracking-wider font-semibold hover:bg-[#9E7F3C] hover:text-white transition-colors shadow-xs"
+          >
+            <span>Access Seller Admin</span>
+            <ArrowRight className="w-3 h-3" />
+          </Link>
+        </div>
+
         {/* Footer / User Session / Sign out */}
         <div className="p-4 border-t border-[#6E6459]/30 space-y-2 bg-[#181412]/50">
           <div className="px-3 py-1.5 text-[10px] text-[#E6DFD3]/70 flex items-center justify-between">
@@ -206,7 +233,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <span className="text-[11px]">Database: Local SQLite (Data-Driven)</span>
           </div>
 
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4">
+            <Link
+              href="/seller"
+              className="inline-flex items-center gap-1.5 bg-[#241F1B] text-[#C9A961] hover:bg-[#181412] px-3.5 py-1.5 text-[11px] uppercase tracking-[0.16em] font-medium border border-[#C9A961]/50 shadow-xs transition-colors"
+            >
+              <DollarSign className="w-3.5 h-3.5 text-[#C9A961]" />
+              <span>Access Seller Admin</span>
+              <ArrowRight className="w-3 h-3" />
+            </Link>
+
             <Link
               href="/"
               target="_blank"

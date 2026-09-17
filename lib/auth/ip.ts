@@ -89,7 +89,14 @@ export function isAdminIP(request: Request | NextRequest): boolean {
     "127.0.0.1",
     "::1",
     "localhost",
+    // User's Authorized Admin IP from network configuration
+    "2405:201:200d:2822:a315:6410:f19b:8b6c",
+    "2405:201:200d:2822",
+    "2405:201:200d",
     "192.168.29.44",
+    "192.168.29",
+    "fe80::adb5:c64d:6728:c274",
+    // Additional development/fallback admin IPs
     "10.29.117.108",
     "10.29.117",
     "10.209.18.108",
@@ -99,7 +106,6 @@ export function isAdminIP(request: Request | NextRequest): boolean {
     "2409:40c1:10bc:ca57:e5b9:7768:d3ab:c4ea",
     "2409:40c1:10bc:ca57",
     "2409:40c1:10bc",
-    "fe80::adb5:c64d:6728:c274",
   ].join(",");
 
   const rawAllowed = process.env.ADMIN_ALLOWED_IPS

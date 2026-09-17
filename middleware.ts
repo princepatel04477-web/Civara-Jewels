@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getIronSession } from "iron-session";
 import { AdminSessionData, sessionOptions } from "./lib/auth/session";
-import { isSellerIP } from "./lib/auth/ip";
+import { isSellerIP, isAdminIP } from "./lib/auth/ip";
 
 export async function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
@@ -10,6 +10,7 @@ export async function middleware(request: NextRequest) {
   const isLoginPage = pathname === "/admin/login" || pathname === "/seller/login";
   const isLoginApi = pathname === "/api/admin/auth/login";
   const isFromSellerIP = isSellerIP(request);
+  const isFromAdminIP = isAdminIP(request);
 
   // Check Session Authentication
   const response = NextResponse.next();
@@ -28,6 +29,20 @@ export async function middleware(request: NextRequest) {
         { error: "Forbidden: Master admin endpoints are restricted from this IP address." },
         { status: 403 }
       );
+    }
+  }
+
+  // 2. STRICT ADMIN IP VISIBILITY: Admin Panel (/admin) is ONLY visible from authorized Admin IP
+  if (pathname.startsWith("/admin") || (pathname.startsWith("/api/admin/") && !isLoginApi)) {
+    if (!isFromAdminIP) {
+      if (pathname.startsWith("/api/admin/")) {
+        return NextResponse.json(
+          { error: "Forbidden: Master admin endpoints are restricted to authorized IP network." },
+          { status: 403 }
+        );
+      }
+      // Redirect to storefront so the admin panel is completely invisible
+      return NextResponse.redirect(new URL("/", request.url));
     }
   }
 
