@@ -55,9 +55,33 @@ export function normalizeIP(ip: string): string {
 }
 
 /**
+ * Known seller IPs (e.g. 192.168.1.4) that must be strictly limited to the Seller Portal (/seller).
+ * These IPs are completely blocked from viewing or authenticating into the master admin panel (/admin).
+ */
+export function isSellerIP(request: Request | NextRequest): boolean {
+  const clientIp = getClientIP(request);
+  const normalizedClientIp = normalizeIP(clientIp);
+
+  const defaultSellerIps = ["192.168.1.4"];
+  const envSellerIps = (process.env.SELLER_ALLOWED_IPS || process.env.SELLER_IPS || "")
+    .split(",")
+    .map((ip) => normalizeIP(ip.trim()))
+    .filter(Boolean);
+
+  const allSellerIps = [...defaultSellerIps, ...envSellerIps];
+
+  return allSellerIps.includes(normalizedClientIp) || allSellerIps.includes(clientIp);
+}
+
+/**
  * Check if the request comes from an allowed administrator IP
  */
 export function isAdminIP(request: Request | NextRequest): boolean {
+  // Hard block: Seller IPs can NEVER have admin IP privileges
+  if (isSellerIP(request)) {
+    return false;
+  }
+
   const clientIp = getClientIP(request);
   const normalizedClientIp = normalizeIP(clientIp);
 

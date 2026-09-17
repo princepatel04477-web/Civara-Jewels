@@ -3,7 +3,7 @@ import { UserRepo } from "@/lib/db/repo/users";
 import { AuditRepo } from "@/lib/db/repo/audit";
 import { verifyPassword, hashPassword } from "@/lib/auth/password";
 import { getAdminSession } from "@/lib/auth/session";
-import { getClientIP } from "@/lib/auth/ip";
+import { getClientIP, isSellerIP } from "@/lib/auth/ip";
 
 // In-memory rate limiting map for login attempts: IP -> { attempts: number, resetTime: number }
 const loginAttemptsMap = new Map<string, { attempts: number; resetTime: number }>();
@@ -144,6 +144,29 @@ export async function POST(request: Request) {
       : user?.role === "seller"
       ? "seller"
       : "admin";
+
+    // STRICT SECURITY GATE: If connecting from Seller IP (192.168.1.4), Admin Login is FORBIDDEN
+    const isFromSellerIP = isSellerIP(request);
+    if (isFromSellerIP && role === "admin") {
+      try {
+        AuditRepo.log({
+          action: "ADMIN_LOGIN_BLOCKED_ON_SELLER_IP",
+          entity: "Auth",
+          adminEmail: email,
+          ipAddress: ip,
+          details: { reason: "Admin login blocked from seller IP 192.168.1.4" },
+        });
+      } catch {
+        // non-blocking
+      }
+
+      return NextResponse.json(
+        {
+          error: "Access Denied: Administrator login is strictly forbidden from this IP network. Please access the Seller Portal at /seller/login.",
+        },
+        { status: 403 }
+      );
+    }
 
     // Save Session
     const session = await getAdminSession();

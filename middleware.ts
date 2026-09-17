@@ -2,18 +2,34 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getIronSession } from "iron-session";
 import { AdminSessionData, sessionOptions } from "./lib/auth/session";
+import { isSellerIP } from "./lib/auth/ip";
 
 export async function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
 
   const isLoginPage = pathname === "/admin/login" || pathname === "/seller/login";
   const isLoginApi = pathname === "/api/admin/auth/login";
+  const isFromSellerIP = isSellerIP(request);
 
   // Check Session Authentication
   const response = NextResponse.next();
   const session = await getIronSession<AdminSessionData>(request.cookies as any, sessionOptions);
   const isAuthenticated = Boolean(session && session.isLoggedIn && session.userId);
   const userRole = session?.role || "admin";
+
+  // 1. STRICT IP RESTRICTION: Seller IP (192.168.1.4) cannot view or access /admin
+  if (isFromSellerIP) {
+    if (pathname.startsWith("/admin")) {
+      const target = isAuthenticated && userRole === "seller" ? "/seller" : "/seller/login";
+      return NextResponse.redirect(new URL(target, request.url));
+    }
+    if (pathname.startsWith("/api/admin/") && !isLoginApi) {
+      return NextResponse.json(
+        { error: "Forbidden: Master admin endpoints are restricted from this IP address." },
+        { status: 403 }
+      );
+    }
+  }
 
   if (isLoginPage) {
     if (isAuthenticated) {
