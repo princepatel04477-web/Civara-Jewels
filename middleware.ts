@@ -2,25 +2,27 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getIronSession } from "iron-session";
 import { AdminSessionData, sessionOptions } from "./lib/auth/session";
-import { isSellerIP, isAdminIP } from "./lib/auth/ip";
+import { isSellerRequest, hasAdminAccess } from "./lib/auth/ip";
 
 export async function middleware(request: NextRequest) {
-  const { pathname, search } = request.nextUrl;
+  const { pathname, search, searchParams } = request.nextUrl;
 
   const isSellerPortal = pathname === "/seller" || pathname.startsWith("/seller/");
   const isAdminPortal = pathname === "/admin" || pathname.startsWith("/admin/");
   const isLoginPage = pathname === "/admin/login" || pathname === "/seller/login";
   const isLoginApi = pathname === "/api/admin/auth/login";
-  const isFromSellerIP = isSellerIP(request);
+  const isFromSeller = isSellerRequest(request);
+  const adminKeyParam = searchParams.get("admin_key");
+  const hasAccessPass = hasAdminAccess(request);
 
-  // 1. STRICT SELLER IP RESTRICTION: Seller IP (192.168.1.4) cannot view or access /admin
-  if (isFromSellerIP) {
+  // 1. STRICT SELLER RESTRICTION: Seller network (192.168.1.4) cannot view or access /admin
+  if (isFromSeller) {
     if (isAdminPortal) {
       return NextResponse.redirect(new URL("/seller/login", request.url));
     }
     if (pathname.startsWith("/api/admin/") && !isLoginApi) {
       return NextResponse.json(
-        { error: "Forbidden: Master admin endpoints are restricted from this IP address." },
+        { error: "Forbidden: Master admin endpoints are restricted from this network." },
         { status: 403 }
       );
     }
@@ -28,11 +30,30 @@ export async function middleware(request: NextRequest) {
 
   // Check Session Authentication
   const response = NextResponse.next();
+
+  // If valid admin_key provided, grant 30-day admin pass cookie
+  if (adminKeyParam === "civara_owner" && !isFromSeller) {
+    response.cookies.set("civara_admin_access", "1", {
+      path: "/",
+      maxAge: 60 * 60 * 24 * 30, // 30 days
+      httpOnly: false,
+      sameSite: "lax",
+    });
+  }
+
   const session = await getIronSession<AdminSessionData>(request.cookies as any, sessionOptions);
   const isAuthenticated = Boolean(session && session.isLoggedIn && session.userId);
   const userRole = session?.role || "admin";
 
-  // 2. Allow Login Pages & Login API to load
+  // 2. Unauthenticated access to /admin/login:
+  // If not from authorized admin IP / pass, redirect to /seller/login so admin portal is invisible
+  if (pathname === "/admin/login") {
+    if (!isAuthenticated && !hasAccessPass) {
+      return NextResponse.redirect(new URL("/seller/login", request.url));
+    }
+  }
+
+  // 3. Allow Login Pages & Login API to load
   if (isLoginPage) {
     if (isAuthenticated) {
       // If already logged in, route to appropriate portal
@@ -53,7 +74,7 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
-  // 3. Unauthenticated requests to protected portals MUST redirect to login
+  // 4. Unauthenticated requests to protected portals MUST redirect to login
   if (!isAuthenticated) {
     if (pathname.startsWith("/api/admin/") || pathname.startsWith("/api/seller/")) {
       return NextResponse.json(
@@ -71,6 +92,9 @@ export async function middleware(request: NextRequest) {
     }
 
     if (isAdminPortal) {
+      if (isFromSeller || !hasAccessPass) {
+        return NextResponse.redirect(new URL("/seller/login", request.url));
+      }
       const loginUrl = new URL("/admin/login", request.url);
       if (pathname !== "/admin") {
         loginUrl.searchParams.set("next", pathname + search);
@@ -79,7 +103,7 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // 4. Role Isolation: Seller accounts cannot access /admin
+  // 5. Role Isolation: Seller accounts cannot access /admin
   if (userRole === "seller" && isAdminPortal) {
     return NextResponse.redirect(new URL("/seller", request.url));
   }

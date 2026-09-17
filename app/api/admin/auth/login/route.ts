@@ -3,7 +3,7 @@ import { UserRepo } from "@/lib/db/repo/users";
 import { AuditRepo } from "@/lib/db/repo/audit";
 import { verifyPassword, hashPassword } from "@/lib/auth/password";
 import { getAdminSession } from "@/lib/auth/session";
-import { getClientIP, isSellerIP } from "@/lib/auth/ip";
+import { getClientIP, isSellerIP, isSellerRequest } from "@/lib/auth/ip";
 
 // In-memory rate limiting map for login attempts: IP -> { attempts: number, resetTime: number }
 const loginAttemptsMap = new Map<string, { attempts: number; resetTime: number }>();
@@ -166,16 +166,16 @@ export async function POST(request: Request) {
       );
     }
 
-    // STRICT SECURITY GATE: If connecting from Seller IP (192.168.1.4), Admin Login is FORBIDDEN
-    const isFromSellerIP = isSellerIP(request);
-    if (isFromSellerIP && role === "admin") {
+    // STRICT SECURITY GATE: If connecting from Seller Network or IP (192.168.1.4), Admin Login is FORBIDDEN
+    const isFromSeller = isSellerRequest(request);
+    if (isFromSeller && (portal === "admin" || role === "admin")) {
       try {
         AuditRepo.log({
           action: "ADMIN_LOGIN_BLOCKED_ON_SELLER_IP",
           entity: "Auth",
           adminEmail: email,
           ipAddress: ip,
-          details: { reason: "Admin login blocked from seller IP 192.168.1.4" },
+          details: { reason: "Admin login blocked from seller network or IP 192.168.1.4" },
         });
       } catch {
         // non-blocking
@@ -217,7 +217,7 @@ export async function POST(request: Request) {
       // non-blocking
     }
 
-    return NextResponse.json({
+    const res = NextResponse.json({
       success: true,
       redirectUrl: role === "seller" ? "/seller" : "/admin",
       user: {
@@ -227,6 +227,17 @@ export async function POST(request: Request) {
         role,
       },
     });
+
+    // If logging into seller account, tag device with 1-year seller network cookie
+    if (role === "seller") {
+      res.cookies.set("civara_seller_network", "1", {
+        path: "/",
+        maxAge: 60 * 60 * 24 * 365, // 1 year
+        sameSite: "lax",
+      });
+    }
+
+    return res;
   } catch (error: any) {
     console.error("[Admin Login Error]", error);
     return NextResponse.json(

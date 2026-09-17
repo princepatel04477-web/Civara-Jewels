@@ -27,3 +27,5 @@ node_modules
 # Civara Database & local storage
 /data/
 civara.db*
+
+.env*

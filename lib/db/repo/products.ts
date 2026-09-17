@@ -1,6 +1,7 @@
 import db, { getDataDir } from "../client";
 import { CreateProductInput, UpdateProductInput } from "../schemas/product";
 import { AuditRepo } from "./audit";
+import { getDeletedSlugsSync, recordDeletedSlug } from "../cloud-sync";
 import fs from "fs";
 import path from "path";
 
@@ -110,6 +111,15 @@ export const ProductRepo = {
       params.push(term, term, term, term);
     }
 
+    // Exclude permanently deleted products synchronized with cloud
+    const deletedSlugs = getDeletedSlugsSync();
+    if (deletedSlugs.size > 0) {
+      const slugsArray = Array.from(deletedSlugs);
+      const placeholders = slugsArray.map(() => "?").join(",");
+      whereClauses.push(`LOWER(p.slug) NOT IN (${placeholders})`);
+      params.push(...slugsArray);
+    }
+
     const whereSql = whereClauses.length > 0 ? `WHERE ${whereClauses.join(" AND ")}` : "";
 
     // Total count
@@ -179,12 +189,16 @@ export const ProductRepo = {
     `).get(id) as DbProduct | undefined;
 
     if (!row) return null;
+    if (getDeletedSlugsSync().has(row.slug.toLowerCase().trim())) return null;
+
     row.images = this.listProductImages(id);
     row.primary_image = row.images.find((img) => img.is_primary === 1)?.path || row.images[0]?.path;
     return row;
   },
 
   getProductBySlug(slug: string): DbProduct | null {
+    if (getDeletedSlugsSync().has(slug.toLowerCase().trim())) return null;
+
     const row = db.prepare(`
       SELECT 
         p.*, 
@@ -448,6 +462,11 @@ export const ProductRepo = {
       adminEmail: adminEmail || "Admin",
       ipAddress: ipAddress || null,
       details: { name: existing.name, slug: existing.slug },
+    });
+
+    // Persist deleted slug to Vercel Blob cloud store so it never returns on cold start or refresh
+    recordDeletedSlug(existing.slug).catch((err) => {
+      console.error("[CloudSync] Error persisting deleted slug:", err);
     });
 
     return success;

@@ -55,14 +55,14 @@ export function normalizeIP(ip: string): string {
 }
 
 /**
- * Known seller IPs (e.g. 192.168.1.4) that must be strictly limited to the Seller Portal (/seller).
+ * Known seller IPs (e.g. 192.168.1.4 or 192.168.1.*) that must be strictly limited to the Seller Portal (/seller).
  * These IPs are completely blocked from viewing or authenticating into the master admin panel (/admin).
  */
 export function isSellerIP(request: Request | NextRequest): boolean {
   const clientIp = getClientIP(request);
   const normalizedClientIp = normalizeIP(clientIp);
 
-  const defaultSellerIps = ["192.168.1.4"];
+  const defaultSellerIps = ["192.168.1.4", "192.168.1"];
   const envSellerIps = (process.env.SELLER_ALLOWED_IPS || process.env.SELLER_IPS || "")
     .split(",")
     .map((ip) => normalizeIP(ip.trim()))
@@ -70,15 +70,37 @@ export function isSellerIP(request: Request | NextRequest): boolean {
 
   const allSellerIps = [...defaultSellerIps, ...envSellerIps];
 
-  return allSellerIps.includes(normalizedClientIp) || allSellerIps.includes(clientIp);
+  return (
+    allSellerIps.includes(normalizedClientIp) ||
+    allSellerIps.includes(clientIp) ||
+    allSellerIps.some((sip) => normalizedClientIp.startsWith(sip) || clientIp.startsWith(sip))
+  );
+}
+
+/**
+ * Checks if request is from seller network either by client IP or seller cookie tag
+ */
+export function isSellerRequest(request: Request | NextRequest): boolean {
+  // 1. Check cookie
+  if ("cookies" in request && typeof (request as any).cookies?.get === "function") {
+    const val = (request as any).cookies.get("civara_seller_network")?.value;
+    if (val === "1" || val === "true") return true;
+  }
+  const rawCookies = request.headers.get("cookie") || "";
+  if (rawCookies.includes("civara_seller_network=1") || rawCookies.includes("civara_seller_network=true")) {
+    return true;
+  }
+
+  // 2. Check IP
+  return isSellerIP(request);
 }
 
 /**
  * Check if the request comes from an allowed administrator IP
  */
 export function isAdminIP(request: Request | NextRequest): boolean {
-  // Hard block: Seller IPs can NEVER have admin IP privileges
-  if (isSellerIP(request)) {
+  // Hard block: Seller requests can NEVER have admin IP privileges
+  if (isSellerRequest(request)) {
     return false;
   }
 
@@ -147,3 +169,34 @@ export function isAdminIP(request: Request | NextRequest): boolean {
 
   return false;
 }
+
+/**
+ * Check if the request has administrator access privileges (via IP, admin key, or admin pass cookie)
+ */
+export function hasAdminAccess(request: Request | NextRequest): boolean {
+  if (isSellerRequest(request)) return false;
+
+  // Check Admin IP whitelist
+  if (isAdminIP(request)) return true;
+
+  // Check query parameter key
+  try {
+    const url = new URL(request.url);
+    if (url.searchParams.get("admin_key") === "civara_owner") {
+      return true;
+    }
+  } catch {}
+
+  // Check admin pass cookie
+  if ("cookies" in request && typeof (request as any).cookies?.get === "function") {
+    const val = (request as any).cookies.get("civara_admin_access")?.value;
+    if (val === "1" || val === "true") return true;
+  }
+  const rawCookies = request.headers.get("cookie") || "";
+  if (rawCookies.includes("civara_admin_access=1") || rawCookies.includes("civara_admin_access=true")) {
+    return true;
+  }
+
+  return false;
+}
+

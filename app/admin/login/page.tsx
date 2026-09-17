@@ -15,6 +15,20 @@ function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
+  React.useEffect(() => {
+    import("@/lib/auth/client-guard").then(({ checkAndTagSellerLAN, isSellerDeviceTagged }) => {
+      if (isSellerDeviceTagged()) {
+        window.location.replace("/seller/login");
+        return;
+      }
+      checkAndTagSellerLAN().then((isSeller) => {
+        if (isSeller) {
+          window.location.replace("/seller/login");
+        }
+      });
+    });
+  }, []);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);

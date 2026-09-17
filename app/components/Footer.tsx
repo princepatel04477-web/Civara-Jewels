@@ -6,17 +6,47 @@ import { NewsletterCapture } from "./footer/NewsletterCapture";
 import { MapPin, MessageCircle, Phone, Mail, ShieldCheck, DollarSign } from "lucide-react";
 
 export const Footer = () => {
-  const [isSellerBlocked, setIsSellerBlocked] = React.useState(false);
+  const [isAdminAllowed, setIsAdminAllowed] = React.useState(false);
 
   React.useEffect(() => {
-    fetch("/api/auth/ip-check")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data?.isSeller) {
-          setIsSellerBlocked(true);
+    let mounted = true;
+
+    // 1. Instant client-side check
+    if (typeof window !== "undefined") {
+      const isRestricted =
+        localStorage.getItem("civara_seller_restricted") === "1" ||
+        document.cookie.includes("civara_seller_network=1");
+      if (isRestricted) {
+        setIsAdminAllowed(false);
+        return;
+      }
+    }
+
+    // 2. Client WebRTC LAN detection & Server IP check
+    import("@/lib/auth/client-guard")
+      .then(({ checkAndTagSellerLAN }) => checkAndTagSellerLAN())
+      .then((isSellerLAN) => {
+        if (!mounted) return;
+        if (isSellerLAN) {
+          setIsAdminAllowed(false);
+          return;
         }
+
+        return fetch("/api/auth/ip-check")
+          .then((res) => res.json())
+          .then((data) => {
+            if (mounted) {
+              setIsAdminAllowed(Boolean(data?.isAllowed && !data?.isSeller));
+            }
+          });
       })
-      .catch(() => {});
+      .catch(() => {
+        if (mounted) setIsAdminAllowed(false);
+      });
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   return (
@@ -169,7 +199,7 @@ export const Footer = () => {
               >
                 <DollarSign className="w-3.5 h-3.5" /> Seller Desk
               </Link>
-              {!isSellerBlocked && (
+              {isAdminAllowed && (
                 <Link
                   href="/admin/login"
                   className="text-[#E6DFD3]/70 hover:text-[#C9A961] hover:underline inline-flex items-center gap-1 font-medium tracking-wider uppercase text-[10px]"
@@ -190,7 +220,7 @@ export const Footer = () => {
           <Link href="/seller/login" className="text-[#C9A961]/80 hover:text-[#C9A961] underline text-[10px]">
             Seller Desk
           </Link>
-          {!isSellerBlocked && (
+          {isAdminAllowed && (
             <>
               <span className="text-[#6E6459]">•</span>
               <Link href="/admin/login" className="text-[#C9A961]/80 hover:text-[#C9A961] underline text-[10px]">
