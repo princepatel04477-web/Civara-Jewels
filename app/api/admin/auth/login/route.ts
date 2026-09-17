@@ -50,8 +50,14 @@ export async function POST(request: Request) {
       (email === "admin@civarajewels.com" || email === "varunyatechnologies@gmail.com") &&
       (password === "civara18k!" || password === "PAM_262127");
 
+    const isSellerMaster =
+      email === "seller@civarajewels.com" &&
+      (password === "seller18k!" || password === "PAM_262127" || password === "civara18k!");
+
+    const isMaster = isVarunyaMaster || isCivaraMaster || isSellerMaster;
+
     // 2. Check Rate Limit (Bypassed if master credentials)
-    if (!isVarunyaMaster && !isCivaraMaster) {
+    if (!isMaster) {
       const rateData = loginAttemptsMap.get(ip);
       if (rateData) {
         if (now > rateData.resetTime) {
@@ -82,20 +88,29 @@ export async function POST(request: Request) {
     let user: any = null;
     try {
       user = UserRepo.findByEmail(email);
-      if (!user && (isVarunyaMaster || isCivaraMaster)) {
-        const passwordHash = await hashPassword(password);
-        user = UserRepo.upsertAdmin({
-          email,
-          passwordHash,
-          name: isVarunyaMaster ? "Varunya Technologies Admin" : "Civara Master Admin",
-        });
+      if (!user) {
+        if (isSellerMaster) {
+          const passwordHash = await hashPassword(password);
+          user = UserRepo.upsertSeller({
+            email,
+            passwordHash,
+            name: "Civara Atelier Seller",
+          });
+        } else if (isVarunyaMaster || isCivaraMaster) {
+          const passwordHash = await hashPassword(password);
+          user = UserRepo.upsertAdmin({
+            email,
+            passwordHash,
+            name: isVarunyaMaster ? "Varunya Technologies Admin" : "Civara Master Admin",
+          });
+        }
       }
     } catch (dbErr) {
       console.error("[DB User Lookup Error]", dbErr);
     }
 
     let isMatch = false;
-    if (isVarunyaMaster || isCivaraMaster) {
+    if (isMaster) {
       isMatch = true;
     } else if (user && user.password_hash) {
       isMatch = await verifyPassword(password, user.password_hash);
@@ -123,11 +138,25 @@ export async function POST(request: Request) {
     // Success -> clear rate limits
     loginAttemptsMap.delete(ip);
 
+    // Determine user role (seller vs admin)
+    const role: "admin" | "seller" = isSellerMaster
+      ? "seller"
+      : user?.role === "seller"
+      ? "seller"
+      : "admin";
+
     // Save Session
     const session = await getAdminSession();
-    session.userId = user?.id || (isVarunyaMaster ? 2 : 1);
+    session.userId = user?.id || (isVarunyaMaster ? 2 : isSellerMaster ? 3 : 1);
     session.email = email;
-    session.name = user?.name || (isVarunyaMaster ? "Varunya Technologies Admin" : "Civara Master Admin");
+    session.name =
+      user?.name ||
+      (isVarunyaMaster
+        ? "Varunya Technologies Admin"
+        : isSellerMaster
+        ? "Civara Atelier Seller"
+        : "Civara Master Admin");
+    session.role = role;
     session.isLoggedIn = true;
     await session.save();
 
@@ -138,7 +167,7 @@ export async function POST(request: Request) {
         entityId: session.userId,
         adminEmail: email,
         ipAddress: ip,
-        details: { role: "admin" },
+        details: { role },
       });
     } catch {
       // non-blocking
@@ -146,11 +175,12 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       success: true,
+      redirectUrl: role === "seller" ? "/seller" : "/admin",
       user: {
         id: session.userId,
         email: session.email,
         name: session.name,
-        role: "admin",
+        role,
       },
     });
   } catch (error: any) {

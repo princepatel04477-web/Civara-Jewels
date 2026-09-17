@@ -5,6 +5,7 @@ export interface AdminSessionData {
   userId?: number;
   email?: string;
   name?: string;
+  role?: "admin" | "seller";
   isLoggedIn?: boolean;
 }
 

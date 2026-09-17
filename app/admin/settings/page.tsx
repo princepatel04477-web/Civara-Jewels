@@ -108,6 +108,64 @@ export default function AdminSettingsPage() {
             </div>
           </div>
         </div>
+
+        {/* Dedicated Seller Portal & Accounts Section */}
+        <div className="bg-[#FFFFFF] border border-[#C9A961]/50 p-6 space-y-5 md:col-span-2 shadow-xs">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#E6DFD3] pb-4">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 text-[#9E7F3C]">
+                <ShieldCheck className="w-5 h-5" />
+                <h3 className="font-serif text-lg font-medium text-[#241F1B]">
+                  Seller Portal &amp; Client Access
+                </h3>
+              </div>
+              <p className="text-xs text-[#6E6459]">
+                Provide your client with dedicated seller access to update daily gold rates at <code>/seller</code> without master system permissions.
+              </p>
+            </div>
+
+            <a
+              href="/seller"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-[#241F1B] text-[#C9A961] hover:bg-[#181412] px-4 py-2 text-xs font-medium uppercase tracking-wider inline-flex items-center gap-1.5 cursor-pointer shrink-0"
+            >
+              Open Seller Portal ↗
+            </a>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Default Master Seller Credentials Info */}
+            <div className="bg-[#FAF7F0] border border-[#E6DFD3] p-4 space-y-2 text-xs">
+              <span className="font-serif text-sm font-medium text-[#241F1B] block">
+                Default Master Seller Credentials
+              </span>
+              <div className="space-y-1 font-mono text-[11px] text-[#6E6459]">
+                <div>Email: <strong className="text-[#241F1B]">seller@civarajewels.com</strong></div>
+                <div>Password: <strong className="text-[#241F1B]">seller18k!</strong></div>
+                <div>Role: <strong className="text-[#9E7F3C]">seller (Daily Gold Rates Desk)</strong></div>
+                <div>Login URL: <a href="/seller/login" target="_blank" className="text-[#9E7F3C] underline">/seller/login</a></div>
+              </div>
+              <p className="text-[11px] text-[#6E6459]/80 pt-1">
+                Share these credentials with your client so they can enter daily gold rates from their mobile or desktop.
+              </p>
+            </div>
+
+            {/* Seller Feature Highlights */}
+            <div className="bg-[#FAF7F0] border border-[#E6DFD3] p-4 space-y-2 text-xs">
+              <span className="font-serif text-sm font-medium text-[#241F1B] block">
+                Seller Panel Capabilities
+              </span>
+              <ul className="list-disc list-inside space-y-1 text-[#6E6459] text-[11px]">
+                <li>One-click daily gold rate entry for all purities (24K, 22K, 18K, 14K, 10K, Silver).</li>
+                <li>Quick 24K benchmark auto-calculator with standard hallmark proportions.</li>
+                <li>Real-time price recalculation across the entire online catalogue.</li>
+                <li>Immutable rate change audit trail with timestamps.</li>
+                <li>Restricted access: cannot modify system settings, API keys, or IP allowlists.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

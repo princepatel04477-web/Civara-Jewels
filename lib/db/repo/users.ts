@@ -49,6 +49,35 @@ export const UserRepo = {
     }
   },
 
+  upsertSeller(input: { email: string; passwordHash: string; name?: string | null }): DbUser {
+    const existing = this.findByEmail(input.email);
+    if (existing) {
+      db.prepare(`
+        UPDATE users 
+        SET password_hash = ?, name = COALESCE(?, name), role = 'seller'
+        WHERE id = ?
+      `).run(input.passwordHash, input.name ?? null, existing.id);
+      return this.findById(existing.id)!;
+    } else {
+      return this.createUser({ ...input, role: "seller" });
+    }
+  },
+
+  listSellers(): Omit<DbUser, "password_hash">[] {
+    const rows = db.prepare("SELECT id, email, name, role, created_at FROM users WHERE role = 'seller' ORDER BY id ASC").all() as Omit<DbUser, "password_hash">[];
+    return rows;
+  },
+
+  listAllUsers(): Omit<DbUser, "password_hash">[] {
+    const rows = db.prepare("SELECT id, email, name, role, created_at FROM users ORDER BY role ASC, id ASC").all() as Omit<DbUser, "password_hash">[];
+    return rows;
+  },
+
+  deleteUser(id: number): boolean {
+    const res = db.prepare("DELETE FROM users WHERE id = ?").run(id);
+    return res.changes > 0;
+  },
+
   countUsers(): number {
     const row = db.prepare("SELECT COUNT(*) as c FROM users").get() as { c: number };
     return row ? row.c : 0;

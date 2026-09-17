@@ -6,17 +6,19 @@ import { AdminSessionData, sessionOptions } from "./lib/auth/session";
 export async function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
 
-  const isLoginPage = pathname === "/admin/login";
+  const isLoginPage = pathname === "/admin/login" || pathname === "/seller/login";
   const isLoginApi = pathname === "/api/admin/auth/login";
 
   // Check Session Authentication
   const response = NextResponse.next();
   const session = await getIronSession<AdminSessionData>(request.cookies as any, sessionOptions);
   const isAuthenticated = Boolean(session && session.isLoggedIn && session.userId);
+  const userRole = session?.role || "admin";
 
   if (isLoginPage) {
     if (isAuthenticated) {
-      return NextResponse.redirect(new URL("/admin", request.url));
+      const destination = userRole === "seller" ? "/seller" : "/admin";
+      return NextResponse.redirect(new URL(destination, request.url));
     }
     return response;
   }
@@ -25,24 +27,33 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
-  // If not logged in, redirect to login page
+  // If not logged in, redirect to appropriate login page
   if (!isAuthenticated) {
-    if (pathname.startsWith("/api/admin/")) {
+    if (pathname.startsWith("/api/admin/") || pathname.startsWith("/api/seller/")) {
       return NextResponse.json(
-        { error: "Unauthorized: Administrator authentication required." },
+        { error: "Unauthorized: Authentication required." },
         { status: 401 }
       );
     }
 
-    const loginUrl = new URL("/admin/login", request.url);
-    if (pathname !== "/admin") {
+    const isSellerPath = pathname.startsWith("/seller");
+    const loginUrl = new URL(isSellerPath ? "/seller/login" : "/admin/login", request.url);
+    if (pathname !== "/admin" && pathname !== "/seller") {
       loginUrl.searchParams.set("next", pathname + search);
     }
     return NextResponse.redirect(loginUrl);
   }
 
+  // If authenticated as Seller, restrict access to /admin master routes
+  if (userRole === "seller" && pathname.startsWith("/admin")) {
+    return NextResponse.redirect(new URL("/seller", request.url));
+  }
+
   // CSRF Protection for Mutating API requests
-  if (pathname.startsWith("/api/admin/") && ["POST", "PATCH", "PUT", "DELETE"].includes(request.method)) {
+  if (
+    (pathname.startsWith("/api/admin/") || pathname.startsWith("/api/seller/")) &&
+    ["POST", "PATCH", "PUT", "DELETE"].includes(request.method)
+  ) {
     const origin = request.headers.get("origin");
     const host = request.headers.get("host");
     if (origin && host) {
@@ -57,5 +68,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/api/admin/:path*"],
+  matcher: ["/admin/:path*", "/api/admin/:path*", "/seller/:path*", "/api/seller/:path*"],
 };
