@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { MetalRatesRepo } from "@/lib/db/repo/metal-rates";
 import { getAdminSession } from "@/lib/auth/session";
 import { getClientIP } from "@/lib/auth/ip";
@@ -101,6 +102,15 @@ export async function POST(request: Request) {
 
     const refreshedRates = MetalRatesRepo.listRates(false);
     const refreshedHistory = MetalRatesRepo.listHistory(15);
+
+    try {
+      revalidatePath("/", "layout");
+      revalidatePath("/products/[id]", "page");
+      revalidatePath("/collections/[category]", "page");
+      revalidatePath("/api/public/metal-rates");
+    } catch {
+      // best-effort
+    }
 
     return NextResponse.json({
       success: true,

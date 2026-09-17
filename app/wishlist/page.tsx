@@ -12,7 +12,7 @@ import { Heart, Trash2, MessageCircle, ArrowRight } from "lucide-react";
 
 export default function WishlistPage() {
   const [savedProducts, setSavedProducts] = useState<Product[]>([]);
-  const { formatPrice } = useCurrency();
+  const { formatPrice, getLiveProductPrice } = useCurrency();
 
   const reloadWishlist = () => {
     const ids = getWishlistIds();
@@ -35,7 +35,10 @@ export default function WishlistPage() {
 
   const combinedWhatsAppMessage = encodeURIComponent(
     `Hello Civara Jewels, I have saved the following pieces from my wishlist for a combined enquiry:\n` +
-      savedProducts.map((p, idx) => `${idx + 1}. ${p.name} (${formatPrice(p.priceINR)})`).join("\n") +
+      savedProducts.map((p, idx) => {
+        const liveP = getLiveProductPrice ? getLiveProductPrice(p) : p.priceINR;
+        return `${idx + 1}. ${p.name} (${formatPrice(liveP)})`;
+      }).join("\n") +
       `\n\nPlease advise on availability and private viewing options.`
   );
 
@@ -127,7 +130,7 @@ export default function WishlistPage() {
                         {p.name}
                       </Link>
                       <div className="font-serif text-lg text-[#6E6459]">
-                        {formatPrice(p.priceINR)}
+                        {formatPrice(getLiveProductPrice ? getLiveProductPrice(p) : p.priceINR)}
                       </div>
                     </div>
                   </div>

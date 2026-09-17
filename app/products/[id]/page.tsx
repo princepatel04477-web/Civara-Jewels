@@ -75,11 +75,13 @@ export default function ProductDetailPage() {
       .catch(() => {});
 
     // Fetch live metal rates
-    fetch("/api/public/metal-rates")
+    fetch("/api/public/metal-rates", { cache: "no-store" })
       .then((res) => res.json())
       .then((data) => {
         if (data && data.rates && Array.isArray(data.rates)) {
           const map: Record<string, number> = {
+            "24 KT": 93332,
+            "22 KT": 85554,
             "18 KT": 69999,
             "16 KT": 62221,
             "14 KT": 55999,
@@ -108,32 +110,45 @@ export default function ProductDetailPage() {
     if (activePurity.purityKarat === 10) return ratesMap["10 KT"] || 42999;
     if (activePurity.purityKarat === 14) return ratesMap["14 KT"] || 55999;
     if (activePurity.purityKarat === 16) return ratesMap["16 KT"] || 62221;
+    if (activePurity.purityKarat === 22) return ratesMap["22 KT"] || 85554;
+    if (activePurity.purityKarat === 24) return ratesMap["24 KT"] || 93332;
     return ratesMap["18 KT"] || 69999;
   }, [activePurity, ratesMap]);
 
   // Dynamic Price Computation
   const calculatedPricing = useMemo(() => {
     const netWeight = product.netWeightG || 3.4;
-    const rate18k = ratesMap["18 KT"] || 69999;
+    const CATALOG_BASELINE_18K_RATE = 69999;
 
-    // Base metal amount in 18k
-    const baseMetal18k = netWeight * (rate18k / 10);
-    // Active metal amount
-    const activeMetal = netWeight * (activeRate / (activePurity.isSilver ? 1000 : 10));
+    // Baseline 18K metal cost with 3% GST when catalog base price was set
+    const baselineMetal18k = netWeight * (CATALOG_BASELINE_18K_RATE / 10);
+    const baselineMetalWithGst = baselineMetal18k * 1.03;
 
-    // Non-metal value in 18k piece (diamonds + making + charges)
-    const basePrice = product.priceINR;
-    const nonMetalComponent = Math.max(0, basePrice - (baseMetal18k * 1.03));
+    // Base craftsmanship, gemstone, and certification value
+    const baseNonMetalWithGst = Math.max(0, product.priceINR - baselineMetalWithGst);
 
-    // Adjusted dynamic price with 3% GST
-    const dynamicTotal = Math.round(nonMetalComponent + (activeMetal * 1.03));
+    // Active metal cost based on today's seller rate
+    const currentMetalCost = netWeight * (activeRate / (activePurity.isSilver ? 1000 : 10));
+    const currentMetalWithGst = currentMetalCost * 1.03;
+
+    // Diamond Type: Lab Grown Diamond vs Natural Diamond
+    const isGoldOnly = Boolean(product.stoneType && product.stoneType.toLowerCase().includes("gold only"));
+    const estimatedMaking = Math.max(3000, 4800);
+    const rawDiamondComponent = isGoldOnly ? 0 : Math.max(0, baseNonMetalWithGst - estimatedMaking);
+
+    // Lab grown diamonds offer ~35% value savings on diamond component
+    const diamondMultiplier = selectedDiamondType === "Lab Grown Diamond" ? 0.65 : 1.0;
+    const activeDiamondComponent = Math.round(rawDiamondComponent * diamondMultiplier);
+    const activeMakingComponent = Math.max(3000, baseNonMetalWithGst - rawDiamondComponent);
+
+    // Total dynamic price with 3% GST included
+    const totalNonMetal = activeMakingComponent + activeDiamondComponent;
+    const dynamicTotal = Math.round(totalNonMetal + currentMetalWithGst);
     const finalPrice = Math.max(dynamicTotal, 5000);
 
-    const metalPortion = Math.round(activeMetal);
+    const metalPortion = Math.round(currentMetalCost);
     const gstPortion = Math.round(finalPrice * 0.03);
-    const diamondPortion = product.stoneType && product.stoneType.includes("Gold Only") 
-      ? 0 
-      : Math.round(Math.max(0, finalPrice - metalPortion - gstPortion - 4800));
+    const diamondPortion = isGoldOnly ? 0 : activeDiamondComponent;
     const makingPortion = Math.max(3000, finalPrice - metalPortion - diamondPortion - gstPortion);
 
     return {
@@ -154,7 +169,7 @@ export default function ProductDetailPage() {
         ? "BIS 417 (10 Karat)"
         : "BIS Hallmarked Fine Metal",
     };
-  }, [product, activeRate, activePurity, ratesMap]);
+  }, [product, activeRate, activePurity, selectedDiamondType]);
 
   const related = Catalog.getRelatedProducts(product.id, 4);
 

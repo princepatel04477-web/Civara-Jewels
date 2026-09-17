@@ -13,9 +13,11 @@ interface ProductCardProps {
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
-  const { formatPrice } = useCurrency();
+  const { formatPrice, getLiveProductPrice } = useCurrency();
   const [isSaved, setIsSaved] = useState(() => isInWishlist(product.id));
   const [isHovered, setIsHovered] = useState(false);
+
+  const livePrice = getLiveProductPrice ? getLiveProductPrice(product) : product.priceINR;
 
   const handleToggleWishlist = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -90,7 +92,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           </Link>
         </div>
         <div className="font-serif text-xs sm:text-base text-[#6E6459] pt-1.5 sm:pt-2 mt-auto">
-          {formatPrice(product.priceINR)}
+          {formatPrice(livePrice)}
         </div>
       </div>
     </div>

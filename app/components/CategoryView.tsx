@@ -9,6 +9,7 @@ import { GsapTextReveal } from "./motion/GsapTextReveal";
 import { RuleDraw } from "./motion/RuleDraw";
 import { SlidersHorizontal, ArrowUpDown, Calendar, MessageCircle } from "lucide-react";
 import { WhatsAppConcierge } from "./floating/WhatsAppConcierge";
+import { useCurrency } from "../context/CurrencyContext";
 
 interface CategoryViewProps {
   categorySlug: string;
@@ -56,6 +57,8 @@ export const CategoryView: React.FC<CategoryViewProps> = ({ categorySlug }) => {
       .catch(() => {});
   }, [categorySlug]);
 
+  const { getLiveProductPrice } = useCurrency();
+
   const filteredProducts = useMemo(() => {
     let result = [...products];
     if (metalFilter !== "all") {
@@ -64,12 +67,20 @@ export const CategoryView: React.FC<CategoryViewProps> = ({ categorySlug }) => {
       );
     }
     if (sortBy === "low-to-high") {
-      result.sort((a, b) => a.priceINR - b.priceINR);
+      result.sort((a, b) => {
+        const priceA = getLiveProductPrice ? getLiveProductPrice(a) : a.priceINR;
+        const priceB = getLiveProductPrice ? getLiveProductPrice(b) : b.priceINR;
+        return priceA - priceB;
+      });
     } else if (sortBy === "high-to-low") {
-      result.sort((a, b) => b.priceINR - a.priceINR);
+      result.sort((a, b) => {
+        const priceA = getLiveProductPrice ? getLiveProductPrice(a) : a.priceINR;
+        const priceB = getLiveProductPrice ? getLiveProductPrice(b) : b.priceINR;
+        return priceB - priceA;
+      });
     }
     return result;
-  }, [products, metalFilter, sortBy]);
+  }, [products, metalFilter, sortBy, getLiveProductPrice]);
 
   const categoryName = collectionInfo ? collectionInfo.name : categorySlug.toUpperCase();
   const tagline = collectionInfo ? collectionInfo.tagline : "Civara Edit";
