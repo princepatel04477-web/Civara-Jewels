@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   DollarSign,
   Sparkles,
@@ -38,6 +39,7 @@ interface RateHistoryItem {
 }
 
 export default function SellerDashboardPage() {
+  const router = useRouter();
   const [rates, setRates] = useState<MetalRate[]>([]);
   const [history, setHistory] = useState<RateHistoryItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -63,6 +65,10 @@ export default function SellerDashboardPage() {
     setIsLoading(true);
     try {
       const res = await fetch("/api/seller/rates");
+      if (res.status === 401) {
+        router.push("/seller/login");
+        return;
+      }
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to load rates");
 

@@ -7,22 +7,16 @@ import { isSellerIP, isAdminIP } from "./lib/auth/ip";
 export async function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
 
+  const isSellerPortal = pathname === "/seller" || pathname.startsWith("/seller/");
+  const isAdminPortal = pathname === "/admin" || pathname.startsWith("/admin/");
   const isLoginPage = pathname === "/admin/login" || pathname === "/seller/login";
   const isLoginApi = pathname === "/api/admin/auth/login";
   const isFromSellerIP = isSellerIP(request);
-  const isFromAdminIP = isAdminIP(request);
 
-  // Check Session Authentication
-  const response = NextResponse.next();
-  const session = await getIronSession<AdminSessionData>(request.cookies as any, sessionOptions);
-  const isAuthenticated = Boolean(session && session.isLoggedIn && session.userId);
-  const userRole = session?.role || "admin";
-
-  // 1. STRICT IP RESTRICTION: Seller IP (192.168.1.4) cannot view or access /admin
+  // 1. STRICT SELLER IP RESTRICTION: Seller IP (192.168.1.4) cannot view or access /admin
   if (isFromSellerIP) {
-    if (pathname.startsWith("/admin")) {
-      const target = isAuthenticated && userRole === "seller" ? "/seller" : "/seller/login";
-      return NextResponse.redirect(new URL(target, request.url));
+    if (isAdminPortal) {
+      return NextResponse.redirect(new URL("/seller/login", request.url));
     }
     if (pathname.startsWith("/api/admin/") && !isLoginApi) {
       return NextResponse.json(
@@ -32,24 +26,25 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // 2. STRICT ADMIN IP VISIBILITY: Admin Panel (/admin) is ONLY visible from authorized Admin IP
-  if (pathname.startsWith("/admin") || (pathname.startsWith("/api/admin/") && !isLoginApi)) {
-    if (!isFromAdminIP) {
-      if (pathname.startsWith("/api/admin/")) {
-        return NextResponse.json(
-          { error: "Forbidden: Master admin endpoints are restricted to authorized IP network." },
-          { status: 403 }
-        );
-      }
-      // Redirect to storefront so the admin panel is completely invisible
-      return NextResponse.redirect(new URL("/", request.url));
-    }
-  }
+  // Check Session Authentication
+  const response = NextResponse.next();
+  const session = await getIronSession<AdminSessionData>(request.cookies as any, sessionOptions);
+  const isAuthenticated = Boolean(session && session.isLoggedIn && session.userId);
+  const userRole = session?.role || "admin";
 
+  // 2. Allow Login Pages & Login API to load
   if (isLoginPage) {
     if (isAuthenticated) {
-      const destination = userRole === "seller" ? "/seller" : "/admin";
-      return NextResponse.redirect(new URL(destination, request.url));
+      // If already logged in, route to appropriate portal
+      if (pathname === "/seller/login") {
+        return NextResponse.redirect(new URL("/seller", request.url));
+      }
+      if (pathname === "/admin/login") {
+        if (userRole === "seller") {
+          return NextResponse.redirect(new URL("/seller", request.url));
+        }
+        return NextResponse.redirect(new URL("/admin", request.url));
+      }
     }
     return response;
   }
@@ -58,7 +53,7 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
-  // If not logged in, redirect to appropriate login page
+  // 3. Unauthenticated requests to protected portals MUST redirect to login
   if (!isAuthenticated) {
     if (pathname.startsWith("/api/admin/") || pathname.startsWith("/api/seller/")) {
       return NextResponse.json(
@@ -67,20 +62,29 @@ export async function middleware(request: NextRequest) {
       );
     }
 
-    const isSellerPath = pathname.startsWith("/seller");
-    const loginUrl = new URL(isSellerPath ? "/seller/login" : "/admin/login", request.url);
-    if (pathname !== "/admin" && pathname !== "/seller") {
-      loginUrl.searchParams.set("next", pathname + search);
+    if (isSellerPortal) {
+      const loginUrl = new URL("/seller/login", request.url);
+      if (pathname !== "/seller") {
+        loginUrl.searchParams.set("next", pathname + search);
+      }
+      return NextResponse.redirect(loginUrl);
     }
-    return NextResponse.redirect(loginUrl);
+
+    if (isAdminPortal) {
+      const loginUrl = new URL("/admin/login", request.url);
+      if (pathname !== "/admin") {
+        loginUrl.searchParams.set("next", pathname + search);
+      }
+      return NextResponse.redirect(loginUrl);
+    }
   }
 
-  // If authenticated as Seller, restrict access to /admin master routes
-  if (userRole === "seller" && pathname.startsWith("/admin")) {
+  // 4. Role Isolation: Seller accounts cannot access /admin
+  if (userRole === "seller" && isAdminPortal) {
     return NextResponse.redirect(new URL("/seller", request.url));
   }
 
-  // CSRF Protection for Mutating API requests
+  // 5. CSRF Protection for Mutating API requests
   if (
     (pathname.startsWith("/api/admin/") || pathname.startsWith("/api/seller/")) &&
     ["POST", "PATCH", "PUT", "DELETE"].includes(request.method)
@@ -99,5 +103,13 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/api/admin/:path*", "/seller/:path*", "/api/seller/:path*"],
+  matcher: [
+    "/admin",
+    "/admin/:path*",
+    "/api/admin/:path*",
+    "/seller",
+    "/seller/:path*",
+    "/api/seller/:path*",
+  ],
 };
+

@@ -18,39 +18,60 @@ import {
 export default function SellerLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
+  const isLoginPage = pathname === "/seller/login";
   const [sellerUser, setSellerUser] = useState<{ name: string; email: string; role?: string } | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const isLoginPage = pathname === "/seller/login";
+  const [checkingAuth, setCheckingAuth] = useState(!isLoginPage);
 
   useEffect(() => {
     if (!isLoginPage) {
+      setCheckingAuth(true);
       fetch("/api/admin/auth/logout") // check session
         .then((res) => {
-          if (res.ok) return res.json();
-          throw new Error("Unauthenticated");
+          if (!res.ok) throw new Error("Unauthenticated");
+          return res.json();
         })
         .then((data) => {
-          if (data && data.user) {
+          if (data && data.isLoggedIn && data.user) {
             setSellerUser(data.user);
+            setCheckingAuth(false);
+          } else {
+            router.push("/seller/login");
           }
         })
-        .catch(() => {});
+        .catch(() => {
+          router.push("/seller/login");
+        });
     }
-  }, [isLoginPage]);
+  }, [isLoginPage, router]);
 
   const handleLogout = async () => {
     try {
       await fetch("/api/admin/auth/logout", { method: "POST" });
-      router.push("/seller/login");
     } catch {
-      router.push("/seller/login");
+      // ignore
     }
+    setSellerUser(null);
+    router.push("/seller/login");
+    router.refresh();
   };
 
   // If on login page, render clean container without header
   if (isLoginPage) {
     return <div className="min-h-screen bg-[#FAF7F0] text-[#241F1B] font-sans">{children}</div>;
+  }
+
+  // If verifying session, prevent protected dashboard flash
+  if (checkingAuth && !sellerUser) {
+    return (
+      <div className="min-h-screen bg-[#FAF7F0] flex items-center justify-center">
+        <div className="text-center space-y-3">
+          <div className="w-8 h-8 border-2 border-[#C9A961] border-t-transparent rounded-full animate-spin mx-auto" />
+          <p className="text-xs uppercase tracking-[0.2em] text-[#9E7F3C] font-mono">Verifying Seller Desk...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
