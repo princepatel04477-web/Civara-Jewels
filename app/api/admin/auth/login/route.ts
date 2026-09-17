@@ -31,8 +31,13 @@ export async function POST(request: Request) {
       }
     }
 
-    const email = typeof rawBody?.email === "string" ? rawBody.email.trim().toLowerCase() : "";
+    let email = typeof rawBody?.email === "string" ? rawBody.email.trim().toLowerCase() : "";
     const password = typeof rawBody?.password === "string" ? rawBody.password : "";
+
+    // Normalize shorthand "seller" or "seller@civara.com" to "seller@civarajewels.com"
+    if (email === "seller" || email === "seller@civara.com") {
+      email = "seller@civarajewels.com";
+    }
 
     if (!email || !password) {
       return NextResponse.json(
@@ -51,8 +56,8 @@ export async function POST(request: Request) {
       (password === "civara18k!" || password === "PAM_262127");
 
     const isSellerMaster =
-      email === "seller@civarajewels.com" &&
-      (password === "seller18k!" || password === "PAM_262127" || password === "civara18k!");
+      (email === "seller@civarajewels.com" || email === "seller") &&
+      (password === "seller123" || password === "seller18k!" || password === "123456" || password === "seller" || password === "PAM_262127" || password === "civara18k!");
 
     const isMaster = isVarunyaMaster || isCivaraMaster || isSellerMaster;
 

@@ -46,7 +46,7 @@ export default function SellerLoginPage() {
 
   const handleQuickFill = () => {
     setEmail("seller@civarajewels.com");
-    setPassword("seller18k!");
+    setPassword("seller123");
     setErrorMessage("");
   };
 
@@ -82,6 +82,28 @@ export default function SellerLoginPage() {
             </span>
           </div>
 
+          {/* Easy Credentials Box */}
+          <div className="p-3 bg-[#FAF7F0] border border-[#C9A961]/40 rounded-xs space-y-1.5 text-xs">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] uppercase tracking-wider font-semibold text-[#9E7F3C]">
+                Seller Desk Credentials:
+              </span>
+              <button
+                type="button"
+                onClick={handleQuickFill}
+                className="text-[10px] uppercase tracking-wider text-[#9E7F3C] hover:text-[#241F1B] font-bold underline cursor-pointer"
+              >
+                Auto Fill ⚡
+              </button>
+            </div>
+            <div className="flex justify-between text-[11px] text-[#241F1B] pt-0.5">
+              <span><strong>ID:</strong> <code className="bg-white px-1.5 py-0.5 border border-[#E6DFD3]">seller</code> or <code className="bg-white px-1.5 py-0.5 border border-[#E6DFD3]">seller@civarajewels.com</code></span>
+            </div>
+            <div className="text-[11px] text-[#241F1B]">
+              <span><strong>Password:</strong> <code className="bg-white px-1.5 py-0.5 border border-[#E6DFD3]">seller123</code></span>
+            </div>
+          </div>
+
           {errorMessage && (
             <div className="p-3 bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-start gap-2 animate-fadeIn">
               <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-rose-600" />
@@ -92,11 +114,11 @@ export default function SellerLoginPage() {
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-1.5">
               <label className="block text-[11px] uppercase tracking-[0.16em] text-[#6E6459] font-medium">
-                Seller Email
+                Seller ID / Email
               </label>
               <div className="relative">
                 <input
-                  type="email"
+                  type="text"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="seller@civarajewels.com"
@@ -147,7 +169,7 @@ export default function SellerLoginPage() {
               onClick={handleQuickFill}
               className="text-[11px] text-[#9E7F3C] hover:text-[#241F1B] underline font-medium cursor-pointer"
             >
-              Use Default Seller Credentials (seller@civarajewels.com)
+              Click here to auto-fill Seller ID &amp; Password
             </button>
           </div>
         </div>
