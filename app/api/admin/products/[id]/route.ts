@@ -1,19 +1,23 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { ProductRepo } from "@/lib/db/repo/products";
 import { updateProductSchema } from "@/lib/db/schemas/product";
 import { getAdminSession } from "@/lib/auth/session";
 import { getClientIP } from "@/lib/auth/ip";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export async function GET(
   request: Request,
   { params }: { params: { id: string } }
 ) {
-  const id = parseInt(params.id, 10);
-  if (isNaN(id)) {
-    return NextResponse.json({ error: "Invalid product ID" }, { status: 400 });
-  }
+  const rawId = params.id;
+  const numId = parseInt(rawId, 10);
+  const product = !isNaN(numId)
+    ? ProductRepo.getProductById(numId)
+    : ProductRepo.getProductBySlug(rawId);
 
-  const product = ProductRepo.getProductById(id);
   if (!product) {
     return NextResponse.json({ error: "Product not found" }, { status: 404 });
   }
@@ -25,11 +29,17 @@ export async function PATCH(
   request: Request,
   { params }: { params: { id: string } }
 ) {
-  const id = parseInt(params.id, 10);
-  if (isNaN(id)) {
-    return NextResponse.json({ error: "Invalid product ID" }, { status: 400 });
+  const rawId = params.id;
+  const numId = parseInt(rawId, 10);
+  const existingProduct = !isNaN(numId)
+    ? ProductRepo.getProductById(numId)
+    : ProductRepo.getProductBySlug(rawId);
+
+  if (!existingProduct) {
+    return NextResponse.json({ error: "Product not found" }, { status: 404 });
   }
 
+  const id = existingProduct.id;
   try {
     const session = await getAdminSession();
     const adminEmail = session.email || "Admin";
@@ -57,6 +67,13 @@ export async function PATCH(
       return NextResponse.json({ error: "Product not found" }, { status: 404 });
     }
 
+    try {
+      revalidatePath("/", "layout");
+      revalidatePath("/admin/products");
+    } catch {
+      // ignore
+    }
+
     return NextResponse.json({ success: true, product: updated });
   } catch (error: any) {
     return NextResponse.json({ error: error.message || "Failed to update product" }, { status: 500 });
@@ -67,19 +84,39 @@ export async function DELETE(
   request: Request,
   { params }: { params: { id: string } }
 ) {
-  const id = parseInt(params.id, 10);
-  if (isNaN(id)) {
-    return NextResponse.json({ error: "Invalid product ID" }, { status: 400 });
+  try {
+    const rawId = params.id;
+    if (!rawId) {
+      return NextResponse.json({ error: "Invalid product identifier" }, { status: 400 });
+    }
+
+    const session = await getAdminSession();
+    const adminEmail = session.email || "Admin";
+    const ip = getClientIP(request);
+
+    const success = ProductRepo.deleteProduct(rawId, adminEmail, ip);
+    if (!success) {
+      return NextResponse.json({ error: "Product not found or already deleted" }, { status: 404 });
+    }
+
+    try {
+      revalidatePath("/", "layout");
+      revalidatePath("/admin/products");
+      revalidatePath(`/products/${rawId}`);
+    } catch {
+      // ignore
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: "Product and associated images deleted successfully",
+    });
+  } catch (error: any) {
+    console.error("[DELETE Product Error]", error);
+    return NextResponse.json(
+      { error: error?.message || "Failed to delete product from database." },
+      { status: 500 }
+    );
   }
-
-  const session = await getAdminSession();
-  const adminEmail = session.email || "Admin";
-  const ip = getClientIP(request);
-
-  const success = ProductRepo.deleteProduct(id, adminEmail, ip);
-  if (!success) {
-    return NextResponse.json({ error: "Product not found" }, { status: 404 });
-  }
-
-  return NextResponse.json({ success: true, message: "Product and associated images deleted successfully" });
 }
+

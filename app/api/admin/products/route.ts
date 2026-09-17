@@ -4,6 +4,9 @@ import { createProductSchema } from "@/lib/db/schemas/product";
 import { getAdminSession } from "@/lib/auth/session";
 import { getClientIP } from "@/lib/auth/ip";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -32,7 +35,11 @@ export async function GET(request: Request) {
     };
 
     const result = ProductRepo.listProducts(filter);
-    return NextResponse.json(result);
+    return NextResponse.json(result, {
+      headers: {
+        "Cache-Control": "private, no-cache, no-store, must-revalidate",
+      },
+    });
   } catch (error: any) {
     return NextResponse.json({ error: error.message || "Failed to fetch products" }, { status: 500 });
   }

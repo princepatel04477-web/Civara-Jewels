@@ -39,10 +39,17 @@ export default function AdminProductsListPage() {
       if (collectionFilter !== "all") params.set("collectionId", collectionFilter);
       if (publishedFilter !== "all") params.set("published", publishedFilter === "1" ? "1" : "0");
       if (featuredFilter !== "all") params.set("featured", featuredFilter === "1" ? "1" : "0");
+      params.set("_t", Date.now().toString()); // Cache buster
 
       const [prodRes, colRes] = await Promise.all([
-        fetch(`/api/admin/products?${params.toString()}`),
-        fetch("/api/admin/collections"),
+        fetch(`/api/admin/products?${params.toString()}`, {
+          cache: "no-store",
+          headers: { "Cache-Control": "no-cache" },
+        }),
+        fetch("/api/admin/collections", {
+          cache: "no-store",
+          headers: { "Cache-Control": "no-cache" },
+        }),
       ]);
 
       const prodData = await prodRes.json();
@@ -72,14 +79,21 @@ export default function AdminProductsListPage() {
     }
 
     try {
-      const res = await fetch(`/api/admin/products/${id}`, { method: "DELETE" });
-      if (res.ok) {
+      const res = await fetch(`/api/admin/products/${id}`, {
+        method: "DELETE",
+        headers: { "Cache-Control": "no-cache" },
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.success) {
+        // Optimistically remove product from current UI immediately
+        setProducts((prev) => prev.filter((p) => p.id !== id));
         fetchProducts();
       } else {
-        alert("Failed to delete product.");
+        alert(data.error || "Failed to delete product.");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Delete error", err);
+      alert(err.message || "Failed to delete product.");
     }
   };
 

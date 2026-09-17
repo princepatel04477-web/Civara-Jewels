@@ -90,10 +90,19 @@ export async function middleware(request: NextRequest) {
     ["POST", "PATCH", "PUT", "DELETE"].includes(request.method)
   ) {
     const origin = request.headers.get("origin");
-    const host = request.headers.get("host");
+    const forwardedHost = request.headers.get("x-forwarded-host");
+    const host = forwardedHost || request.headers.get("host");
     if (origin && host) {
-      const originHost = origin.replace(/^https?:\/\//, "");
-      if (originHost !== host) {
+      const originDomain = origin.replace(/^https?:\/\//, "").split(":")[0].toLowerCase();
+      const hostDomain = host.split(":")[0].toLowerCase();
+
+      const isAllowed =
+        originDomain === hostDomain ||
+        (originDomain.endsWith(".vercel.app") && hostDomain.endsWith(".vercel.app")) ||
+        originDomain === "localhost" ||
+        originDomain === "127.0.0.1";
+
+      if (!isAllowed) {
         return NextResponse.json({ error: "CSRF verification failed" }, { status: 403 });
       }
     }

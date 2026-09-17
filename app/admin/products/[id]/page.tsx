@@ -236,15 +236,20 @@ export default function AdminEditProductPage() {
   const handleDelete = async () => {
     if (!confirm(`Are you sure you want to permanently delete "${form.name}" and its associated gallery photos?`)) return;
     try {
-      const res = await fetch(`/api/admin/products/${id}`, { method: "DELETE" });
-      if (res.ok) {
+      const res = await fetch(`/api/admin/products/${id}`, {
+        method: "DELETE",
+        headers: { "Cache-Control": "no-cache" },
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.success) {
         router.push("/admin/products");
+        router.refresh();
       } else {
-        const data = await res.json();
         throw new Error(data.error || "Failed to delete");
       }
     } catch (err: any) {
       setErrorMessage(err.message || "Deletion failed");
+      alert(err.message || "Deletion failed");
     }
   };
 

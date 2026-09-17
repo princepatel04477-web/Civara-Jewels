@@ -397,11 +397,35 @@ export const ProductRepo = {
     return this.getProductById(newProduct.id);
   },
 
-  deleteProduct(id: number, adminEmail?: string, ipAddress?: string | null): boolean {
-    const existing = this.getProductById(id);
-    const images = this.listProductImages(id);
+  deleteProduct(idOrSlug: number | string, adminEmail?: string, ipAddress?: string | null): boolean {
+    let existing: DbProduct | null = null;
+    if (typeof idOrSlug === "number") {
+      existing = this.getProductById(idOrSlug);
+    } else {
+      const parsedNum = parseInt(idOrSlug, 10);
+      if (!isNaN(parsedNum)) {
+        existing = this.getProductById(parsedNum);
+      }
+      if (!existing) {
+        existing = this.getProductBySlug(idOrSlug);
+      }
+    }
 
-    const result = db.prepare("DELETE FROM products WHERE id = ?").run(id);
+    if (!existing) {
+      return false;
+    }
+
+    const targetId = existing.id;
+    const images = this.listProductImages(targetId);
+
+    const deleteTx = db.transaction(() => {
+      // Explicitly delete child image records first to ensure foreign key safety
+      db.prepare("DELETE FROM product_images WHERE product_id = ?").run(targetId);
+      const res = db.prepare("DELETE FROM products WHERE id = ?").run(targetId);
+      return res.changes > 0;
+    });
+
+    const success = deleteTx();
 
     // Clean up local uploaded files if in /uploads/
     for (const img of images) {
@@ -420,13 +444,13 @@ export const ProductRepo = {
     AuditRepo.log({
       action: "PRODUCT_DELETED",
       entity: "Product",
-      entityId: id,
+      entityId: targetId,
       adminEmail: adminEmail || "Admin",
       ipAddress: ipAddress || null,
-      details: { name: existing?.name, slug: existing?.slug },
+      details: { name: existing.name, slug: existing.slug },
     });
 
-    return result.changes > 0;
+    return success;
   },
 
   listProductImages(productId: number): DbProductImage[] {
