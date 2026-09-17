@@ -89,7 +89,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       items: [
         { label: "Metal Rates", href: "/admin/pricing", icon: DollarSign },
         { label: "Rate History", href: "/admin/pricing/history", icon: History },
-        { label: "Seller Portal Desk", href: "/seller", icon: Sparkles },
       ],
     },
     {

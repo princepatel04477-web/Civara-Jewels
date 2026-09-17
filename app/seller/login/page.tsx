@@ -26,7 +26,7 @@ export default function SellerLoginPage() {
       const res = await fetch("/api/admin/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email.trim(), password }),
+        body: JSON.stringify({ email: email.trim(), password, portal: "seller" }),
       });
 
       const data = await res.json();
@@ -157,9 +157,9 @@ export default function SellerLoginPage() {
           <Link href="/" className="hover:text-[#241F1B] transition-colors">
             ← Return to Boutique
           </Link>
-          <Link href="/admin/login" className="hover:text-[#241F1B] transition-colors">
-            Master Admin Login →
-          </Link>
+          <span className="text-[10px] text-[#9E7F3C] uppercase tracking-wider font-medium">
+            Dedicated Seller Portal
+          </span>
         </div>
       </div>
     </div>

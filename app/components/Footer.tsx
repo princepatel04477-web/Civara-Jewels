@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { NewsletterCapture } from "./footer/NewsletterCapture";
-import { MapPin, MessageCircle, Phone, Mail, ShieldCheck } from "lucide-react";
+import { MapPin, MessageCircle, Phone, Mail, ShieldCheck, DollarSign } from "lucide-react";
 
 export const Footer = () => {
   return (
@@ -118,12 +118,18 @@ export const Footer = () => {
             <div><Link href="/faq" className="hover:text-[#C9A961] transition-colors">Frequently Asked Questions</Link></div>
             <div><Link href="/privacy" className="hover:text-[#C9A961] transition-colors">Privacy Policy</Link></div>
             <div><Link href="/terms" className="hover:text-[#C9A961] transition-colors">Terms of Service</Link></div>
-            <div className="pt-2">
+            <div className="pt-2 flex flex-col gap-1.5">
               <Link
-                href="/admin"
+                href="/seller"
                 className="text-[#C9A961] hover:underline inline-flex items-center gap-1 font-medium tracking-wider uppercase text-[10px]"
               >
-                <ShieldCheck className="w-3.5 h-3.5" /> Admin Panel
+                <DollarSign className="w-3.5 h-3.5" /> Seller Panel
+              </Link>
+              <Link
+                href="/admin"
+                className="text-[#E6DFD3]/70 hover:text-[#C9A961] hover:underline inline-flex items-center gap-1 font-medium tracking-wider uppercase text-[10px]"
+              >
+                <ShieldCheck className="w-3.5 h-3.5" /> Master Admin
               </Link>
             </div>
           </div>
@@ -133,8 +139,12 @@ export const Footer = () => {
       {/* Bottom Bar */}
       <div className="border-t border-[#6E6459]/40 px-6 lg:px-14 py-6 flex flex-col sm:flex-row justify-between items-center text-[11px] tracking-[0.18em] uppercase text-[#6E6459] gap-2">
         <div>© Civara Jewels {new Date().getFullYear()}</div>
-        <div className="text-center sm:text-right flex items-center gap-4">
+        <div className="text-center sm:text-right flex items-center gap-3">
           <span>Surat, Gujarat · Virtual Concierge Worldwide</span>
+          <Link href="/seller" className="text-[#C9A961]/80 hover:text-[#C9A961] underline text-[10px]">
+            Seller Desk
+          </Link>
+          <span className="text-[#6E6459]">•</span>
           <Link href="/admin" className="text-[#C9A961]/80 hover:text-[#C9A961] underline text-[10px]">
             Atelier Admin
           </Link>

@@ -145,6 +145,27 @@ export async function POST(request: Request) {
       ? "seller"
       : "admin";
 
+    // STRICT PORTAL ISOLATION: Admin and Seller are completely different pages/systems
+    const portal = typeof rawBody?.portal === "string" ? rawBody.portal.toLowerCase() : "";
+
+    if (portal === "admin" && role === "seller") {
+      return NextResponse.json(
+        {
+          error: "Access Denied: This account is a Seller account. Please log in through the Seller Panel at /seller/login.",
+        },
+        { status: 403 }
+      );
+    }
+
+    if (portal === "seller" && role === "admin") {
+      return NextResponse.json(
+        {
+          error: "Access Denied: This is the dedicated Seller Desk. Administrators must log in through the Admin Portal at /admin/login.",
+        },
+        { status: 403 }
+      );
+    }
+
     // STRICT SECURITY GATE: If connecting from Seller IP (192.168.1.4), Admin Login is FORBIDDEN
     const isFromSellerIP = isSellerIP(request);
     if (isFromSellerIP && role === "admin") {
