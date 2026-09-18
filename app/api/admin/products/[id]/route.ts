@@ -94,6 +94,15 @@ export async function DELETE(
     const adminEmail = session.email || "Admin";
     const ip = getClientIP(request);
 
+    // Warm the deleted-slugs cache from Vercel Blob before running deletion
+    // so the in-memory cache is current on this lambda instance
+    try {
+      const { getDeletedSlugs } = await import("@/lib/db/cloud-sync");
+      await getDeletedSlugs();
+    } catch {
+      // non-fatal
+    }
+
     const success = ProductRepo.deleteProduct(rawId, adminEmail, ip);
     if (!success) {
       return NextResponse.json({ error: "Product not found or already deleted" }, { status: 404 });
@@ -114,9 +123,11 @@ export async function DELETE(
   } catch (error: any) {
     console.error("[DELETE Product Error]", error);
     return NextResponse.json(
-      { error: error?.message || "Failed to delete product from database." },
+      {
+        error: error?.message || "Failed to delete product from database.",
+        details: process.env.NODE_ENV !== "production" ? error?.stack : undefined,
+      },
       { status: 500 }
     );
   }
 }
-

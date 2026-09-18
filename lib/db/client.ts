@@ -269,6 +269,15 @@ function seedDatabaseIfNeeded(database: Database.Database) {
           VALUES (?, ?, ?, ?, ?)
         `);
 
+        // Warm deleted slugs from Vercel Blob BEFORE seeding so cold-start lambdas
+        // don't re-insert products the admin has already deleted
+        try {
+          const { warmDeletedSlugsFromBlobSync } = require("./cloud-sync");
+          warmDeletedSlugsFromBlobSync();
+        } catch {
+          // non-fatal
+        }
+
         // Skip any deleted slugs during seed
         const { getDeletedSlugsSync } = require("./cloud-sync");
         const deletedSlugs = getDeletedSlugsSync();

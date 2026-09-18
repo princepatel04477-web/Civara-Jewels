@@ -10,6 +10,8 @@ const METAL_RATES_FILE = "civara-data/metal-rates.json";
 let cachedDeletedSlugs: Set<string> = new Set();
 let lastDeletedSlugsFetch = 0;
 let hasLoadedFromDiskOrCloud = false;
+// Prevent repeated cloud warm calls within the same lambda instance
+let hasWarmedFromCloud = false;
 
 function getLocalFilePath(filename: string): string {
   const baseName = path.basename(filename);
@@ -18,6 +20,91 @@ function getLocalFilePath(filename: string): string {
 
 function hasBlobToken(): boolean {
   return Boolean(process.env.BLOB_READ_WRITE_TOKEN);
+}
+
+/**
+ * Synchronously warms the in-memory deleted-slugs cache from Vercel Blob.
+ * Uses Node child_process to perform a blocking HTTP request during synchronous DB seeding.
+ * This prevents cold-start lambda instances from re-seeding previously deleted products.
+ */
+export function warmDeletedSlugsFromBlobSync(): void {
+  if (hasWarmedFromCloud) return;
+  if (!hasBlobToken()) {
+    hasWarmedFromCloud = true;
+    return;
+  }
+
+  const token = process.env.BLOB_READ_WRITE_TOKEN!;
+
+  try {
+    const { execFileSync } = require("child_process") as typeof import("child_process");
+
+    // Step 1: List blobs with the deleted-slugs prefix via Vercel Blob REST API
+    const listScript = `
+const https = require('https');
+const url = 'https://blob.vercel-storage.com?prefix=${encodeURIComponent(DELETED_SLUGS_FILE)}&limit=1';
+const req = https.get(url, { headers: { Authorization: 'Bearer ${token}' } }, (res) => {
+  let d = '';
+  res.on('data', c => d += c);
+  res.on('end', () => process.stdout.write(d));
+});
+req.on('error', () => process.exit(1));
+req.setTimeout(4000, () => process.exit(1));
+`;
+
+    const listRaw = execFileSync(process.execPath, ["-e", listScript], {
+      timeout: 5000,
+      encoding: "utf-8",
+      stdio: ["ignore", "pipe", "ignore"],
+    }) as string;
+
+    if (!listRaw || !listRaw.trim()) {
+      hasWarmedFromCloud = true;
+      return;
+    }
+
+    const listData = JSON.parse(listRaw);
+    const blobs: Array<{ url: string }> = listData.blobs || [];
+    if (blobs.length === 0) {
+      console.log("[CloudSync] No deleted-slugs blob found, starting fresh.");
+      hasWarmedFromCloud = true;
+      return;
+    }
+
+    // Step 2: Fetch the actual blob contents
+    const fileUrl = blobs[0].url;
+    const fetchScript = `
+const mod = require('${fileUrl.startsWith("https") ? "https" : "http"}');
+mod.get(${JSON.stringify(fileUrl)}, (res) => {
+  let d = '';
+  res.on('data', c => d += c);
+  res.on('end', () => process.stdout.write(d));
+}).on('error', () => process.exit(1)).setTimeout(4000, () => process.exit(1));
+`;
+
+    const fileRaw = execFileSync(process.execPath, ["-e", fetchScript], {
+      timeout: 5000,
+      encoding: "utf-8",
+      stdio: ["ignore", "pipe", "ignore"],
+    }) as string;
+
+    if (!fileRaw || !fileRaw.trim()) {
+      hasWarmedFromCloud = true;
+      return;
+    }
+
+    const slugList = JSON.parse(fileRaw);
+    if (Array.isArray(slugList)) {
+      cachedDeletedSlugs = new Set(slugList.map((s: any) => String(s).toLowerCase().trim()));
+      hasLoadedFromDiskOrCloud = true;
+      lastDeletedSlugsFetch = Date.now();
+      console.log(`[CloudSync] Warmed ${cachedDeletedSlugs.size} deleted slugs from Vercel Blob (sync).`);
+    }
+  } catch (err) {
+    console.warn("[CloudSync] warmDeletedSlugsFromBlobSync failed (non-fatal):", err);
+  }
+
+  hasWarmedFromCloud = true;
 }
 
 /**

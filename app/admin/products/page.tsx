@@ -87,9 +87,10 @@ export default function AdminProductsListPage() {
       });
       const data = await res.json().catch(() => ({}));
       if (res.ok && data.success) {
-        // Optimistically remove product from current UI immediately
+        // Optimistically remove product from UI immediately
         setProducts((prev) => prev.filter((p) => p.id !== id));
-        await fetchProducts();
+        // Note: No fetchProducts() here — it can re-fetch deleted items if the server
+        // cold-started before the blob cache was warmed. Rely on optimistic update.
       } else {
         alert(data.error || "Failed to delete product.");
       }
