@@ -4,6 +4,7 @@ import { ProductRepo } from "../lib/db/repo/products";
 import { CollectionRepo } from "../lib/db/repo/collections";
 import { hashPassword, verifyPassword } from "../lib/auth/password";
 import { Catalog } from "../lib/catalog";
+import { isAdminIP, hasAdminAccess } from "../lib/auth/ip";
 
 async function verifyAdminSystem() {
   console.log("=== Civara Jewels Admin System Verification ===");
@@ -146,6 +147,81 @@ async function verifyAdminSystem() {
     }
   }
   console.log(`✓ Confirmed obsolete IPs are purged from allowlist`);
+
+  // 6. Test Runtime Request IP Verification
+  console.log("\n6. Testing Functional IP Gate Evaluation...");
+  function makeReq(ip: string, cookie = "") {
+    return new Request("http://localhost:3000/admin", {
+      headers: new Headers({
+        "x-forwarded-for": ip,
+        ...(cookie ? { cookie } : {}),
+      }),
+    });
+  }
+
+  // Target User IPv6
+  if (!isAdminIP(makeReq("2405:201:200d:2822:a315:6410:f19b:8b6c"))) {
+    console.error("❌ Exact IPv6 2405:201:200d:2822:a315:6410:f19b:8b6c was rejected");
+    errors++;
+  } else {
+    console.log("✓ Exact user IPv6 is permitted");
+  }
+
+  // Target User IPv6 dynamic subnet address
+  if (!isAdminIP(makeReq("2405:201:200d:2822:cafe:1234:5678:9abc"))) {
+    console.error("❌ IPv6 /64 subnet prefix matching failed");
+    errors++;
+  } else {
+    console.log("✓ User IPv6 subnet prefix is permitted");
+  }
+
+  // Target User IPv4 LAN
+  if (!isAdminIP(makeReq("192.168.29.44"))) {
+    console.error("❌ User IPv4 192.168.29.44 was rejected");
+    errors++;
+  } else {
+    console.log("✓ User LAN IPv4 is permitted");
+  }
+
+  // Target User Link-local
+  if (!isAdminIP(makeReq("fe80::adb5:c64d:6728:c274%7"))) {
+    console.error("❌ User Link-local IPv6 was rejected");
+    errors++;
+  } else {
+    console.log("✓ User Link-local IPv6 (with zone id) is permitted");
+  }
+
+  // Localhost
+  if (!isAdminIP(makeReq("127.0.0.1"))) {
+    console.error("❌ Localhost 127.0.0.1 was rejected");
+    errors++;
+  } else {
+    console.log("✓ Localhost 127.0.0.1 is permitted");
+  }
+
+  // Unauthorized External IP
+  if (isAdminIP(makeReq("203.0.113.195"))) {
+    console.error("❌ Unauthorized IP 203.0.113.195 was erroneously allowed");
+    errors++;
+  } else {
+    console.log("✓ Unauthorized external IP is blocked");
+  }
+
+  // Seller IP
+  if (isAdminIP(makeReq("192.168.1.4"))) {
+    console.error("❌ Seller IP was erroneously allowed admin rights");
+    errors++;
+  } else {
+    console.log("✓ Seller network IP is strictly blocked from admin privileges");
+  }
+
+  // Obsolete Dev IP
+  if (isAdminIP(makeReq("10.209.18.108"))) {
+    console.error("❌ Obsolete IP 10.209.18.108 was erroneously allowed");
+    errors++;
+  } else {
+    console.log("✓ Obsolete development IP is blocked");
+  }
 
   console.log("\n=================================================");
   if (errors === 0) {
