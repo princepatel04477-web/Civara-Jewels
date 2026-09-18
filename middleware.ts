@@ -10,29 +10,18 @@ export async function middleware(request: NextRequest) {
   const isSellerPortal = pathname === "/seller" || pathname.startsWith("/seller/");
   const isAdminPortal = pathname === "/admin" || pathname.startsWith("/admin/");
   const isLoginPage = pathname === "/admin/login" || pathname === "/seller/login";
-  const isLoginApi = pathname === "/api/admin/auth/login";
+  const isAuthApi =
+    pathname.startsWith("/api/admin/auth/") ||
+    pathname.startsWith("/api/seller/auth/");
   const isFromSeller = isSellerRequest(request);
   const adminKeyParam = searchParams.get("admin_key");
   const hasAccessPass = hasAdminAccess(request);
 
-  // 1. STRICT SELLER RESTRICTION: Seller network (192.168.1.4) cannot view or access /admin
-  if (isFromSeller) {
-    if (isAdminPortal) {
-      return NextResponse.redirect(new URL("/seller/login", request.url));
-    }
-    if (pathname.startsWith("/api/admin/") && !isLoginApi) {
-      return NextResponse.json(
-        { error: "Forbidden: Master admin endpoints are restricted from this network." },
-        { status: 403 }
-      );
-    }
-  }
-
-  // Check Session Authentication
+  // Check Session Authentication first
   const response = NextResponse.next();
 
   // If valid admin_key provided, grant 30-day admin pass cookie
-  if (adminKeyParam === "civara_owner" && !isFromSeller) {
+  if (adminKeyParam === "civara_owner") {
     response.cookies.set("civara_admin_access", "1", {
       path: "/",
       maxAge: 60 * 60 * 24 * 30, // 30 days
@@ -45,6 +34,20 @@ export async function middleware(request: NextRequest) {
   const isAuthenticated = Boolean(session && session.isLoggedIn && session.userId);
   const userRole = session?.role || "admin";
 
+  // 1. STRICT SELLER RESTRICTION: Seller network (192.168.1.4) cannot view or access /admin
+  if (isFromSeller && (!isAuthenticated || userRole === "seller")) {
+    if (isAdminPortal) {
+      return NextResponse.redirect(new URL("/seller/login", request.url));
+    }
+    // Block master admin endpoints, but never block authentication operations (login, logout, session)
+    if (pathname.startsWith("/api/admin/") && !isAuthApi) {
+      return NextResponse.json(
+        { error: "Forbidden: Master admin endpoints are restricted from this network." },
+        { status: 403 }
+      );
+    }
+  }
+
   // 2. Unauthenticated access to /admin/login:
   // If not from authorized admin IP / pass, redirect to /seller/login so admin portal is invisible
   if (pathname === "/admin/login") {
@@ -53,7 +56,7 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // 3. Allow Login Pages & Login API to load
+  // 3. Allow Login Pages & Auth APIs to load
   if (isLoginPage) {
     if (isAuthenticated) {
       // If already logged in, route to appropriate portal
@@ -70,7 +73,7 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
-  if (isLoginApi) {
+  if (isAuthApi) {
     return response;
   }
 

@@ -32,6 +32,7 @@ export async function GET() {
       id: session.userId,
       email: session.email,
       name: session.name,
+      role: session.role || "admin",
     },
   });
 }

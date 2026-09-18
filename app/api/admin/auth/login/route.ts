@@ -162,15 +162,6 @@ export async function POST(request: Request) {
       );
     }
 
-    if (portal === "seller" && role === "admin") {
-      return NextResponse.json(
-        {
-          error: "Access Denied: This is the dedicated Seller Desk. Administrators must log in through the Admin Portal at /admin/login.",
-        },
-        { status: 403 }
-      );
-    }
-
     // STRICT SECURITY GATE: If connecting from Seller Network or IP (192.168.1.4), Admin Login is FORBIDDEN
     const isFromSeller = isSellerRequest(request);
     if (isFromSeller && (portal === "admin" || role === "admin")) {
@@ -224,7 +215,7 @@ export async function POST(request: Request) {
 
     const res = NextResponse.json({
       success: true,
-      redirectUrl: role === "seller" ? "/seller" : "/admin",
+      redirectUrl: portal === "seller" ? "/seller" : role === "seller" ? "/seller" : "/admin",
       user: {
         id: session.userId,
         email: session.email,
@@ -238,6 +229,13 @@ export async function POST(request: Request) {
       res.cookies.set("civara_seller_network", "1", {
         path: "/",
         maxAge: 60 * 60 * 24 * 365, // 1 year
+        sameSite: "lax",
+      });
+    } else {
+      // Clear seller network cookie if authenticated as admin
+      res.cookies.set("civara_seller_network", "", {
+        path: "/",
+        maxAge: 0,
         sameSite: "lax",
       });
     }

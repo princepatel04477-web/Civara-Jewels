@@ -27,9 +27,13 @@ export default function SellerLayout({ children }: { children: React.ReactNode }
   useEffect(() => {
     if (!isLoginPage) {
       setCheckingAuth(true);
-      fetch("/api/admin/auth/logout") // check session
-        .then((res) => {
-          if (!res.ok) throw new Error("Unauthenticated");
+      fetch("/api/seller/auth/session")
+        .then(async (res) => {
+          if (!res.ok) {
+            const fallbackRes = await fetch("/api/admin/auth/logout");
+            if (!fallbackRes.ok) throw new Error("Unauthenticated");
+            return fallbackRes.json();
+          }
           return res.json();
         })
         .then((data) => {
@@ -37,24 +41,27 @@ export default function SellerLayout({ children }: { children: React.ReactNode }
             setSellerUser(data.user);
             setCheckingAuth(false);
           } else {
-            router.push("/seller/login");
+            window.location.href = "/seller/login";
           }
         })
         .catch(() => {
-          router.push("/seller/login");
+          window.location.href = "/seller/login";
         });
     }
-  }, [isLoginPage, router]);
+  }, [isLoginPage]);
 
   const handleLogout = async () => {
     try {
-      await fetch("/api/admin/auth/logout", { method: "POST" });
+      await fetch("/api/seller/auth/logout", { method: "POST" });
     } catch {
-      // ignore
+      try {
+        await fetch("/api/admin/auth/logout", { method: "POST" });
+      } catch {
+        // ignore
+      }
     }
     setSellerUser(null);
-    router.push("/seller/login");
-    router.refresh();
+    window.location.href = "/seller/login";
   };
 
   // If on login page, render clean container without header
@@ -125,7 +132,7 @@ export default function SellerLayout({ children }: { children: React.ReactNode }
                 {sellerUser?.email || "seller@civarajewels.com"}
               </span>
               <span className="text-[9px] uppercase font-semibold bg-[#9E7F3C]/30 text-[#C9A961] px-1.5 py-0.5 rounded-xs">
-                Seller
+                {sellerUser?.role === "admin" ? "Admin" : "Seller"}
               </span>
             </div>
 

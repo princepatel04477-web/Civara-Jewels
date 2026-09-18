@@ -34,9 +34,8 @@ export default function SellerLoginPage() {
         throw new Error(data.error || "Authentication failed. Please check your credentials.");
       }
 
-      // Success
-      router.push(data.redirectUrl || "/seller");
-      router.refresh();
+      // Success - full navigation ensures cookies are applied cleanly
+      window.location.href = data.redirectUrl || "/seller";
     } catch (err: any) {
       setErrorMessage(err.message || "Unable to sign in. Please try again.");
     } finally {
