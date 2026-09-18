@@ -21,8 +21,11 @@ export default function ProductDetailPage() {
   const productId = (params?.id as string) || "elara-solitaire";
 
   // Initial product from catalog as SSR fallback
-  const initialProduct = Catalog.getProductById(productId) || Catalog.getProductById("elara-solitaire")!;
-  const [product, setProduct] = useState<Product>(initialProduct);
+  const initialProduct = Catalog.getProductById(productId);
+  const [product, setProduct] = useState<Product>(
+    initialProduct || Catalog.getProductById("elara-solitaire") || Catalog.products[0]
+  );
+  const [isNotFound, setIsNotFound] = useState(!initialProduct);
   const [liveImages, setLiveImages] = useState<string[]>([]);
   
   // Benchmark Rates State
@@ -51,12 +54,19 @@ export default function ProductDetailPage() {
   // Fetch live product from SQLite API
   useEffect(() => {
     fetch(`/api/public/products/${productId}`)
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          setIsNotFound(true);
+          return null;
+        }
+        return res.json();
+      })
       .then((data) => {
         if (data && data.product) {
           const dbP = data.product;
           const mapped = Catalog.mapDbProductToProduct(dbP);
           setProduct(mapped);
+          setIsNotFound(false);
 
           if (dbP.images && dbP.images.length > 0) {
             const allImgs = dbP.images.map((img: any) => img.path);
@@ -136,8 +146,13 @@ export default function ProductDetailPage() {
     const estimatedMaking = Math.max(3000, 4800);
     const rawDiamondComponent = isGoldOnly ? 0 : Math.max(0, baseNonMetalWithGst - estimatedMaking);
 
-    // Lab grown diamonds offer ~35% value savings on diamond component
-    const diamondMultiplier = selectedDiamondType === "Lab Grown Diamond" ? 0.65 : 1.0;
+    // Dynamic diamond rate ratio based on seller desk rates per carat
+    const naturalRatePerCarat = ratesMap["Natural Diamond (Per Carat)"] || 85000;
+    const labRatePerCarat = ratesMap["Lab Grown Diamond (Per Carat)"] || 28000;
+    const dynamicDiamondRatio = naturalRatePerCarat > 0 ? (labRatePerCarat / naturalRatePerCarat) : 0.65;
+
+    // Lab grown diamonds reflect active seller desk carat rates
+    const diamondMultiplier = selectedDiamondType === "Lab Grown Diamond" ? dynamicDiamondRatio : 1.0;
     const activeDiamondComponent = Math.round(rawDiamondComponent * diamondMultiplier);
     const activeMakingComponent = Math.max(3000, baseNonMetalWithGst - rawDiamondComponent);
 
@@ -237,6 +252,28 @@ export default function ProductDetailPage() {
 
     return groups;
   }, [metalOptionList, ratesMap]);
+
+  if (isNotFound) {
+    return (
+      <div className="min-h-[70vh] flex flex-col items-center justify-center text-center px-6 py-20 bg-[#FBF7F0]">
+        <div className="text-[10px] uppercase tracking-[0.3em] text-[#9E7F3C] font-semibold mb-3">
+          Civara Atelier Archive
+        </div>
+        <h1 className="font-serif text-3xl sm:text-4xl font-medium text-[#241F1B] mb-4">
+          Piece Unavailable or Retired
+        </h1>
+        <p className="text-xs sm:text-sm text-[#6E6459] max-w-md mb-8 leading-relaxed">
+          This fine jewellery design is currently unavailable, archived in our private vault, or has been retired from active creation.
+        </p>
+        <Link
+          href="/collections"
+          className="bg-[#241F1B] text-[#C9A961] px-8 py-3.5 text-xs uppercase tracking-[0.2em] font-medium hover:bg-[#181412] transition-colors"
+        >
+          Explore All Collections
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full pb-16">
@@ -498,6 +535,7 @@ export default function ProductDetailPage() {
             product={product}
             selectedMetal={selectedMetal}
             selectedSize={selectedSize}
+            selectedDiamondType={selectedDiamondType}
             calculatedPricing={calculatedPricing}
           />
         </div>
@@ -508,6 +546,7 @@ export default function ProductDetailPage() {
         product={product}
         selectedMetal={selectedMetal}
         selectedSize={selectedSize}
+        selectedDiamondType={selectedDiamondType}
         calculatedPricing={calculatedPricing}
       />
 

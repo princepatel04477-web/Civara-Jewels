@@ -16,6 +16,7 @@ import {
   History,
   ShieldCheck,
   ChevronRight,
+  Gem,
 } from "lucide-react";
 
 interface MetalRate {
@@ -47,6 +48,7 @@ export default function SellerDashboardPage() {
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [lastUpdatedMeta, setLastUpdatedMeta] = useState<any>(null);
+  const [activeTab, setActiveTab] = useState<"all" | "bullion" | "carat">("all");
 
   // Form State for Daily Rates
   const [rateInputs, setRateInputs] = useState<Record<string, string>>({
@@ -56,6 +58,8 @@ export default function SellerDashboardPage() {
     "14 KT": "44625",
     "10 KT": "31875",
     "Silver": "28500",
+    "Natural Diamond (Per Carat)": "85000",
+    "Lab Grown Diamond (Per Carat)": "28000",
   });
 
   // Benchmark 24K calculator state
@@ -161,6 +165,20 @@ export default function SellerDashboardPage() {
     }));
   };
 
+  // Quick delta adjustment for diamond carat rates
+  const handleAdjustCaratRate = (
+    purity: "Natural Diamond (Per Carat)" | "Lab Grown Diamond (Per Carat)",
+    delta: number
+  ) => {
+    const fallback = purity.includes("Natural") ? 85000 : 28000;
+    const current = parseInt(rateInputs[purity] || String(fallback), 10) || fallback;
+    const nextVal = Math.max(1000, current + delta);
+    setRateInputs((prev) => ({
+      ...prev,
+      [purity]: String(nextVal),
+    }));
+  };
+
   // Submit all rates to backend
   const handlePublishRates = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -176,6 +194,8 @@ export default function SellerDashboardPage() {
       { purity: "14 KT", metal: "Gold" },
       { purity: "10 KT", metal: "Gold" },
       { purity: "Silver", metal: "Silver" },
+      { purity: "Natural Diamond (Per Carat)", metal: "Diamond" },
+      { purity: "Lab Grown Diamond (Per Carat)", metal: "Diamond" },
     ];
 
     for (const item of itemsToSave) {
@@ -246,25 +266,45 @@ export default function SellerDashboardPage() {
               </span>
             </div>
             <h1 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-medium text-[#241F1B]">
-              Daily Gold Rate Update
+              Daily Gold &amp; Diamond Pricing Desk
             </h1>
             <p className="text-xs text-[#6E6459] font-light">
-              Enter today&apos;s gold market rate. Any adjustment immediately recalculates product retail prices across the website.
+              Enter today&apos;s gold market rate and diamond rates per carat. Any adjustment immediately recalculates product retail prices across the website.
             </p>
           </div>
 
-          {/* Quick Date & Storefront Link */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+          {/* Quick Date, Carat Rates Button & Storefront Link */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2.5">
             <div className="text-right sm:border-r border-[#E6DFD3] pr-4 hidden sm:block">
               <span className="text-[10px] uppercase tracking-wider text-[#6E6459] block">Today</span>
               <span className="text-xs font-serif font-medium text-[#241F1B]">{todayFormatted}</span>
             </div>
 
+            {/* BUTTON OF RATES PER CARAT */}
+            <button
+              type="button"
+              onClick={() => {
+                setActiveTab(activeTab === "carat" ? "all" : "carat");
+                setTimeout(() => {
+                  const el = document.getElementById("carat-rates-desk");
+                  if (el) el.scrollIntoView({ behavior: "smooth" });
+                }, 50);
+              }}
+              className="inline-flex items-center gap-2 bg-[#241F1B] hover:bg-[#181412] text-[#C9A961] border border-[#C9A961] px-4 py-2.5 text-xs font-medium uppercase tracking-[0.16em] transition-all shadow-xs cursor-pointer group shrink-0"
+              title="Click to view and configure Rates Per Carat for Diamonds"
+            >
+              <Gem className="w-3.5 h-3.5 text-[#C9A961] group-hover:scale-110 transition-transform" />
+              <span>Rates Per Carat</span>
+              <span className="text-[9px] bg-[#C9A961] text-[#241F1B] px-1.5 py-0.5 rounded-full font-bold">
+                Desk
+              </span>
+            </button>
+
             <Link
               href="/products/elara-solitaire"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 bg-[#FAF7F0] hover:bg-[#E6DFD3] border border-[#C9A961] text-[#9E7F3C] px-3.5 py-2 text-xs font-medium transition-colors"
+              className="inline-flex items-center gap-1.5 bg-[#FAF7F0] hover:bg-[#E6DFD3] border border-[#C9A961] text-[#9E7F3C] px-3.5 py-2.5 text-xs font-medium transition-colors shrink-0"
             >
               <span>Check Live Product</span>
               <ExternalLink className="w-3.5 h-3.5" />
@@ -317,177 +357,412 @@ export default function SellerDashboardPage() {
         </div>
       )}
 
-      {/* BENCHMARK QUICK CALCULATOR CARD */}
-      <div className="bg-[#FAF7F0] border border-[#C9A961]/40 p-6 sm:p-8 space-y-4 shadow-xs">
-        <div className="flex items-center gap-2 text-[#9E7F3C]">
-          <Calculator className="w-5 h-5" />
-          <h2 className="font-serif text-lg font-medium text-[#241F1B]">
-            Quick 24 KT Gold Benchmark Calculator
-          </h2>
-        </div>
-        <p className="text-xs text-[#6E6459] max-w-2xl">
-          Enter today&apos;s pure 24 Karat gold rate per 10 grams. Click <strong>&quot;Auto-Calculate&quot;</strong> to automatically compute standard hallmark rates for 22K (91.6%), 18K (75%), 14K (58.3%), and 10K (41.7%).
-        </p>
-
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
-          {/* Input field */}
-          <div className="relative flex-1 max-w-md">
-            <span className="absolute left-3.5 top-3 text-xs font-medium text-[#9E7F3C]">₹</span>
-            <input
-              type="text"
-              value={benchmark24K}
-              onChange={(e) => {
-                const val = e.target.value.replace(/[^0-9]/g, "");
-                setBenchmark24K(val);
-              }}
-              placeholder="76500"
-              className="w-full bg-[#FFFFFF] border border-[#E6DFD3] focus:border-[#9E7F3C] text-[#241F1B] font-mono text-base font-semibold pl-8 pr-16 py-2.5 focus:outline-none"
-            />
-            <span className="absolute right-3.5 top-3 text-[11px] text-[#6E6459] font-medium">/ 10g</span>
-          </div>
-
-          {/* Quick delta adjustment chips */}
-          <div className="flex items-center gap-1.5 flex-wrap">
-            {[-1000, -500, +500, +1000].map((delta) => (
-              <button
-                key={delta}
-                type="button"
-                onClick={() => handleAdjustBenchmark(delta)}
-                className="px-2.5 py-2 text-xs font-mono font-medium border border-[#E6DFD3] bg-[#FFFFFF] hover:border-[#9E7F3C] text-[#6E6459] hover:text-[#241F1B] transition-colors cursor-pointer"
-              >
-                {delta > 0 ? `+₹${delta}` : `-₹${Math.abs(delta)}`}
-              </button>
-            ))}
-          </div>
-
-          {/* Calculate Button */}
-          <button
-            type="button"
-            onClick={handleAutoCalculateFrom24K}
-            className="bg-[#9E7F3C] hover:bg-[#886c32] text-[#FAF7F0] px-5 py-2.5 text-xs uppercase tracking-[0.16em] font-medium transition-colors cursor-pointer shrink-0 shadow-xs"
-          >
-            Auto-Calculate
-          </button>
-        </div>
+      {/* Section Navigation Tabs */}
+      <div className="flex border-b border-[#E6DFD3] gap-2 sm:gap-6 text-xs uppercase tracking-wider font-medium overflow-x-auto pb-1">
+        <button
+          type="button"
+          onClick={() => setActiveTab("all")}
+          className={`pb-3 border-b-2 transition-colors cursor-pointer whitespace-nowrap ${
+            activeTab === "all"
+              ? "border-[#241F1B] text-[#241F1B] font-bold"
+              : "border-transparent text-[#6E6459] hover:text-[#241F1B]"
+          }`}
+        >
+          All Atelier Rates
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab("bullion")}
+          className={`pb-3 border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
+            activeTab === "bullion"
+              ? "border-[#241F1B] text-[#241F1B] font-bold"
+              : "border-transparent text-[#6E6459] hover:text-[#241F1B]"
+          }`}
+        >
+          <DollarSign className="w-3.5 h-3.5 text-[#9E7F3C]" />
+          <span>Gold &amp; Silver Bullion (Per 10g)</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab("carat")}
+          className={`pb-3 border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
+            activeTab === "carat"
+              ? "border-[#9E7F3C] text-[#9E7F3C] font-bold"
+              : "border-transparent text-[#6E6459] hover:text-[#241F1B]"
+          }`}
+        >
+          <Gem className="w-3.5 h-3.5 text-[#9E7F3C]" />
+          <span>Rates Per Carat (Diamond Desk)</span>
+          <span className="text-[9px] bg-[#9E7F3C] text-[#FAF7F0] px-1.5 py-0.2 rounded-full font-bold">
+            Live
+          </span>
+        </button>
       </div>
+
+      {/* BENCHMARK QUICK CALCULATOR CARD */}
+      {(activeTab === "all" || activeTab === "bullion") && (
+        <div className="bg-[#FAF7F0] border border-[#C9A961]/40 p-6 sm:p-8 space-y-4 shadow-xs">
+          <div className="flex items-center gap-2 text-[#9E7F3C]">
+            <Calculator className="w-5 h-5" />
+            <h2 className="font-serif text-lg font-medium text-[#241F1B]">
+              Quick 24 KT Gold Benchmark Calculator
+            </h2>
+          </div>
+          <p className="text-xs text-[#6E6459] max-w-2xl">
+            Enter today&apos;s pure 24 Karat gold rate per 10 grams. Click <strong>&quot;Auto-Calculate&quot;</strong> to automatically compute standard hallmark rates for 22K (91.6%), 18K (75%), 14K (58.3%), and 10K (41.7%).
+          </p>
+
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
+            {/* Input field */}
+            <div className="relative flex-1 max-w-md">
+              <span className="absolute left-3.5 top-3 text-xs font-medium text-[#9E7F3C]">₹</span>
+              <input
+                type="text"
+                value={benchmark24K}
+                onChange={(e) => {
+                  const val = e.target.value.replace(/[^0-9]/g, "");
+                  setBenchmark24K(val);
+                }}
+                placeholder="76500"
+                className="w-full bg-[#FFFFFF] border border-[#E6DFD3] focus:border-[#9E7F3C] text-[#241F1B] font-mono text-base font-semibold pl-8 pr-16 py-2.5 focus:outline-none"
+              />
+              <span className="absolute right-3.5 top-3 text-[11px] text-[#6E6459] font-medium">/ 10g</span>
+            </div>
+
+            {/* Quick delta adjustment chips */}
+            <div className="flex items-center gap-1.5 flex-wrap">
+              {[-1000, -500, +500, +1000].map((delta) => (
+                <button
+                  key={delta}
+                  type="button"
+                  onClick={() => handleAdjustBenchmark(delta)}
+                  className="px-2.5 py-2 text-xs font-mono font-medium border border-[#E6DFD3] bg-[#FFFFFF] hover:border-[#9E7F3C] text-[#6E6459] hover:text-[#241F1B] transition-colors cursor-pointer"
+                >
+                  {delta > 0 ? `+₹${delta}` : `-₹${Math.abs(delta)}`}
+                </button>
+              ))}
+            </div>
+
+            {/* Calculate Button */}
+            <button
+              type="button"
+              onClick={handleAutoCalculateFrom24K}
+              className="bg-[#9E7F3C] hover:bg-[#886c32] text-[#FAF7F0] px-5 py-2.5 text-xs uppercase tracking-[0.16em] font-medium transition-colors cursor-pointer shrink-0 shadow-xs"
+            >
+              Auto-Calculate
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* DAILY RATES ENTRY FORM */}
       <form onSubmit={handlePublishRates} className="space-y-6">
-        <div className="flex items-center justify-between border-b border-[#E6DFD3] pb-3">
-          <div className="space-y-0.5">
-            <h3 className="font-serif text-xl font-medium text-[#241F1B]">
-              Today&apos;s Active Rate Schedule
-            </h3>
-            <span className="text-xs text-[#6E6459]">
-              Review or customize rates below before publishing to the live store.
-            </span>
+        {/* BULLION RATES SECTION (GOLD & SILVER) */}
+        {(activeTab === "all" || activeTab === "bullion") && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between border-b border-[#E6DFD3] pb-3">
+              <div className="space-y-0.5">
+                <h3 className="font-serif text-xl font-medium text-[#241F1B]">
+                  Gold &amp; Silver Bullion Rate Schedule
+                </h3>
+                <span className="text-xs text-[#6E6459]">
+                  Review or customize bullion rates below before publishing to the live store.
+                </span>
+              </div>
+              <span className="text-[11px] text-[#6E6459] font-mono">
+                Values quoted in INR (₹) per 10 Grams
+              </span>
+            </div>
+
+            {/* 6 Purity Cards Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {[
+                {
+                  purity: "24 KT",
+                  name: "24K Fine Gold",
+                  subtitle: "99.9% Pure Gold Benchmark",
+                  accent: "border-amber-400 bg-amber-50/40",
+                },
+                {
+                  purity: "22 KT",
+                  name: "22K Traditional",
+                  subtitle: "916 Hallmark Standard",
+                  accent: "border-[#C9A961] bg-[#FAF7F0]",
+                },
+                {
+                  purity: "18 KT",
+                  name: "18K Fine Atelier",
+                  subtitle: "750 Hallmark (Primary Civara Jewellery)",
+                  accent: "border-[#241F1B] bg-[#FAF7F0] ring-1 ring-[#241F1B]/10",
+                  highlight: true,
+                },
+                {
+                  purity: "14 KT",
+                  name: "14K Everyday Fine",
+                  subtitle: "585 Hallmark Modern Jewellery",
+                  accent: "border-[#C9A961]/50 bg-[#FFFFFF]",
+                },
+                {
+                  purity: "10 KT",
+                  name: "10K Accessible Fine",
+                  subtitle: "417 Hallmark Durable Jewellery",
+                  accent: "border-[#E6DFD3] bg-[#FFFFFF]",
+                },
+                {
+                  purity: "Silver",
+                  name: "925 Sterling Silver",
+                  subtitle: "Pure Silver Bullion Rate",
+                  accent: "border-gray-300 bg-gray-50/40",
+                },
+              ].map((item) => {
+                const rawValue = rateInputs[item.purity] || "0";
+                const numVal = parseInt(rawValue, 10) || 0;
+                const perGram = Math.round(numVal / 10);
+
+                return (
+                  <div
+                    key={item.purity}
+                    className={`border p-5 space-y-3 transition-all ${item.accent} ${
+                      item.highlight ? "shadow-md" : "shadow-xs"
+                    }`}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-serif text-lg font-semibold text-[#241F1B]">
+                            {item.purity}
+                          </span>
+                          {item.highlight && (
+                            <span className="text-[9px] uppercase tracking-wider bg-[#241F1B] text-[#C9A961] font-semibold px-2 py-0.5">
+                              Atelier Core
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-xs font-medium text-[#6E6459]">{item.name}</div>
+                        <div className="text-[10px] text-[#6E6459]/80 font-light">{item.subtitle}</div>
+                      </div>
+                    </div>
+
+                    {/* Rate Input Field */}
+                    <div className="space-y-1 pt-1">
+                      <label className="block text-[10px] uppercase tracking-wider text-[#6E6459] font-medium">
+                        Rate per 10g (₹)
+                      </label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-2.5 text-xs font-bold text-[#9E7F3C]">₹</span>
+                        <input
+                          type="text"
+                          value={rateInputs[item.purity] || ""}
+                          onChange={(e) => handleInputChange(item.purity, e.target.value)}
+                          placeholder="0"
+                          required
+                          className="w-full bg-[#FFFFFF] border border-[#E6DFD3] focus:border-[#241F1B] text-[#241F1B] font-mono text-base font-bold pl-7 pr-12 py-2 focus:outline-none"
+                        />
+                        <span className="absolute right-3 top-2.5 text-[11px] text-[#6E6459] font-mono">
+                          /10g
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Live Per-Gram Helper */}
+                    <div className="flex items-center justify-between text-[11px] pt-1 border-t border-[#E6DFD3]/70">
+                      <span className="text-[#6E6459]">Equivalent per gram:</span>
+                      <span className="font-mono font-semibold text-[#241F1B]">
+                        ₹{perGram.toLocaleString("en-IN")}/g
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
-          <span className="text-[11px] text-[#6E6459] font-mono">
-            Values quoted in INR (₹) per 10 Grams
-          </span>
-        </div>
+        )}
 
-        {/* 6 Purity Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[
-            {
-              purity: "24 KT",
-              name: "24K Fine Gold",
-              subtitle: "99.9% Pure Gold Benchmark",
-              accent: "border-amber-400 bg-amber-50/40",
-            },
-            {
-              purity: "22 KT",
-              name: "22K Traditional",
-              subtitle: "916 Hallmark Standard",
-              accent: "border-[#C9A961] bg-[#FAF7F0]",
-            },
-            {
-              purity: "18 KT",
-              name: "18K Fine Atelier",
-              subtitle: "750 Hallmark (Primary Civara Jewellery)",
-              accent: "border-[#241F1B] bg-[#FAF7F0] ring-1 ring-[#241F1B]/10",
-              highlight: true,
-            },
-            {
-              purity: "14 KT",
-              name: "14K Everyday Fine",
-              subtitle: "585 Hallmark Modern Jewellery",
-              accent: "border-[#C9A961]/50 bg-[#FFFFFF]",
-            },
-            {
-              purity: "10 KT",
-              name: "10K Accessible Fine",
-              subtitle: "417 Hallmark Durable Jewellery",
-              accent: "border-[#E6DFD3] bg-[#FFFFFF]",
-            },
-            {
-              purity: "Silver",
-              name: "925 Sterling Silver",
-              subtitle: "Pure Silver Bullion Rate",
-              accent: "border-gray-300 bg-gray-50/40",
-            },
-          ].map((item) => {
-            const rawValue = rateInputs[item.purity] || "0";
-            const numVal = parseInt(rawValue, 10) || 0;
-            const perGram = Math.round(numVal / 10);
+        {/* ======================================================= */}
+        {/* DIAMOND VALUATION & RATES PER CARAT DESK                 */}
+        {/* ======================================================= */}
+        {(activeTab === "all" || activeTab === "carat") && (
+          <div id="carat-rates-desk" className="space-y-5 pt-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[#E6DFD3] pb-3 gap-2">
+              <div className="space-y-0.5">
+                <div className="flex items-center gap-2">
+                  <div className="p-1 bg-[#241F1B] text-[#C9A961]">
+                    <Gem className="w-4 h-4" />
+                  </div>
+                  <h3 className="font-serif text-xl font-medium text-[#241F1B]">
+                    Rates Per Carat (Diamond Pricing Desk)
+                  </h3>
+                </div>
+                <p className="text-xs text-[#6E6459]">
+                  Live benchmark valuation per carat for Natural Earth-Mined and Lab Grown Diamonds. Solitaire and accent prices update live across the boutique.
+                </p>
+              </div>
+              <span className="text-[11px] text-[#9E7F3C] font-mono font-medium">
+                Values quoted in INR (₹) per 1.00 Carat
+              </span>
+            </div>
 
-            return (
-              <div
-                key={item.purity}
-                className={`border p-5 space-y-3 transition-all ${item.accent} ${
-                  item.highlight ? "shadow-md" : "shadow-xs"
-                }`}
-              >
+            {/* Savings & Benchmark Comparison Banner */}
+            {(() => {
+              const naturalRate = parseInt(rateInputs["Natural Diamond (Per Carat)"] || "85000", 10) || 85000;
+              const labRate = parseInt(rateInputs["Lab Grown Diamond (Per Carat)"] || "28000", 10) || 28000;
+              const diff = Math.max(0, naturalRate - labRate);
+              const savingsPercent = naturalRate > 0 ? Math.round((diff / naturalRate) * 100) : 67;
+
+              return (
+                <div className="p-4 bg-[#FAF7F0] border border-[#C9A961]/50 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 text-xs shadow-xs">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-serif font-medium text-[#241F1B]">Live Diamond Market Benchmark Comparison</span>
+                      <span className="bg-[#241F1B] text-[#C9A961] font-mono text-[10px] px-2 py-0.5 font-semibold">
+                        {savingsPercent}% Client Savings
+                      </span>
+                    </div>
+                    <p className="text-[#6E6459] font-light">
+                      Lab Grown diamonds offer an immediate value advantage of <strong className="text-[#241F1B]">₹{diff.toLocaleString("en-IN")}/ct</strong> over certified natural earth-mined diamonds with identical optical fire and chemical structure.
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-4 shrink-0 font-mono text-xs">
+                    <div className="text-right">
+                      <span className="text-[10px] uppercase text-[#6E6459] block">Natural / ct</span>
+                      <span className="font-bold text-[#241F1B]">₹{naturalRate.toLocaleString("en-IN")}</span>
+                    </div>
+                    <div className="text-right border-l border-[#C9A961]/40 pl-4">
+                      <span className="text-[10px] uppercase text-[#9E7F3C] block">Lab Grown / ct</span>
+                      <span className="font-bold text-[#9E7F3C]">₹{labRate.toLocaleString("en-IN")}</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* Two Diamond Carat Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {/* Natural Diamond Card */}
+              <div className="border border-[#241F1B] bg-[#FFFFFF] p-6 space-y-4 shadow-sm relative">
                 <div className="flex items-start justify-between">
-                  <div>
+                  <div className="space-y-1">
                     <div className="flex items-center gap-2">
                       <span className="font-serif text-lg font-semibold text-[#241F1B]">
-                        {item.purity}
+                        Natural Diamond
                       </span>
-                      {item.highlight && (
-                        <span className="text-[9px] uppercase tracking-wider bg-[#241F1B] text-[#C9A961] font-semibold px-2 py-0.5">
-                          Atelier Core
-                        </span>
-                      )}
+                      <span className="text-[9px] uppercase tracking-wider bg-[#241F1B] text-[#C9A961] font-semibold px-2 py-0.5">
+                        GIA / IGI Certified
+                      </span>
                     </div>
-                    <div className="text-xs font-medium text-[#6E6459]">{item.name}</div>
-                    <div className="text-[10px] text-[#6E6459]/80 font-light">{item.subtitle}</div>
+                    <div className="text-xs font-medium text-[#6E6459]">100% Earth-Mined Solitaire Benchmark</div>
+                    <div className="text-[10px] text-[#6E6459]/80 font-light">VVS–VS Clarity · Rare White (E–F) · UN Kimberley Process</div>
                   </div>
                 </div>
 
-                {/* Rate Input Field */}
-                <div className="space-y-1 pt-1">
+                {/* Input */}
+                <div className="space-y-1.5 pt-1">
                   <label className="block text-[10px] uppercase tracking-wider text-[#6E6459] font-medium">
-                    Rate per 10g (₹)
+                    Rate per Carat (₹ / ct)
                   </label>
                   <div className="relative">
-                    <span className="absolute left-3 top-2.5 text-xs font-bold text-[#9E7F3C]">₹</span>
+                    <span className="absolute left-3.5 top-2.5 text-xs font-bold text-[#9E7F3C]">₹</span>
                     <input
                       type="text"
-                      value={rateInputs[item.purity] || ""}
-                      onChange={(e) => handleInputChange(item.purity, e.target.value)}
-                      placeholder="0"
+                      value={rateInputs["Natural Diamond (Per Carat)"] || ""}
+                      onChange={(e) => handleInputChange("Natural Diamond (Per Carat)", e.target.value)}
+                      placeholder="85000"
                       required
-                      className="w-full bg-[#FFFFFF] border border-[#E6DFD3] focus:border-[#241F1B] text-[#241F1B] font-mono text-base font-bold pl-7 pr-12 py-2 focus:outline-none"
+                      className="w-full bg-[#FAF7F0] border border-[#E6DFD3] focus:border-[#241F1B] text-[#241F1B] font-mono text-lg font-bold pl-8 pr-14 py-2 focus:outline-none"
                     />
-                    <span className="absolute right-3 top-2.5 text-[11px] text-[#6E6459] font-mono">
-                      /10g
+                    <span className="absolute right-3 top-3 text-[11px] text-[#6E6459] font-mono font-medium">
+                      / Carat
                     </span>
                   </div>
                 </div>
 
-                {/* Live Per-Gram Helper */}
-                <div className="flex items-center justify-between text-[11px] pt-1 border-t border-[#E6DFD3]/70">
-                  <span className="text-[#6E6459]">Equivalent per gram:</span>
+                {/* Quick delta buttons */}
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  {[-5000, -1000, +1000, +5000].map((delta) => (
+                    <button
+                      key={delta}
+                      type="button"
+                      onClick={() => handleAdjustCaratRate("Natural Diamond (Per Carat)", delta)}
+                      className="px-2.5 py-1.5 text-xs font-mono font-medium border border-[#E6DFD3] bg-[#FFFFFF] hover:border-[#241F1B] text-[#6E6459] hover:text-[#241F1B] transition-colors cursor-pointer"
+                    >
+                      {delta > 0 ? `+₹${delta}` : `-₹${Math.abs(delta)}`}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Micro-metrics */}
+                <div className="flex items-center justify-between text-[11px] pt-2 border-t border-[#E6DFD3]">
+                  <span className="text-[#6E6459]">Equivalent per Cent (0.01 ct / point):</span>
                   <span className="font-mono font-semibold text-[#241F1B]">
-                    ₹{perGram.toLocaleString("en-IN")}/g
+                    ₹{Math.round((parseInt(rateInputs["Natural Diamond (Per Carat)"] || "85000", 10) || 85000) / 100).toLocaleString("en-IN")} / pt
                   </span>
                 </div>
               </div>
-            );
-          })}
-        </div>
+
+              {/* Lab Grown Diamond Card */}
+              <div className="border border-[#C9A961] bg-[#FAF7F0] p-6 space-y-4 shadow-sm relative ring-1 ring-[#C9A961]/30">
+                <div className="flex items-start justify-between">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-serif text-lg font-semibold text-[#241F1B]">
+                        Lab Grown Diamond
+                      </span>
+                      <span className="text-[9px] uppercase tracking-wider bg-[#9E7F3C] text-[#FAF7F0] font-semibold px-2 py-0.5">
+                        Type IIa CVD / HPHT
+                      </span>
+                    </div>
+                    <div className="text-xs font-medium text-[#6E6459]">IGI Certified Lab Grown Benchmark</div>
+                    <div className="text-[10px] text-[#6E6459]/80 font-light">VVS–VS Clarity · Colorless (E–F) · Sustainable Modern Luxury</div>
+                  </div>
+                </div>
+
+                {/* Input */}
+                <div className="space-y-1.5 pt-1">
+                  <label className="block text-[10px] uppercase tracking-wider text-[#6E6459] font-medium">
+                    Rate per Carat (₹ / ct)
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3.5 top-2.5 text-xs font-bold text-[#9E7F3C]">₹</span>
+                    <input
+                      type="text"
+                      value={rateInputs["Lab Grown Diamond (Per Carat)"] || ""}
+                      onChange={(e) => handleInputChange("Lab Grown Diamond (Per Carat)", e.target.value)}
+                      placeholder="28000"
+                      required
+                      className="w-full bg-[#FFFFFF] border border-[#C9A961]/60 focus:border-[#9E7F3C] text-[#241F1B] font-mono text-lg font-bold pl-8 pr-14 py-2 focus:outline-none"
+                    />
+                    <span className="absolute right-3 top-3 text-[11px] text-[#6E6459] font-mono font-medium">
+                      / Carat
+                    </span>
+                  </div>
+                </div>
+
+                {/* Quick delta buttons */}
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  {[-2000, -1000, +1000, +2000].map((delta) => (
+                    <button
+                      key={delta}
+                      type="button"
+                      onClick={() => handleAdjustCaratRate("Lab Grown Diamond (Per Carat)", delta)}
+                      className="px-2.5 py-1.5 text-xs font-mono font-medium border border-[#E6DFD3] bg-[#FFFFFF] hover:border-[#9E7F3C] text-[#6E6459] hover:text-[#241F1B] transition-colors cursor-pointer"
+                    >
+                      {delta > 0 ? `+₹${delta}` : `-₹${Math.abs(delta)}`}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Micro-metrics */}
+                <div className="flex items-center justify-between text-[11px] pt-2 border-t border-[#E6DFD3]">
+                  <span className="text-[#6E6459]">Equivalent per Cent (0.01 ct / point):</span>
+                  <span className="font-mono font-semibold text-[#9E7F3C]">
+                    ₹{Math.round((parseInt(rateInputs["Lab Grown Diamond (Per Carat)"] || "28000", 10) || 28000) / 100).toLocaleString("en-IN")} / pt
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Big Sticky Publish Bar */}
         <div className="bg-[#241F1B] text-[#FBF7F0] p-6 border border-[#6E6459]/40 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-lg">
@@ -556,13 +831,20 @@ export default function SellerDashboardPage() {
                         })}
                       </td>
                       <td className="py-2.5 px-2 font-serif text-[#241F1B] font-medium">
-                        {h.purity} {h.metal}
+                        {h.metal === "Diamond" ? (
+                          <span className="inline-flex items-center gap-1.5 text-[#9E7F3C]">
+                            <Gem className="w-3 h-3 text-[#9E7F3C]" />
+                            <span>{h.purity}</span>
+                          </span>
+                        ) : (
+                          `${h.purity} ${h.metal}`
+                        )}
                       </td>
                       <td className="py-2.5 px-2 text-[#6E6459]">
-                        ₹{h.old_rate.toLocaleString("en-IN")}
+                        ₹{h.old_rate.toLocaleString("en-IN")}{h.metal === "Diamond" ? "/ct" : ""}
                       </td>
                       <td className="py-2.5 px-2 text-[#241F1B] font-semibold">
-                        ₹{h.new_rate.toLocaleString("en-IN")}
+                        ₹{h.new_rate.toLocaleString("en-IN")}{h.metal === "Diamond" ? "/ct" : ""}
                       </td>
                       <td className="py-2.5 px-2 font-semibold">
                         {diff > 0 ? (

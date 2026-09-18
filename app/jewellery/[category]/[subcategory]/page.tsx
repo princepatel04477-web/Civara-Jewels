@@ -68,10 +68,8 @@ export default function SubcategoryLandingPage({ params, searchParams }: Subcate
 
   const { category, subcategory } = result;
 
-  // Filter Catalog Products by category & subcategory (or category fallback if subcategory matches)
-  let products = Catalog.products.filter(
-    (p) => p.category.toLowerCase() === category.slug.toLowerCase()
-  );
+  // Filter Catalog Products by category & subcategory (respects dynamic DB & deleted items)
+  let products = Catalog.getCategoryProducts(category.slug);
 
   if (searchParams.metal) {
     products = products.filter((p) =>

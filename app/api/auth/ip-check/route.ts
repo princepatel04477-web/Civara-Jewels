@@ -14,7 +14,7 @@ export async function GET(request: Request) {
   } catch {}
 
   const isSeller = isSellerRequest(request) || isSellerUser;
-  const isAllowed = !isSeller && (isLoggedInAdmin || hasAdminAccess(request));
+  const isAllowed = !isSeller && hasAdminAccess(request);
   const clientIp = getClientIP(request);
 
   return NextResponse.json(

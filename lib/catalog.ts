@@ -16,6 +16,8 @@ export interface Product {
   pricing?: PricingProduct;
   priceINR: number;
   description: string;
+  naturalDiamondDescription?: string;
+  labGrownDescription?: string;
   metalOptions: string[];
   sizeType: "ring" | "chain" | "wrist" | "none";
   sizeOptions?: string[];
@@ -641,13 +643,28 @@ export class Catalog {
   }
 
   static getProductById(id: string): Product | undefined {
+    if (!id) return undefined;
+    const cleanId = id.toLowerCase().trim();
+
+    // Check if deleted
+    try {
+      if (typeof window === "undefined") {
+        const { getDeletedSlugsSync } = require("./db/cloud-sync");
+        if (getDeletedSlugsSync().has(cleanId)) {
+          return undefined;
+        }
+      }
+    } catch {
+      // ignore
+    }
+
     // Try reading from SQLite DB if available
     try {
       if (typeof window === "undefined") {
         const { ProductRepo } = require("./db/repo/products");
-        const numericId = parseInt(id, 10);
-        const dbProduct = !isNaN(numericId)
-          ? ProductRepo.getProductById(numericId)
+        const isNumeric = /^\d+$/.test(id.trim());
+        const dbProduct = isNumeric
+          ? ProductRepo.getProductById(parseInt(id, 10))
           : ProductRepo.getProductBySlug(id);
 
         if (dbProduct && dbProduct.is_published === 1) {
@@ -659,10 +676,64 @@ export class Catalog {
       // Fallback
     }
 
-    return this.products.find((p) => p.id.toLowerCase() === id.toLowerCase());
+    // Check again for static product fallback
+    try {
+      if (typeof window === "undefined") {
+        const { getDeletedSlugsSync } = require("./db/cloud-sync");
+        if (getDeletedSlugsSync().has(cleanId)) {
+          return undefined;
+        }
+      }
+    } catch {
+      // ignore
+    }
+
+    return this.products.find((p) => p.id.toLowerCase() === cleanId);
+  }
+
+  static getCategoryProducts(categorySlug: string): Product[] {
+    const cleanCat = categorySlug.toLowerCase().trim();
+    try {
+      if (typeof window === "undefined") {
+        const { ProductRepo } = require("./db/repo/products");
+        const { products } = ProductRepo.listProducts({
+          collectionSlug: cleanCat,
+          published: 1,
+        });
+        if (products && products.length > 0) {
+          return products.map((p: any) => this.mapDbProductToProduct(p));
+        }
+      }
+    } catch {
+      // ignore
+    }
+
+    let deletedSlugs = new Set<string>();
+    try {
+      if (typeof window === "undefined") {
+        const { getDeletedSlugsSync } = require("./db/cloud-sync");
+        deletedSlugs = getDeletedSlugsSync();
+      }
+    } catch {
+      // ignore
+    }
+
+    return this.products.filter(
+      (p) => p.category.toLowerCase() === cleanCat && !deletedSlugs.has(p.id.toLowerCase().trim())
+    );
   }
 
   static getFeaturedProducts(minCount = 4): Product[] {
+    let deletedSlugs = new Set<string>();
+    try {
+      if (typeof window === "undefined") {
+        const { getDeletedSlugsSync } = require("./db/cloud-sync");
+        deletedSlugs = getDeletedSlugsSync();
+      }
+    } catch {
+      // ignore
+    }
+
     try {
       if (typeof window === "undefined") {
         const { ProductRepo } = require("./db/repo/products");
@@ -673,7 +744,7 @@ export class Catalog {
         if (products && products.length >= minCount) {
           const mapped = products
             .map((p: any) => this.mapDbProductToProduct(p))
-            .filter((p: any) => Boolean(p.mainImage));
+            .filter((p: any) => Boolean(p.mainImage) && !deletedSlugs.has(p.id.toLowerCase().trim()));
           if (mapped.length >= minCount) return mapped.slice(0, minCount);
         }
       }
@@ -682,7 +753,10 @@ export class Catalog {
     }
 
     const valid = this.products.filter(
-      (p) => Boolean(p.mainImage) && (p.mainImage?.startsWith("/") || p.mainImage?.startsWith("http"))
+      (p) =>
+        !deletedSlugs.has(p.id.toLowerCase().trim()) &&
+        Boolean(p.mainImage) &&
+        (p.mainImage?.startsWith("/") || p.mainImage?.startsWith("http"))
     );
 
     if (process.env.NODE_ENV === "development" && valid.length < minCount) {
@@ -695,7 +769,11 @@ export class Catalog {
   }
 
   static mapDbProductToProduct(p: any): Product {
-    const staticProduct = this.getProductById(p.slug) || this.getProductById(p.id);
+    const slugKey = (p.slug || "").toLowerCase().trim();
+    const idKey = String(p.id || "").toLowerCase().trim();
+    const staticProduct = this.products.find(
+      (prod) => prod.id.toLowerCase() === slugKey || prod.id.toLowerCase() === idKey
+    );
 
     let sizes = staticProduct?.sizeOptions || STANDARD_RING_SIZES;
     if (p.available_sizes) {
@@ -739,7 +817,9 @@ export class Catalog {
       categoryName: p.collection_name || staticProduct?.categoryName || "Rings & Solitaires",
       priceINR: p.price_inr ? Math.round(p.price_inr / 100) : (staticProduct?.priceINR || 84500),
       tagline: staticProduct?.tagline || p.tagline || (p.is_featured ? "Atelier Featured Edit" : "Civara Edit"),
-      description: p.description || staticProduct?.description || "Handcrafted in hallmarked 18k solid gold and certified diamonds.",
+      description: p.description || staticProduct?.description || "Handcrafted in hallmarked 18k solid gold and certified natural diamonds.",
+      naturalDiamondDescription: p.description || staticProduct?.naturalDiamondDescription || staticProduct?.description || "Handcrafted in hallmarked solid gold with certified natural earth-mined diamonds.",
+      labGrownDescription: p.lab_grown_description || staticProduct?.labGrownDescription || `Showcasing an IGI-certified Type IIa lab grown diamond of optical perfection, crafted in ${p.metal || "18k solid gold"} within our Surat atelier. Created via sustainable CVD/HPHT technology with identical carbon lattice crystallization, hardness, and brilliant light refraction.`,
       metalOptions: metals,
       sizeType: p.size_type || staticProduct?.sizeType || "ring",
       sizeOptions: sizes,

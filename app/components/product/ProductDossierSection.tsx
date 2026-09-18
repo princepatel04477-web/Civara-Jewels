@@ -6,6 +6,7 @@ interface ProductDossierSectionProps {
   product: Product;
   selectedMetal: string;
   selectedSize?: string;
+  selectedDiamondType?: "Natural Diamond" | "Lab Grown Diamond";
   calculatedPricing: {
     totalPrice: number;
     metalAmount: number;
@@ -22,6 +23,7 @@ export const ProductDossierSection: React.FC<ProductDossierSectionProps> = ({
   product,
   selectedMetal,
   selectedSize = "10.0",
+  selectedDiamondType = "Natural Diamond",
   calculatedPricing,
 }) => {
   const [activeTab, setActiveTab] = useState<"overview" | "specs" | "delivery">("specs");
@@ -64,15 +66,26 @@ export const ProductDossierSection: React.FC<ProductDossierSectionProps> = ({
   else if (selectedMetal.startsWith("16K")) goldKarat = "16K (667 Fine Gold)";
   else if (selectedMetal.startsWith("10K")) goldKarat = "10K (417 Fine Gold)";
 
+  const isLabGrown = selectedDiamondType === "Lab Grown Diamond";
+
   const specsList = [
     { label: "Item SKU Number", value: itemSku, group: "Identification" },
     { label: "Total Diamond Weight", value: `${stoneWeightVal} CT. T.W.`, group: "Stone" },
     { label: "Diamond Color Grade", value: "F – G (Colorless / Rare White)", group: "Stone" },
     { label: "Diamond Clarity Grade", value: "VVS – VS (Microscopically Clean)", group: "Stone" },
     { label: "Stone Cut & Shape", value: stoneShape, group: "Stone" },
-    { label: "Stone Class & Sourcing", value: "100% Natural Earth-Mined (UN Kimberley Certified)", group: "Stone" },
+    { 
+      label: "Stone Class & Sourcing", 
+      value: isLabGrown ? "Type IIa CVD/HPHT Lab Grown Diamond (Sustainable Modern Luxury)" : "100% Natural Earth-Mined (UN Kimberley Certified)", 
+      group: "Stone" 
+    },
+    { 
+      label: "Diamond Grading Certificate", 
+      value: isLabGrown ? "IGI Laboratory Grown Diamond Report (Laser Inscribed)" : "GIA / IGI Natural Gemmological Dossier (Laser Inscribed)", 
+      group: "Stone" 
+    },
     { label: "Stone Setting Architecture", value: isRing ? "Hand-sculpted Talon Claw / Channel" : "Precision Bezel & Micro-Prong", group: "Stone" },
-    { label: "Lifetime Diamond Commitment", value: "Included (Complimentary Annual Tightening & Inspection)", group: "Stone" },
+    { label: "Lifetime Diamond Commitment", value: isLabGrown ? "Included (Complimentary Annual Inspection & Warranty)" : "Included (Complimentary Annual Tightening & Natural Security)", group: "Stone" },
     { label: "Precious Metal Type", value: "Solid Gold Alloy", group: "Metal" },
     { label: "Selected Gold Purity", value: goldKarat, group: "Metal" },
     { label: "Metal Tone & Lustre", value: `${metalColor} Gold`, group: "Metal" },
@@ -197,16 +210,25 @@ export const ProductDossierSection: React.FC<ProductDossierSectionProps> = ({
         {activeTab === "overview" && (
           <div className="bg-[#FFFFFF] border border-[#E6DFD3] p-6 sm:p-8 animate-fadeIn space-y-6">
             <div className="max-w-3xl space-y-4 text-xs sm:text-sm text-[#4A4238] font-light leading-relaxed">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-[10px] uppercase tracking-[0.2em] font-semibold px-2 py-0.5 border border-[#C9A961]/60 bg-[#FAF7F0] text-[#9E7F3C]">
+                  {isLabGrown ? "IGI Lab Grown Diamond Specification" : "GIA / IGI Natural Diamond Specification"}
+                </span>
+              </div>
               <h3 className="font-serif text-xl font-medium text-[#241F1B]">
                 The Design Inspiration & Architecture
               </h3>
               <p>
-                {product.description || (
-                  `A luminous ${stoneShape.toLowerCase()} diamond rests within an architecturally sculpted center setting in this atelier masterpiece. Crafted in solid ${selectedMetal}, every facet is calibrated for high light dispersion and intense internal fire.`
-                )}
+                {isLabGrown
+                  ? (product.labGrownDescription ||
+                     `Showcasing an IGI-certified Type IIa lab grown diamond of optical perfection, crafted in ${selectedMetal} within our Surat atelier. Created via sustainable CVD/HPHT technology with identical carbon lattice crystallization, 10 Mohs hardness, and brilliant light refraction.`)
+                  : (product.naturalDiamondDescription || product.description ||
+                     `A luminous ${stoneShape.toLowerCase()} natural diamond rests within an architecturally sculpted center setting in this atelier masterpiece. Crafted in solid ${selectedMetal}, every facet is calibrated for high light dispersion and intense internal fire.`)}
               </p>
               <p>
-                Handcrafted from start to finish by master artisans in Surat, Gujarat — the historic global epicenter of diamond cutting and fine jewellery lapidary. Every piece undergoes 18 distinct quality inspection stages before receiving its laser-inscribed BIS hallmark.
+                {isLabGrown
+                  ? "Created with sustainable innovation and zero environmental excavation, every lab grown diamond is laser-inscribed with an official IGI laboratory report number before undergoing 18 meticulous quality inspection stages in our Surat workshop."
+                  : "Handcrafted from start to finish by master artisans in Surat, Gujarat — the historic global epicenter of diamond cutting and fine jewellery lapidary. Every piece undergoes 18 distinct quality inspection stages before receiving its laser-inscribed BIS hallmark."}
               </p>
             </div>
           </div>

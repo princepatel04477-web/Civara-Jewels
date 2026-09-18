@@ -16,6 +16,7 @@ interface ProductSpecsAccordionProps {
   product: Product;
   selectedMetal: string;
   selectedSize?: string;
+  selectedDiamondType?: "Natural Diamond" | "Lab Grown Diamond";
   calculatedPricing: {
     totalPrice: number;
     metalAmount: number;
@@ -32,6 +33,7 @@ export const ProductSpecsAccordion: React.FC<ProductSpecsAccordionProps> = ({
   product,
   selectedMetal,
   selectedSize = "10.0",
+  selectedDiamondType = "Natural Diamond",
   calculatedPricing,
 }) => {
   // Accordion state: "overview" and "details" are expanded by default (matching Jared video)
@@ -103,17 +105,27 @@ export const ProductSpecsAccordion: React.FC<ProductSpecsAccordionProps> = ({
   else if (selectedMetal.startsWith("10K")) goldKarat = "10K";
   else if (selectedMetal.toLowerCase().includes("silver")) goldKarat = "925 Silver";
 
-  const defaultOverviewText = product.description && product.description.length > 30
-    ? product.description
-    : `A brilliant ${stoneShape.toLowerCase()} diamond rests within a dynamic carved center setting in this exquisite ${categoryItemLabel}. Rows of even more fiery round diamonds border the architectural silhouette to complete the regal look. Fashioned in ${selectedMetal}, the total diamond weight of the ${categoryItemLabel} is ${stoneWeightVal} carat.`;
+  const isLabGrown = selectedDiamondType === "Lab Grown Diamond";
+
+  const labGrownOverviewText = product.labGrownDescription ||
+    `An exquisite ${stoneShape.toLowerCase()} IGI-certified Type IIa lab grown diamond rests within a sculpted center setting in this atelier ${categoryItemLabel}. Grown through advanced CVD technology replicating diamond crystallization in a controlled environment, it exhibits identical hardness, refractive fire, and atomic structure as earth-mined diamonds. Fashioned in ${selectedMetal}, this design pairs sustainable modern elegance with a total diamond weight of ${stoneWeightVal} carat.`;
+
+  const naturalOverviewText = product.naturalDiamondDescription || product.description ||
+    `A brilliant ${stoneShape.toLowerCase()} natural diamond rests within a dynamic carved center setting in this exquisite ${categoryItemLabel}. Rows of fiery round diamonds border the architectural silhouette to complete the regal look. Fashioned in ${selectedMetal}, the total diamond weight of the ${categoryItemLabel} is ${stoneWeightVal} carat.`;
+
+  const activeOverviewText = isLabGrown ? labGrownOverviewText : naturalOverviewText;
 
   // Tooltip descriptions
   const tooltips: Record<string, string> = {
     totalWeight: "Total Carat Weight represents the combined weight of all diamonds set into this piece.",
     color: "Color grade 'F-G / I' indicates exceptional diamond brilliance and high light transmission.",
     clarity: "Clarity grade indicates eye-clean diamond purity inspected under 10x microscopic magnification.",
-    commitment: "Civara Lifetime Diamond Commitment: complimentary annual inspection, claw tightening, and stone security.",
-    stoneType: "100% natural earth-mined conflict-free diamond certified by accredited gemmological laboratories.",
+    commitment: isLabGrown
+      ? "Civara Atelier Diamond Care: complimentary annual inspection, prong tightening, and lifetime authenticity guarantee."
+      : "Civara Lifetime Diamond Commitment: complimentary annual inspection, claw tightening, and natural stone security.",
+    stoneType: isLabGrown
+      ? "Type IIa CVD/HPHT lab grown diamond possessing identical carbon atomic lattice, refractive index (2.42), and optical fire to mined diamonds with zero mining impact."
+      : "100% natural earth-mined conflict-free diamond certified by accredited gemmological laboratories (GIA/IGI).",
     stoneShape: "The geometric optical cut of the diamond optimized for total internal light reflection.",
     metalType: "Solid gold alloy refined to exact Bureau of Indian Standards (BIS) hallmarked purities.",
     goldKarat: "Karat denotes gold purity ratio. 18K is 75% pure gold; 14K is 58.5% pure gold.",
@@ -148,7 +160,7 @@ export const ProductSpecsAccordion: React.FC<ProductSpecsAccordionProps> = ({
 
         {openSections.overview && (
           <div className="pb-6 space-y-4 text-xs sm:text-[13px] leading-relaxed text-[#4A4238] font-light animate-fadeIn">
-            <p>{defaultOverviewText}</p>
+            <p>{activeOverviewText}</p>
 
             <div className="pt-2 flex items-center gap-2 text-xs font-mono text-[#6E6459]">
               <span className="font-semibold text-[#241F1B]">Item #:</span>
@@ -278,7 +290,7 @@ export const ProductSpecsAccordion: React.FC<ProductSpecsAccordionProps> = ({
                 <li className="flex items-center justify-between">
                   <span className="flex items-center gap-2">
                     <span className="text-[#241F1B] text-base leading-none">•</span>
-                    <span>Stone Type: <strong>Diamond</strong></span>
+                    <span>Stone Type: <strong>{isLabGrown ? "Lab Grown Diamond (Type IIa CVD)" : "Natural Diamond"}</strong></span>
                   </span>
                   <button 
                     type="button" 
@@ -325,12 +337,12 @@ export const ProductSpecsAccordion: React.FC<ProductSpecsAccordionProps> = ({
 
                 <li className="flex items-center gap-2">
                   <span className="text-[#241F1B] text-base leading-none">•</span>
-                  <span>Stone Class: <strong>Natural</strong></span>
+                  <span>Stone Class: <strong>{isLabGrown ? "Lab-Created (Type IIa CVD/HPHT)" : "Natural Earth-Mined"}</strong></span>
                 </li>
 
                 <li className="flex items-center gap-2">
                   <span className="text-[#241F1B] text-base leading-none">•</span>
-                  <span>Stone 2 Type: <strong>Diamond</strong></span>
+                  <span>Stone 2 Type: <strong>{isLabGrown ? "Lab Grown Diamond" : "Natural Diamond"}</strong></span>
                 </li>
 
                 <li className="flex items-center gap-2">
@@ -345,7 +357,7 @@ export const ProductSpecsAccordion: React.FC<ProductSpecsAccordionProps> = ({
 
                 <li className="flex items-center gap-2">
                   <span className="text-[#241F1B] text-base leading-none">•</span>
-                  <span>Stone 2 Class: <strong>Natural</strong></span>
+                  <span>Stone 2 Class: <strong>{isLabGrown ? "Lab-Created" : "Natural"}</strong></span>
                 </li>
 
                 <li className="flex items-center gap-2">

@@ -7,6 +7,7 @@ export const createProductSchema = z.object({
   collection_id: z.number().int().positive().nullable().optional(),
   description: z.string().optional().nullable(),
   short_description: z.string().optional().nullable(),
+  lab_grown_description: z.string().optional().nullable(),
   price_inr: z.number().int().nonnegative("Price must be non-negative (in paise)"),
   sale_price_inr: z.number().int().nonnegative().optional().nullable(),
   pricing_mode: z.enum(["MANUAL", "CALCULATED"]).optional().default("MANUAL"),

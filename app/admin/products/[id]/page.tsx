@@ -44,6 +44,7 @@ export default function AdminEditProductPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isDuplicating, setIsDuplicating] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
@@ -53,6 +54,7 @@ export default function AdminEditProductPage() {
     sku: "",
     collection_id: "",
     description: "",
+    lab_grown_description: "",
     short_description: "",
     pricing_mode: "MANUAL" as "MANUAL" | "CALCULATED",
     priceINRDisplay: "",
@@ -115,6 +117,7 @@ export default function AdminEditProductPage() {
         sku: p.sku || "",
         collection_id: p.collection_id ? String(p.collection_id) : "",
         description: p.description || "",
+        lab_grown_description: p.lab_grown_description || "",
         short_description: p.short_description || "",
         pricing_mode: (p.pricing_mode as any) || "MANUAL",
         priceINRDisplay: String(p.price_inr ? Math.round(p.price_inr / 100) : ""),
@@ -171,6 +174,7 @@ export default function AdminEditProductPage() {
       sku: form.sku.trim() || null,
       collection_id: form.collection_id ? parseInt(form.collection_id, 10) : null,
       description: form.description.trim() || null,
+      lab_grown_description: form.lab_grown_description.trim() || null,
       short_description: form.short_description.trim() || null,
       pricing_mode: form.pricing_mode,
       price_inr: Math.round(priceRupees * 100),
@@ -235,6 +239,7 @@ export default function AdminEditProductPage() {
 
   const handleDelete = async () => {
     if (!confirm(`Are you sure you want to permanently delete "${form.name}" and its associated gallery photos?`)) return;
+    setIsDeleting(true);
     try {
       const res = await fetch(`/api/admin/products/${id}`, {
         method: "DELETE",
@@ -250,6 +255,7 @@ export default function AdminEditProductPage() {
     } catch (err: any) {
       setErrorMessage(err.message || "Deletion failed");
       alert(err.message || "Deletion failed");
+      setIsDeleting(false);
     }
   };
 
@@ -302,8 +308,11 @@ export default function AdminEditProductPage() {
           <button
             type="button"
             onClick={handleDelete}
+            disabled={isDeleting}
             title="Delete piece"
-            className="p-2 text-red-600 hover:text-red-700 hover:bg-red-50 border border-red-200 transition-colors"
+            className={`p-2 text-red-600 hover:text-red-700 hover:bg-red-50 border border-red-200 transition-all ${
+              isDeleting ? "opacity-30 cursor-not-allowed" : ""
+            }`}
           >
             <Trash2 className="w-4 h-4" />
           </button>
@@ -409,10 +418,37 @@ export default function AdminEditProductPage() {
             />
 
             <Textarea
-              label="Full Editorial Description"
+              label="Natural Diamond Description (Default Editorial)"
               value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
             />
+
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <label className="block text-[11px] uppercase tracking-widest text-[#5C554E] font-medium">
+                  Lab Grown Diamond Description (Optional)
+                </label>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const base = form.description || "Crafted to pristine gemmological standards, hand-set in recycled 18-karat gold.";
+                    const labCopy = `${base} Specifically tailored with our conflict-free Type IIa lab-grown diamond, offering identical chemical brilliance, optical fire, and certified clarity with conscious modern luxury.`;
+                    setForm({ ...form, lab_grown_description: labCopy });
+                  }}
+                  className="text-[11px] text-[#A67C52] hover:text-[#8C6239] underline cursor-pointer"
+                >
+                  ⚡ Auto-Fill Lab Grown Description
+                </button>
+              </div>
+              <Textarea
+                placeholder="Custom editorial copy shown when customer selects Lab Grown Diamond..."
+                value={form.lab_grown_description}
+                onChange={(e) => setForm({ ...form, lab_grown_description: e.target.value })}
+              />
+              <p className="text-[11px] text-[#8C827A]">
+                If left blank, Civara's luxury studio lab-grown story will be dynamically generated for the client.
+              </p>
+            </div>
           </div>
 
           {/* Jewelry Details */}

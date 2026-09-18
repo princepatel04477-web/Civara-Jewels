@@ -3,6 +3,7 @@ import { revalidatePath } from "next/cache";
 import { MetalRatesRepo } from "@/lib/db/repo/metal-rates";
 import { getAdminSession } from "@/lib/auth/session";
 import { getClientIP } from "@/lib/auth/ip";
+import { saveRatesToCloud } from "@/lib/db/cloud-sync";
 import { z } from "zod";
 
 export const dynamic = "force-dynamic";
@@ -25,7 +26,33 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const rates = MetalRatesRepo.listRates(false);
+    let rates = MetalRatesRepo.listRates(false);
+
+    // Auto-seed diamond rates per carat if not present yet
+    const hasNatural = rates.some((r) => r.purity === "Natural Diamond (Per Carat)");
+    const hasLab = rates.some((r) => r.purity === "Lab Grown Diamond (Per Carat)");
+
+    if (!hasNatural) {
+      MetalRatesRepo.createRate({
+        metal: "Diamond",
+        purity: "Natural Diamond (Per Carat)",
+        rate_inr: 85000,
+        updated_by: "System",
+      });
+    }
+    if (!hasLab) {
+      MetalRatesRepo.createRate({
+        metal: "Diamond",
+        purity: "Lab Grown Diamond (Per Carat)",
+        rate_inr: 28000,
+        updated_by: "System",
+      });
+    }
+
+    if (!hasNatural || !hasLab) {
+      rates = MetalRatesRepo.listRates(false);
+    }
+
     const history = MetalRatesRepo.listHistory(15);
 
     // Find the latest update info
@@ -102,6 +129,12 @@ export async function POST(request: Request) {
 
     const refreshedRates = MetalRatesRepo.listRates(false);
     const refreshedHistory = MetalRatesRepo.listHistory(15);
+
+    try {
+      await saveRatesToCloud(refreshedRates);
+    } catch {
+      // best-effort
+    }
 
     try {
       revalidatePath("/", "layout");

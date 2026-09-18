@@ -108,9 +108,6 @@ export function isAdminIP(request: Request | NextRequest): boolean {
   const normalizedClientIp = normalizeIP(clientIp);
 
   const defaultAllowed = [
-    "127.0.0.1",
-    "::1",
-    "localhost",
     // User's Authorized Admin IP from network configuration
     "2405:201:200d:2822:a315:6410:f19b:8b6c",
     "2405:201:200d:2822",
@@ -118,16 +115,10 @@ export function isAdminIP(request: Request | NextRequest): boolean {
     "192.168.29.44",
     "192.168.29",
     "fe80::adb5:c64d:6728:c274",
-    // Additional development/fallback admin IPs
-    "10.29.117.108",
-    "10.29.117",
-    "10.209.18.108",
-    "2409:40c1:10da:967c:1270:1e43:9bf7:ab76",
-    "2409:40c1:10da:967c",
-    "2409:40c1:10da",
-    "2409:40c1:10bc:ca57:e5b9:7768:d3ab:c4ea",
-    "2409:40c1:10bc:ca57",
-    "2409:40c1:10bc",
+    // Localhost loopback for internal server requests and local dev
+    "127.0.0.1",
+    "::1",
+    "localhost",
   ].join(",");
 
   const rawAllowed = process.env.ADMIN_ALLOWED_IPS
@@ -179,23 +170,13 @@ export function hasAdminAccess(request: Request | NextRequest): boolean {
   // Check Admin IP whitelist
   if (isAdminIP(request)) return true;
 
-  // Check query parameter key
+  // Emergency owner query parameter fallback
   try {
     const url = new URL(request.url);
     if (url.searchParams.get("admin_key") === "civara_owner") {
       return true;
     }
   } catch {}
-
-  // Check admin pass cookie
-  if ("cookies" in request && typeof (request as any).cookies?.get === "function") {
-    const val = (request as any).cookies.get("civara_admin_access")?.value;
-    if (val === "1" || val === "true") return true;
-  }
-  const rawCookies = request.headers.get("cookie") || "";
-  if (rawCookies.includes("civara_admin_access=1") || rawCookies.includes("civara_admin_access=true")) {
-    return true;
-  }
 
   return false;
 }

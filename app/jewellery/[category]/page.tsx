@@ -56,10 +56,8 @@ export default function CategoryLandingPage({ params, searchParams }: CategoryPa
     notFound();
   }
 
-  // Filter Catalog Products by category & facets
-  let products = Catalog.products.filter(
-    (p) => p.category.toLowerCase() === category.slug.toLowerCase()
-  );
+  // Filter Catalog Products by category & facets (respects dynamic DB & deleted items)
+  let products = Catalog.getCategoryProducts(category.slug);
 
   if (searchParams.metal) {
     products = products.filter((p) =>

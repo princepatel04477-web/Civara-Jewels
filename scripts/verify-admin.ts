@@ -120,13 +120,32 @@ async function verifyAdminSystem() {
 
   // 5. Verify IP Allowlist Parsing
   console.log("\n5. Verifying IP Allowlist Environment Configuration...");
-  const allowed = (process.env.ADMIN_ALLOWED_IPS || "192.168.29.44,127.0.0.1,::1,localhost").split(",");
+  const rawEnv = process.env.ADMIN_ALLOWED_IPS || "2405:201:200d:2822:a315:6410:f19b:8b6c,2405:201:200d:2822,192.168.29.44,192.168.29,fe80::adb5:c64d:6728:c274,127.0.0.1,::1,localhost";
+  const allowed = rawEnv.split(",").map((s) => s.trim());
+  
   if (!allowed.includes("192.168.29.44")) {
     console.error("❌ 192.168.29.44 not in ADMIN_ALLOWED_IPS");
     errors++;
   } else {
-    console.log(`✓ Verified target LAN IP 192.168.29.44 is in allowlist: [${allowed.join(", ")}]`);
+    console.log(`✓ Verified target LAN IPv4 192.168.29.44 is in allowlist`);
   }
+
+  if (!allowed.includes("2405:201:200d:2822:a315:6410:f19b:8b6c")) {
+    console.error("❌ 2405:201:200d:2822:a315:6410:f19b:8b6c not in ADMIN_ALLOWED_IPS");
+    errors++;
+  } else {
+    console.log(`✓ Verified target IPv6 2405:201:200d:2822:a315:6410:f19b:8b6c is in allowlist`);
+  }
+
+  // Ensure old obsolete IPs were purged
+  const oldIps = ["10.29.117.108", "10.209.18.108", "2409:40c1:10da"];
+  for (const oldIp of oldIps) {
+    if (allowed.some((a) => a.includes(oldIp))) {
+      console.error(`❌ Obsolete IP ${oldIp} is still present in allowlist`);
+      errors++;
+    }
+  }
+  console.log(`✓ Confirmed obsolete IPs are purged from allowlist`);
 
   console.log("\n=================================================");
   if (errors === 0) {

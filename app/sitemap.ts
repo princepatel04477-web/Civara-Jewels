@@ -45,13 +45,23 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.8,
   }));
 
+  let deletedSlugs = new Set<string>();
+  try {
+    const { getDeletedSlugsSync } = require("../lib/db/cloud-sync");
+    deletedSlugs = getDeletedSlugsSync();
+  } catch {
+    // ignore
+  }
+
   // Individual Product routes
-  const productRoutes: MetadataRoute.Sitemap = Catalog.products.map((p) => ({
-    url: `${baseUrl}/products/${p.id}`,
-    lastModified: new Date(),
-    changeFrequency: "daily",
-    priority: 0.9,
-  }));
+  const productRoutes: MetadataRoute.Sitemap = Catalog.products
+    .filter((p) => !deletedSlugs.has(p.id.toLowerCase().trim()))
+    .map((p) => ({
+      url: `${baseUrl}/products/${p.id}`,
+      lastModified: new Date(),
+      changeFrequency: "daily",
+      priority: 0.9,
+    }));
 
   // Journal article routes
   const journalRoutes: MetadataRoute.Sitemap = Catalog.articles.map((art) => ({

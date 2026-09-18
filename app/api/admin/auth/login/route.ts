@@ -3,7 +3,7 @@ import { UserRepo } from "@/lib/db/repo/users";
 import { AuditRepo } from "@/lib/db/repo/audit";
 import { verifyPassword, hashPassword } from "@/lib/auth/password";
 import { getAdminSession } from "@/lib/auth/session";
-import { getClientIP, isSellerIP, isSellerRequest } from "@/lib/auth/ip";
+import { getClientIP, isSellerIP, isSellerRequest, hasAdminAccess } from "@/lib/auth/ip";
 
 // In-memory rate limiting map for login attempts: IP -> { attempts: number, resetTime: number }
 const loginAttemptsMap = new Map<string, { attempts: number; resetTime: number }>();
@@ -180,6 +180,26 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           error: "Access Denied: Administrator login is strictly forbidden from this IP network. Please access the Seller Portal at /seller/login.",
+        },
+        { status: 403 }
+      );
+    }
+
+    // STRICT IP RESTRICTION: Only authorized admin IP can log in to admin portal
+    if ((portal === "admin" || role === "admin") && !hasAdminAccess(request)) {
+      try {
+        AuditRepo.log({
+          action: "ADMIN_LOGIN_BLOCKED_UNAUTHORIZED_IP",
+          entity: "Auth",
+          adminEmail: email,
+          ipAddress: ip,
+          details: { reason: "Admin login blocked: unauthorized IP address" },
+        });
+      } catch {}
+
+      return NextResponse.json(
+        {
+          error: "Access Denied: Administrator access is strictly restricted to authorized IP addresses.",
         },
         { status: 403 }
       );

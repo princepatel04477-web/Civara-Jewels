@@ -112,7 +112,11 @@ export const CurrencyProvider = ({ children }: { children: React.ReactNode }) =>
       const estimatedMaking = Math.max(3000, 4800);
       const rawDiamondComponent = isGoldOnly ? 0 : Math.max(0, baseNonMetalWithGst - estimatedMaking);
 
-      const diamondMultiplier = diamondType === "Lab Grown Diamond" ? 0.65 : 1.0;
+      const naturalRate = ratesMap["Natural Diamond (Per Carat)"] || 85000;
+      const labRate = ratesMap["Lab Grown Diamond (Per Carat)"] || 28000;
+      const dynamicRatio = naturalRate > 0 ? (labRate / naturalRate) : 0.65;
+
+      const diamondMultiplier = diamondType === "Lab Grown Diamond" ? dynamicRatio : 1.0;
       const activeDiamondComponent = Math.round(rawDiamondComponent * diamondMultiplier);
       const activeMaking = Math.max(3000, baseNonMetalWithGst - rawDiamondComponent);
 

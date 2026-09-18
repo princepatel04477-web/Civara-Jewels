@@ -15,6 +15,7 @@ export interface DbProduct {
   collection_slug?: string;
   description: string | null;
   short_description: string | null;
+  lab_grown_description?: string | null;
   price_inr: number; // in paise
   sale_price_inr: number | null;
   pricing_mode: string; // 'MANUAL' | 'CALCULATED'
@@ -224,12 +225,12 @@ export const ProductRepo = {
 
     const stmt = db.prepare(`
       INSERT INTO products (
-        slug, sku, name, collection_id, description, short_description, price_inr, sale_price_inr, pricing_mode,
+        slug, sku, name, collection_id, description, short_description, lab_grown_description, price_inr, sale_price_inr, pricing_mode,
         metal, purity, metal_weight_g, stone_type, stone_weight_ct, diamond_carat, diamond_clarity, diamond_colour,
         making_charges, other_charges, metal_rate_ref, gst_percent, available_sizes, stock_quantity, stock_status,
         is_featured, is_published, sort_order, created_at, updated_at
       ) VALUES (
-        ?, ?, ?, ?, ?, ?, ?, ?, ?,
+        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
         ?, ?, ?, ?, ?, ?, ?, ?,
         ?, ?, ?, ?, ?, ?, ?,
         ?, ?, ?, datetime('now'), datetime('now')
@@ -243,6 +244,7 @@ export const ProductRepo = {
       input.collection_id ?? null,
       input.description ?? null,
       input.short_description ?? null,
+      input.lab_grown_description ?? null,
       input.price_inr,
       input.sale_price_inr ?? null,
       input.pricing_mode ?? "MANUAL",
@@ -298,6 +300,7 @@ export const ProductRepo = {
     if (input.collection_id !== undefined) { fields.push("collection_id = ?"); values.push(input.collection_id); }
     if (input.description !== undefined) { fields.push("description = ?"); values.push(input.description); }
     if (input.short_description !== undefined) { fields.push("short_description = ?"); values.push(input.short_description); }
+    if (input.lab_grown_description !== undefined) { fields.push("lab_grown_description = ?"); values.push(input.lab_grown_description); }
     if (input.price_inr !== undefined) { fields.push("price_inr = ?"); values.push(input.price_inr); }
     if (input.sale_price_inr !== undefined) { fields.push("sale_price_inr = ?"); values.push(input.sale_price_inr); }
     if (input.pricing_mode !== undefined) { fields.push("pricing_mode = ?"); values.push(input.pricing_mode); }
@@ -412,24 +415,27 @@ export const ProductRepo = {
   },
 
   deleteProduct(idOrSlug: number | string, adminEmail?: string, ipAddress?: string | null): boolean {
-    let existing: DbProduct | null = null;
+    let existingRow: any = null;
     if (typeof idOrSlug === "number") {
-      existing = this.getProductById(idOrSlug);
+      existingRow = db.prepare("SELECT * FROM products WHERE id = ?").get(idOrSlug);
     } else {
-      const parsedNum = parseInt(idOrSlug, 10);
-      if (!isNaN(parsedNum)) {
-        existing = this.getProductById(parsedNum);
+      const str = String(idOrSlug).trim();
+      if (/^\d+$/.test(str)) {
+        existingRow = db.prepare("SELECT * FROM products WHERE id = ?").get(parseInt(str, 10));
       }
-      if (!existing) {
-        existing = this.getProductBySlug(idOrSlug);
+      if (!existingRow) {
+        existingRow = db.prepare("SELECT * FROM products WHERE LOWER(slug) = ?").get(str.toLowerCase());
       }
     }
 
-    if (!existing) {
+    if (!existingRow) {
+      if (typeof idOrSlug === "string" && !/^\d+$/.test(idOrSlug)) {
+        recordDeletedSlug(idOrSlug).catch(() => {});
+      }
       return false;
     }
 
-    const targetId = existing.id;
+    const targetId = existingRow.id;
     const images = this.listProductImages(targetId);
 
     const deleteTx = db.transaction(() => {
@@ -461,11 +467,11 @@ export const ProductRepo = {
       entityId: targetId,
       adminEmail: adminEmail || "Admin",
       ipAddress: ipAddress || null,
-      details: { name: existing.name, slug: existing.slug },
+      details: { name: existingRow.name, slug: existingRow.slug },
     });
 
     // Persist deleted slug to Vercel Blob cloud store so it never returns on cold start or refresh
-    recordDeletedSlug(existing.slug).catch((err) => {
+    recordDeletedSlug(existingRow.slug).catch((err) => {
       console.error("[CloudSync] Error persisting deleted slug:", err);
     });
 

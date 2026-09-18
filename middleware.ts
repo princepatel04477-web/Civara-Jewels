@@ -34,29 +34,24 @@ export async function middleware(request: NextRequest) {
   const isAuthenticated = Boolean(session && session.isLoggedIn && session.userId);
   const userRole = session?.role || "admin";
 
-  // 1. STRICT SELLER RESTRICTION: Seller network (192.168.1.4) cannot view or access /admin
-  if (isFromSeller && (!isAuthenticated || userRole === "seller")) {
+  // 1. STRICT IP BOUNDARY FOR MASTER ADMIN:
+  // Only authorized admin IP (or owner emergency key) can see or access /admin and /api/admin/*
+  // Anyone else (seller network, public visitors, unauthorized IPs):
+  // - Admin portal UI (/admin, /admin/*) is completely hidden and redirected to /seller/login
+  // - Admin APIs (/api/admin/*) return 403 Forbidden (except logout)
+  if (isFromSeller || !hasAccessPass) {
     if (isAdminPortal) {
       return NextResponse.redirect(new URL("/seller/login", request.url));
     }
-    // Block master admin endpoints, but never block authentication operations (login, logout, session)
-    if (pathname.startsWith("/api/admin/") && !isAuthApi) {
+    if (pathname.startsWith("/api/admin/") && pathname !== "/api/admin/auth/logout") {
       return NextResponse.json(
-        { error: "Forbidden: Master admin endpoints are restricted from this network." },
+        { error: "Forbidden: Master admin access restricted to authorized IP." },
         { status: 403 }
       );
     }
   }
 
-  // 2. Unauthenticated access to /admin/login:
-  // If not from authorized admin IP / pass, redirect to /seller/login so admin portal is invisible
-  if (pathname === "/admin/login") {
-    if (!isAuthenticated && !hasAccessPass) {
-      return NextResponse.redirect(new URL("/seller/login", request.url));
-    }
-  }
-
-  // 3. Allow Login Pages & Auth APIs to load
+  // 2. Allow Login Pages & Auth APIs to load
   if (isLoginPage) {
     if (isAuthenticated) {
       // If already logged in, route to appropriate portal
@@ -77,7 +72,7 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
-  // 4. Unauthenticated requests to protected portals MUST redirect to login
+  // 3. Unauthenticated requests to protected portals MUST redirect to login
   if (!isAuthenticated) {
     if (pathname.startsWith("/api/admin/") || pathname.startsWith("/api/seller/")) {
       return NextResponse.json(
@@ -95,9 +90,6 @@ export async function middleware(request: NextRequest) {
     }
 
     if (isAdminPortal) {
-      if (isFromSeller || !hasAccessPass) {
-        return NextResponse.redirect(new URL("/seller/login", request.url));
-      }
       const loginUrl = new URL("/admin/login", request.url);
       if (pathname !== "/admin") {
         loginUrl.searchParams.set("next", pathname + search);
@@ -106,7 +98,7 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // 5. Role Isolation: Seller accounts cannot access /admin
+  // 4. Role Isolation: Seller accounts cannot access /admin
   if (userRole === "seller" && isAdminPortal) {
     return NextResponse.redirect(new URL("/seller", request.url));
   }

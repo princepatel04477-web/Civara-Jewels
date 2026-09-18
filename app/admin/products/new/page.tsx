@@ -28,6 +28,7 @@ export default function AdminNewProductPage() {
     sku: "",
     collection_id: "1",
     description: "",
+    lab_grown_description: "",
     short_description: "",
     pricing_mode: "MANUAL" as "MANUAL" | "CALCULATED",
     priceINRDisplay: "", // In Rupees (e.g. 84500)
@@ -107,6 +108,7 @@ export default function AdminNewProductPage() {
       sku: form.sku.trim() || null,
       collection_id: form.collection_id ? parseInt(form.collection_id, 10) : null,
       description: form.description.trim() || null,
+      lab_grown_description: form.lab_grown_description.trim() || null,
       short_description: form.short_description.trim() || null,
       pricing_mode: form.pricing_mode,
       price_inr: Math.round(priceRupees * 100), // convert to paise
@@ -229,11 +231,38 @@ export default function AdminNewProductPage() {
           />
 
           <Textarea
-            label="Full Editorial Description"
+            label="Natural Diamond Description (Default Editorial)"
             placeholder="A single certified stone, hand-set in recycled 18-karat gold..."
             value={form.description}
             onChange={(e) => setForm({ ...form, description: e.target.value })}
           />
+
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between">
+              <label className="block text-[11px] uppercase tracking-widest text-[#5C554E] font-medium">
+                Lab Grown Diamond Description (Optional)
+              </label>
+              <button
+                type="button"
+                onClick={() => {
+                  const base = form.description || "Crafted to pristine gemmological standards, hand-set in recycled 18-karat gold.";
+                  const labCopy = `${base} Specifically tailored with our conflict-free Type IIa lab-grown diamond, offering identical chemical brilliance, optical fire, and certified clarity with conscious modern luxury.`;
+                  setForm({ ...form, lab_grown_description: labCopy });
+                }}
+                className="text-[11px] text-[#A67C52] hover:text-[#8C6239] underline cursor-pointer"
+              >
+                ⚡ Auto-Fill Lab Grown Description
+              </button>
+            </div>
+            <Textarea
+              placeholder="Custom editorial copy shown when customer selects Lab Grown Diamond..."
+              value={form.lab_grown_description}
+              onChange={(e) => setForm({ ...form, lab_grown_description: e.target.value })}
+            />
+            <p className="text-[11px] text-[#8C827A]">
+              If left blank, Civara's luxury studio lab-grown story will be dynamically generated for the client.
+            </p>
+          </div>
         </div>
 
         {/* Section 2: Jewelry Details */}

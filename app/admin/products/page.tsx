@@ -24,6 +24,7 @@ export default function AdminProductsListPage() {
   const [products, setProducts] = useState<ProductRow[]>([]);
   const [collections, setCollections] = useState<Array<{ id: number; name: string }>>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
 
   // Filters
   const [search, setSearch] = useState("");
@@ -78,6 +79,7 @@ export default function AdminProductsListPage() {
       return;
     }
 
+    setDeletingId(id);
     try {
       const res = await fetch(`/api/admin/products/${id}`, {
         method: "DELETE",
@@ -87,13 +89,15 @@ export default function AdminProductsListPage() {
       if (res.ok && data.success) {
         // Optimistically remove product from current UI immediately
         setProducts((prev) => prev.filter((p) => p.id !== id));
-        fetchProducts();
+        await fetchProducts();
       } else {
         alert(data.error || "Failed to delete product.");
       }
     } catch (err: any) {
       console.error("Delete error", err);
       alert(err.message || "Failed to delete product.");
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -301,7 +305,10 @@ export default function AdminProductsListPage() {
                       </Link>
                       <button
                         onClick={() => handleDeleteProduct(p.id, p.name)}
-                        className="inline-flex p-1.5 text-red-600 hover:text-red-800 hover:bg-red-50"
+                        disabled={deletingId === p.id}
+                        className={`inline-flex p-1.5 text-red-600 hover:text-red-800 hover:bg-red-50 transition-opacity ${
+                          deletingId === p.id ? "opacity-30 cursor-not-allowed" : ""
+                        }`}
                         title="Delete Piece"
                       >
                         <Trash2 className="w-3.5 h-3.5" />

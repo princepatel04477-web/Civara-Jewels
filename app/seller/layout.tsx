@@ -13,6 +13,7 @@ import {
   Menu,
   X,
   ExternalLink,
+  Gem,
 } from "lucide-react";
 
 export default function SellerLayout({ children }: { children: React.ReactNode }) {
@@ -109,7 +110,7 @@ export default function SellerLayout({ children }: { children: React.ReactNode }
               }`}
             >
               <DollarSign className="w-3.5 h-3.5" />
-              Daily Gold Rates
+              <span>Bullion &amp; Diamond Carat Rates</span>
             </Link>
 
             <Link
@@ -170,7 +171,7 @@ export default function SellerLayout({ children }: { children: React.ReactNode }
               onClick={() => setMobileMenuOpen(false)}
               className="block py-2 text-[#C9A961] font-medium"
             >
-              Daily Gold Rates
+              Daily Bullion &amp; Diamond Carat Rates
             </Link>
             <Link
               href="/"
