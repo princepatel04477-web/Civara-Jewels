@@ -99,8 +99,8 @@ export function isSellerRequest(request: Request | NextRequest): boolean {
  * Check if the request comes from an allowed administrator IP
  */
 export function isAdminIP(request: Request | NextRequest): boolean {
-  // Hard block: Seller requests can NEVER have admin IP privileges
-  if (isSellerRequest(request)) {
+  // Hard block: Physical Seller network IPs (192.168.1.4) can NEVER have admin privileges
+  if (isSellerIP(request)) {
     return false;
   }
 
@@ -108,13 +108,25 @@ export function isAdminIP(request: Request | NextRequest): boolean {
   const normalizedClientIp = normalizeIP(clientIp);
 
   const defaultAllowed = [
-    // User's Authorized Admin IP from network configuration
+    // User's Authorized Wi-Fi Network (from network configuration)
     "2405:201:200d:2822:a315:6410:f19b:8b6c",
+    "2405:201:200d:2822:31b6:e295:2324:6eca",
     "2405:201:200d:2822",
     "2405:201:200d",
     "192.168.29.44",
     "192.168.29",
     "fe80::adb5:c64d:6728:c274",
+    // User's Cloudflare WARP Network (active on machine)
+    "2a09:bac1:36c0:28::243:9a",
+    "2a09:bac1:36c0:28",
+    "2a09:bac1:36c0",
+    "2606:4700:110:8375:d5e8:d7a9:3599:ac8e",
+    "2606:4700:110",
+    "104.28.220.39",
+    "104.28.220",
+    "104.28",
+    "172.16.0.2",
+    "172.16.0",
     // Localhost loopback for internal server requests and local dev
     "127.0.0.1",
     "::1",
@@ -165,18 +177,29 @@ export function isAdminIP(request: Request | NextRequest): boolean {
  * Check if the request has administrator access privileges (via IP, admin key, or admin pass cookie)
  */
 export function hasAdminAccess(request: Request | NextRequest): boolean {
-  if (isSellerRequest(request)) return false;
+  // Hard block: Physical seller network (192.168.1.4) can never have admin access
+  if (isSellerIP(request)) return false;
 
-  // Check Admin IP whitelist
+  // 1. Check Admin IP whitelist
   if (isAdminIP(request)) return true;
 
-  // Emergency owner query parameter fallback
+  // 2. Emergency owner query parameter fallback
   try {
     const url = new URL(request.url);
     if (url.searchParams.get("admin_key") === "civara_owner") {
       return true;
     }
   } catch {}
+
+  // 3. Admin access pass cookie (granted when owner uses admin_key)
+  if ("cookies" in request && typeof (request as any).cookies?.get === "function") {
+    const val = (request as any).cookies.get("civara_admin_access")?.value;
+    if (val === "1" || val === "true") return true;
+  }
+  const rawCookies = request.headers.get("cookie") || "";
+  if (rawCookies.includes("civara_admin_access=1") || rawCookies.includes("civara_admin_access=true")) {
+    return true;
+  }
 
   return false;
 }

@@ -11,34 +11,21 @@ export const Footer = () => {
   React.useEffect(() => {
     let mounted = true;
 
-    // 1. Instant client-side check
-    if (typeof window !== "undefined") {
-      const isRestricted =
-        localStorage.getItem("civara_seller_restricted") === "1" ||
-        document.cookie.includes("civara_seller_network=1");
-      if (isRestricted) {
-        setIsAdminAllowed(false);
-        return;
-      }
-    }
-
-    // 2. Client WebRTC LAN detection & Server IP check
-    import("@/lib/auth/client-guard")
-      .then(({ checkAndTagSellerLAN }) => checkAndTagSellerLAN())
-      .then((isSellerLAN) => {
+    // Check Server IP authorization
+    fetch("/api/auth/ip-check")
+      .then((res) => res.json())
+      .then((data) => {
         if (!mounted) return;
-        if (isSellerLAN) {
+        if (data?.isAllowed) {
+          try {
+            localStorage.removeItem("civara_seller_restricted");
+            sessionStorage.removeItem("civara_seller_restricted");
+            document.cookie = "civara_seller_network=; path=/; max-age=0";
+          } catch {}
+          setIsAdminAllowed(true);
+        } else {
           setIsAdminAllowed(false);
-          return;
         }
-
-        return fetch("/api/auth/ip-check")
-          .then((res) => res.json())
-          .then((data) => {
-            if (mounted) {
-              setIsAdminAllowed(Boolean(data?.isAllowed && !data?.isSeller));
-            }
-          });
       })
       .catch(() => {
         if (mounted) setIsAdminAllowed(false);

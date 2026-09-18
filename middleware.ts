@@ -13,19 +13,24 @@ export async function middleware(request: NextRequest) {
   const isAuthApi =
     pathname.startsWith("/api/admin/auth/") ||
     pathname.startsWith("/api/seller/auth/");
-  const isFromSeller = isSellerRequest(request);
   const adminKeyParam = searchParams.get("admin_key");
   const hasAccessPass = hasAdminAccess(request);
+  const isFromSeller = !hasAccessPass && isSellerRequest(request);
 
   // Check Session Authentication first
   const response = NextResponse.next();
 
-  // If valid admin_key provided, grant 30-day admin pass cookie
+  // If valid admin_key provided, grant 30-day admin pass cookie and clear any seller cookies
   if (adminKeyParam === "civara_owner") {
     response.cookies.set("civara_admin_access", "1", {
       path: "/",
       maxAge: 60 * 60 * 24 * 30, // 30 days
       httpOnly: false,
+      sameSite: "lax",
+    });
+    response.cookies.set("civara_seller_network", "", {
+      path: "/",
+      maxAge: 0,
       sameSite: "lax",
     });
   }

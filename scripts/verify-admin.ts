@@ -199,6 +199,22 @@ async function verifyAdminSystem() {
     console.log("✓ Localhost 127.0.0.1 is permitted");
   }
 
+  // User Cloudflare WARP Public IPv4
+  if (!isAdminIP(makeReq("104.28.220.39"))) {
+    console.error("❌ Cloudflare WARP IPv4 104.28.220.39 was rejected");
+    errors++;
+  } else {
+    console.log("✓ Cloudflare WARP IPv4 egress is permitted");
+  }
+
+  // User Cloudflare WARP Public IPv6
+  if (!isAdminIP(makeReq("2a09:bac1:36c0:28::243:9a"))) {
+    console.error("❌ Cloudflare WARP IPv6 was rejected");
+    errors++;
+  } else {
+    console.log("✓ Cloudflare WARP IPv6 egress is permitted");
+  }
+
   // Unauthorized External IP
   if (isAdminIP(makeReq("203.0.113.195"))) {
     console.error("❌ Unauthorized IP 203.0.113.195 was erroneously allowed");
