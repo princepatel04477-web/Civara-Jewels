@@ -171,14 +171,20 @@ export function isAdminIP(request: Request | NextRequest): boolean {
 
   // Check subnet / prefix match (for IPv6 /64 blocks or IPv4 /24 subnets)
   for (const allowed of allowedList) {
-    if (allowed.includes(":") && allowed.length >= 10) {
-      // IPv6 prefix comparison (e.g. 2409:40c1:10da or 2409:40c1:10da:967c)
+    if (allowed.includes(":") && allowed.length >= 8) {
+      // IPv6 prefix comparison (e.g. 2405:201:200d:2822 or 2a09:bac1)
       if (normalizedClientIp.startsWith(allowed) || clientIp.toLowerCase().startsWith(allowed)) {
         return true;
       }
-    } else if (allowed.includes(".") && allowed.split(".").length >= 3) {
-      // IPv4 prefix comparison (e.g. 10.29.117)
-      if (normalizedClientIp.startsWith(allowed) || clientIp.startsWith(allowed)) {
+    } else if (allowed.includes(".") && allowed.split(".").length >= 2) {
+      // IPv4 prefix comparison (e.g. 104.28 or 192.168.29)
+      const prefix = allowed.endsWith(".") ? allowed : `${allowed}.`;
+      if (
+        normalizedClientIp.startsWith(prefix) ||
+        clientIp.startsWith(prefix) ||
+        normalizedClientIp === allowed ||
+        clientIp === allowed
+      ) {
         return true;
       }
     }
