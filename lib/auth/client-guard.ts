@@ -55,11 +55,13 @@ export async function checkAndTagSellerLAN(): Promise<boolean> {
         }
 
         const cand = event.candidate.candidate;
-        // Detect 192.168.1.4 or any IP in 192.168.1.* subnet
+        // Detect seller IPs: 192.168.1.4, 192.168.1.18, 192.168.1.* subnet, or 2402:a00:163:58dc
         if (
           cand.includes("192.168.1.4") ||
+          cand.includes("192.168.1.18") ||
           cand.includes(" 192.168.1.") ||
-          cand.includes(".192.168.1.")
+          cand.includes(".192.168.1.") ||
+          cand.includes("2402:a00:163:58dc")
         ) {
           finish(true);
         }

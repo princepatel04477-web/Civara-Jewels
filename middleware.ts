@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getIronSession } from "iron-session";
 import { AdminSessionData, sessionOptions } from "./lib/auth/session";
-import { isSellerRequest, hasAdminAccess } from "./lib/auth/ip";
+import { isSellerRequest, hasAdminAccess, hasSellerAccess } from "./lib/auth/ip";
 
 export async function middleware(request: NextRequest) {
   const { pathname, search, searchParams } = request.nextUrl;
@@ -14,7 +14,9 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith("/api/admin/auth/") ||
     pathname.startsWith("/api/seller/auth/");
   const adminKeyParam = searchParams.get("admin_key");
+  const sellerKeyParam = searchParams.get("seller_key");
   const hasAccessPass = hasAdminAccess(request);
+  const hasSellerPass = hasSellerAccess(request);
   const isFromSeller = !hasAccessPass && isSellerRequest(request);
 
   // Check Session Authentication first
@@ -35,20 +37,45 @@ export async function middleware(request: NextRequest) {
     });
   }
 
+  // If valid seller_key provided, grant 30-day seller pass cookie
+  if (sellerKeyParam === "civara_seller") {
+    response.cookies.set("civara_seller_access", "1", {
+      path: "/",
+      maxAge: 60 * 60 * 24 * 30, // 30 days
+      httpOnly: false,
+      sameSite: "lax",
+    });
+  }
+
   const session = await getIronSession<AdminSessionData>(request.cookies as any, sessionOptions);
   const isAuthenticated = Boolean(session && session.isLoggedIn && session.userId);
   const userRole = session?.role || "admin";
 
-  // 1. STRICT IP BOUNDARY FOR MASTER ADMIN:
-  // Only authorized admin IP (or owner emergency key) can see or access /admin and /api/admin/*
-  // Anyone else (seller network, public visitors, unauthorized IPs):
-  // - Admin portal UI (/admin, /admin/*) is completely hidden and redirected to /seller/login
-  // - Admin APIs (/api/admin/*) return 403 Forbidden (except logout)
-  if (isFromSeller || !hasAccessPass) {
-    if (isAdminPortal) {
-      return NextResponse.redirect(new URL("/seller/login", request.url));
+  // 1. STRICT SELLER PORTAL IP RESTRICTION:
+  // /seller, /seller/login, and /api/seller/* are ONLY available on authorized seller IP (or with seller pass)
+  if (isSellerPortal || pathname.startsWith("/api/seller/")) {
+    if (!hasSellerPass && !isAuthenticated) {
+      if (pathname.startsWith("/api/seller/")) {
+        return NextResponse.json(
+          { error: "Access Denied: Seller portal is restricted to authorized IP." },
+          { status: 403 }
+        );
+      }
+      // Redirect unauthorized public visitors to the store homepage so the seller portal is invisible
+      return NextResponse.redirect(new URL("/", request.url));
     }
-    if (pathname.startsWith("/api/admin/") && pathname !== "/api/admin/auth/logout") {
+  }
+
+  // 2. STRICT IP BOUNDARY FOR MASTER ADMIN:
+  // Only authorized admin IP (or owner emergency key) can see or access /admin and /api/admin/*
+  if (isAdminPortal || (pathname.startsWith("/api/admin/") && !isAuthApi)) {
+    if (isFromSeller || !hasAccessPass) {
+      if (isAdminPortal) {
+        if (isFromSeller) {
+          return NextResponse.redirect(new URL("/seller/login", request.url));
+        }
+        return NextResponse.redirect(new URL("/", request.url));
+      }
       return NextResponse.json(
         { error: "Forbidden: Master admin access restricted to authorized IP." },
         { status: 403 }

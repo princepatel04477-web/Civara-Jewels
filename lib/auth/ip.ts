@@ -62,7 +62,21 @@ export function isSellerIP(request: Request | NextRequest): boolean {
   const clientIp = getClientIP(request);
   const normalizedClientIp = normalizeIP(clientIp);
 
-  const defaultSellerIps = ["192.168.1.4", "192.168.1"];
+  const defaultSellerIps = [
+    // Exact IPv6 addresses from user's Wi-Fi network (DEVANSH 5G & RTL867x-ADSL-WLAN1)
+    "2402:a00:163:58dc:1cf2:b79a:c4f3:7fa5",
+    "2402:a00:163:58dc:a9ac:5c33:af44:2149",
+    "2402:a00:163:58dc:1461:bf23:d910:e422",
+    "2402:a00:163:58dc:6d70:d19b:731a:afae",
+    // Subnet /64 prefix for the seller Wi-Fi router (covers SLAAC rotating IPv6 addresses)
+    "2402:a00:163:58dc",
+    // Local IPv4 addresses and subnet
+    "192.168.1.4",
+    "192.168.1.18",
+    "192.168.1",
+    // Local router link-local
+    "fe80::6231:92ff:fe12:517e",
+  ];
   const envSellerIps = (process.env.SELLER_ALLOWED_IPS || process.env.SELLER_IPS || "")
     .split(",")
     .map((ip) => normalizeIP(ip.trim()))
@@ -72,8 +86,8 @@ export function isSellerIP(request: Request | NextRequest): boolean {
 
   return (
     allSellerIps.includes(normalizedClientIp) ||
-    allSellerIps.includes(clientIp) ||
-    allSellerIps.some((sip) => normalizedClientIp.startsWith(sip) || clientIp.startsWith(sip))
+    allSellerIps.includes(clientIp.toLowerCase()) ||
+    allSellerIps.some((sip) => normalizedClientIp.startsWith(sip) || clientIp.toLowerCase().startsWith(sip))
   );
 }
 
@@ -199,6 +213,43 @@ export function hasAdminAccess(request: Request | NextRequest): boolean {
   const rawCookies = request.headers.get("cookie") || "";
   if (rawCookies.includes("civara_admin_access=1") || rawCookies.includes("civara_admin_access=true")) {
     return true;
+  }
+
+  return false;
+}
+
+/**
+ * Check if the request has seller portal access privileges (via Seller IP, seller key, or seller pass cookie)
+ */
+export function hasSellerAccess(request: Request | NextRequest): boolean {
+  // 1. Direct seller IP or seller subnet match
+  if (isSellerIP(request)) return true;
+
+  // 2. Emergency seller query parameter fallback (?seller_key=civara_seller)
+  try {
+    const url = new URL(request.url);
+    if (url.searchParams.get("seller_key") === "civara_seller") {
+      return true;
+    }
+  } catch {}
+
+  // 3. Seller access pass cookie (granted when seller_key is used)
+  if ("cookies" in request && typeof (request as any).cookies?.get === "function") {
+    const val = (request as any).cookies.get("civara_seller_access")?.value;
+    if (val === "1" || val === "true") return true;
+  }
+  const rawCookies = request.headers.get("cookie") || "";
+  if (rawCookies.includes("civara_seller_access=1") || rawCookies.includes("civara_seller_access=true")) {
+    return true;
+  }
+
+  // 4. Authorized store administrator is also permitted to inspect/manage seller portal
+  if (hasAdminAccess(request)) return true;
+
+  // 5. Localhost loopback in development
+  if (process.env.NODE_ENV === "development") {
+    const clientIp = getClientIP(request);
+    if (normalizeIP(clientIp) === "127.0.0.1") return true;
   }
 
   return false;

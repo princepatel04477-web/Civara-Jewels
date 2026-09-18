@@ -3,7 +3,7 @@ import { UserRepo } from "@/lib/db/repo/users";
 import { AuditRepo } from "@/lib/db/repo/audit";
 import { verifyPassword, hashPassword } from "@/lib/auth/password";
 import { getAdminSession } from "@/lib/auth/session";
-import { getClientIP, isSellerIP, isSellerRequest, hasAdminAccess } from "@/lib/auth/ip";
+import { getClientIP, isSellerIP, isSellerRequest, hasAdminAccess, hasSellerAccess } from "@/lib/auth/ip";
 
 // In-memory rate limiting map for login attempts: IP -> { attempts: number, resetTime: number }
 const loginAttemptsMap = new Map<string, { attempts: number; resetTime: number }>();
@@ -157,6 +157,15 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           error: "Access Denied: This account is a Seller account. Please log in through the Seller Panel at /seller/login.",
+        },
+        { status: 403 }
+      );
+    }
+
+    if (portal === "seller" && !hasSellerAccess(request)) {
+      return NextResponse.json(
+        {
+          error: "Access Denied: Seller portal access is strictly restricted to authorized IP addresses.",
         },
         { status: 403 }
       );
