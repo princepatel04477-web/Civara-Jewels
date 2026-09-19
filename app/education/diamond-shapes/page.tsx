@@ -1,7 +1,7 @@
 import React from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { BookViewingButton } from "../../components/header/BookViewingButton";
+import { MessageCircle } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Diamond Shapes & Silhouettes Guide",
@@ -65,10 +65,14 @@ export default function DiamondShapesPage() {
       </section>
 
       <div className="text-center pb-20">
-        <BookViewingButton
-          label="Compare Diamond Shapes in Person"
-          className="bg-[#241F1B] text-[#C9A961] px-8 py-4 text-xs uppercase tracking-[0.2em] font-medium rounded-full hover:bg-[#181412] transition-colors"
-        />
+        <a
+          href="https://wa.me/918866077237?text=Hello%20Civara%20Atelier%2C%20I%20would%20like%20to%20consult%20on%20diamond%20shapes."
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 bg-[#241F1B] text-[#C9A961] px-8 py-4 text-xs uppercase tracking-[0.2em] font-medium rounded-full hover:bg-[#181412] transition-colors"
+        >
+          <MessageCircle className="w-4 h-4" /> Consult on Diamond Shapes via WhatsApp
+        </a>
       </div>
     </div>
   );

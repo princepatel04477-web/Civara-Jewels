@@ -4,8 +4,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Catalog } from "../../../lib/catalog";
 import { ProductCard } from "../../components/ProductCard";
-import { BookViewingButton } from "../../components/header/BookViewingButton";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, MessageCircle } from "lucide-react";
 
 interface OccasionData {
   slug: string;
@@ -203,7 +202,7 @@ export default function OccasionPage({
           ))}
         </div>
 
-        {/* Viewing CTA */}
+        {/* Custom Commission CTA */}
         <div className="mt-16 p-8 sm:p-12 text-center bg-[#FBF7F0] border border-[#C9A961]/40 space-y-4 max-w-3xl mx-auto">
           <div className="text-[10px] uppercase tracking-[0.28em] text-[#9E7F3C] font-medium">
             Private Atelier Concierge
@@ -215,10 +214,14 @@ export default function OccasionPage({
             Looking for specific carat sizes, bespoke engraving, or custom metal alloys? Our master goldsmiths can tailor any design to your moment.
           </p>
           <div className="pt-2">
-            <BookViewingButton
-              label="Enquire for Custom Commission"
-              className="bg-[#241F1B] text-[#C9A961] px-8 py-3.5 text-xs uppercase tracking-[0.2em] font-medium rounded-full hover:bg-[#181412] transition-colors"
-            />
+            <a
+              href="https://wa.me/918866077237?text=Hello%20Civara%20Atelier%2C%20I%20would%20like%20to%20enquire%20about%20a%20custom%20commission%20for%20a%20special%20milestone."
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 bg-[#241F1B] text-[#C9A961] px-8 py-3.5 text-xs uppercase tracking-[0.2em] font-medium rounded-full hover:bg-[#181412] transition-colors"
+            >
+              <MessageCircle className="w-4 h-4" /> Enquire for Custom Commission
+            </a>
           </div>
         </div>
       </section>

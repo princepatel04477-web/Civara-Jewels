@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Catalog } from "../lib/catalog";
@@ -12,7 +12,6 @@ import { ImageSlot } from "./components/ImageSlot";
 import { CollectionsGrid } from "./components/home/CollectionsGrid";
 import { PressStrip } from "./components/home/PressStrip";
 import { WhatsAppConcierge } from "./components/floating/WhatsAppConcierge";
-import { BookViewingDialog } from "./components/header/BookViewingDialog";
 import { KineticDiamondWireframe } from "./components/ui/KineticDiamondWireframe";
 import {
   ArrowRight,
@@ -28,7 +27,6 @@ import {
 
 export default function HomePage() {
   const featuredProducts = Catalog.getFeaturedProducts(4);
-  const [isViewingOpen, setIsViewingOpen] = useState(false);
 
   return (
     <div className="w-full bg-[#FBF7F0]">
@@ -54,7 +52,7 @@ export default function HomePage() {
           <RuleDraw color="gold" className="w-20 sm:w-28 mx-auto my-3 sm:my-4" delayMs={300} />
 
           <p className="text-xs sm:text-base font-light text-[#6E6459] max-w-2xl mx-auto leading-relaxed px-3">
-            Handcrafted to order in 18k recycled gold and certified natural diamonds. A single master goldsmith crafts each setting individually. Enquire, view, own.
+            Handcrafted to order in 18k recycled gold and certified natural diamonds. A single master goldsmith crafts each setting individually. Enquire, customize, own.
           </p>
 
           {/* Action CTAs */}
@@ -65,12 +63,14 @@ export default function HomePage() {
             >
               Explore Collections
             </Link>
-            <button
-              onClick={() => setIsViewingOpen(true)}
-              className="w-full sm:w-auto border border-[#C9A961] bg-[#FAF7F0] text-[#9E7F3C] px-8 sm:px-10 py-3.5 sm:py-4 text-xs uppercase tracking-[0.2em] sm:tracking-[0.22em] font-medium rounded-full hover:bg-[#241F1B] hover:text-[#FBF7F0] hover:border-[#241F1B] transition-all inline-flex items-center justify-center gap-2 text-center cursor-pointer shadow-xs"
+            <a
+              href="https://wa.me/918866077237?text=Hello%20Civara%20Jewels%2C%20I%20would%20like%20to%20enquire%20about%20a%20bespoke%20commission."
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full sm:w-auto border border-[#C9A961] bg-[#FAF7F0] text-[#9E7F3C] px-8 sm:px-10 py-3.5 sm:py-4 text-xs uppercase tracking-[0.2em] sm:tracking-[0.22em] font-medium rounded-full hover:bg-[#241F1B] hover:text-[#FBF7F0] hover:border-[#241F1B] transition-all inline-flex items-center justify-center gap-2 text-center shadow-xs"
             >
-              Book Private Viewing
-            </button>
+              Enquire via WhatsApp
+            </a>
             <Link
               href="/bespoke"
               className="text-xs uppercase tracking-[0.2em] text-[#241F1B] hover:text-[#9E7F3C] transition-colors inline-flex items-center gap-1.5 font-medium py-2 px-3"
@@ -224,17 +224,17 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 7. PRIVATE ATELIER & VIRTUAL VIEWING BOOKING */}
+      {/* 7. PRIVATE ATELIER & VIRTUAL CONCIERGE */}
       <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-14 max-w-6xl mx-auto text-center space-y-10">
         <div className="space-y-3">
           <div className="text-[10px] sm:text-xs uppercase tracking-[0.28em] text-[#9E7F3C] font-semibold">
-            Concierge Appointments
+            Concierge Consultations
           </div>
           <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-medium text-[#241F1B]">
             Experience Civara in Person or in 4K Virtual HD
           </h2>
           <p className="text-xs sm:text-sm font-light text-[#6E6459] max-w-xl mx-auto">
-            Book an uninterrupted, private 45-minute consultation with our senior gemmologists.
+            Connect directly with our master goldsmiths and senior gemmologists.
           </p>
         </div>
 
@@ -245,18 +245,20 @@ export default function HomePage() {
               <MapPin className="w-5 h-5 text-[#9E7F3C]" />
             </div>
             <div className="space-y-1">
-              <h3 className="font-serif text-xl font-semibold text-[#241F1B]">Private Surat Atelier</h3>
-              <p className="text-xs text-[#6E6459]">Surat Private Atelier, Gujarat</p>
+              <h3 className="font-serif text-xl font-semibold text-[#241F1B]">Surat Atelier</h3>
+              <p className="text-xs text-[#6E6459]">Surat Flagship Atelier, Gujarat</p>
             </div>
             <p className="text-xs font-light text-[#6E6459] leading-relaxed">
               Inspect loose GIA diamonds under 10x gemmological loupes, try physical sample mountings, and discuss custom alloy casting over artisanal refreshments.
             </p>
-            <button
-              onClick={() => setIsViewingOpen(true)}
-              className="w-full bg-[#241F1B] text-[#C9A961] py-3 text-xs uppercase tracking-[0.2em] font-medium hover:bg-[#181412] transition-colors rounded-xs cursor-pointer"
+            <a
+              href="https://wa.me/918866077237?text=Hello%20Civara%20Atelier%2C%20I%20would%20like%20to%20visit%20the%20Surat%20Atelier."
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full bg-[#241F1B] text-[#C9A961] py-3 text-xs uppercase tracking-[0.2em] font-medium hover:bg-[#181412] transition-colors rounded-xs inline-flex items-center justify-center gap-2 text-center"
             >
-              Book In-Person Viewing
-            </button>
+              Connect with Atelier on WhatsApp
+            </a>
           </div>
 
           {/* Location 2: Virtual Concierge */}
@@ -271,12 +273,14 @@ export default function HomePage() {
             <p className="text-xs font-light text-[#6E6459] leading-relaxed">
               Live macro-camera diamond comparisons, 3D architectural CAD reviews, and tailored stone recommendations from the comfort of your residence.
             </p>
-            <button
-              onClick={() => setIsViewingOpen(true)}
-              className="w-full border border-[#C9A961] text-[#9E7F3C] bg-[#FFFFFF] py-3 text-xs uppercase tracking-[0.2em] font-medium hover:bg-[#C9A961] hover:text-[#FBF7F0] transition-all rounded-xs cursor-pointer"
+            <a
+              href="https://wa.me/918866077237?text=Hello%20Civara%20Atelier%2C%20I%20would%20like%20to%20schedule%20a%20virtual%20consultation."
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full border border-[#C9A961] text-[#9E7F3C] bg-[#FFFFFF] py-3 text-xs uppercase tracking-[0.2em] font-medium hover:bg-[#C9A961] hover:text-[#FBF7F0] transition-all rounded-xs inline-flex items-center justify-center gap-2 text-center"
             >
-              Schedule Virtual Session
-            </button>
+              Consult via WhatsApp
+            </a>
           </div>
         </div>
       </section>
@@ -321,9 +325,6 @@ export default function HomePage() {
 
       {/* 10. Sticky WhatsApp Concierge on Mobile */}
       <WhatsAppConcierge />
-
-      {/* Viewing Booking Dialog */}
-      <BookViewingDialog isOpen={isViewingOpen} onClose={() => setIsViewingOpen(false)} />
     </div>
   );
 }

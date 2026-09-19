@@ -100,7 +100,7 @@ export const Header = () => {
           })}
         </div>
 
-        {/* Right Actions: Search, Wishlist Badge, Viewing CTA */}
+        {/* Right Actions: Search, Wishlist Badge */}
         <div className="flex items-center gap-4">
           <Link
             href="/search"

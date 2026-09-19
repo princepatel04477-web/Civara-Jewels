@@ -11,7 +11,7 @@ export default function PrivacyPage() {
       content: (
         <>
           <p>
-            At Civara Jewels, client confidentiality is paramount. Personal details shared during private viewing bookings or WhatsApp enquiries (names, contact numbers, delivery addresses) are handled with strict discretion and never sold to third parties.
+            At Civara Jewels, client confidentiality is paramount. Personal details shared during bespoke consultations or WhatsApp enquiries (names, contact numbers, delivery addresses) are handled with strict discretion and never sold to third parties.
           </p>
         </>
       ),

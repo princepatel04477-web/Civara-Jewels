@@ -11,7 +11,7 @@ export default function TermsPage() {
       content: (
         <>
           <p>
-            By booking a private viewing or placing a bespoke commission with Civara Jewels, you agree to our atelier terms. All product photography and editorial text remain the intellectual property of Civara Jewels.
+            By placing a bespoke commission or ordering with Civara Jewels, you agree to our atelier terms. All product photography and editorial text remain the intellectual property of Civara Jewels.
           </p>
           <p>
             Prices quoted on the site are subject to minor variation based on natural gemstone carat weights and daily market gold hallmarking rates at the time of order confirmation.
@@ -24,7 +24,7 @@ export default function TermsPage() {
   return (
     <LegalLayout
       title="Terms of Service"
-      subtitle="Conditions governing atelier viewings, bespoke commissions, and website usage."
+      subtitle="Conditions governing bespoke commissions, orders, and website usage."
       sections={sections}
     />
   );

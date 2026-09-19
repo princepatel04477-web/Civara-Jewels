@@ -25,7 +25,7 @@ export default function CarePage() {
       id: "lifetime-service",
       title: "Complimentary Lifetime Cleaning & Inspection",
       content:
-        "Every Civara piece includes lifetime complimentary ultrasonic cleaning, stone security inspection, and surface re-polishing at any of our ateliers. Simply schedule a viewing or mail your piece via insured shipping.",
+        "Every Civara piece includes lifetime complimentary ultrasonic cleaning, stone security inspection, and surface re-polishing at any of our ateliers. Simply contact our concierge or mail your piece via insured shipping.",
     },
     {
       id: "repair-resizing",

@@ -14,7 +14,7 @@ export default function FAQPage() {
             Civara Jewels is a fine jewellery atelier specializing in hallmarked 18-karat gold and certified diamonds. All atelier visits and consultations are strictly by appointment.
           </p>
           <p>
-            Because every piece is crafted to order, we do not operate an online cart or automated checkout. Every commission begins with a conversation or a private viewing.
+            Because every piece is crafted to order, we do not operate an online cart or automated checkout. Every commission begins with a personalized consultation.
           </p>
         </>
       ),
@@ -49,7 +49,7 @@ export default function FAQPage() {
   return (
     <LegalLayout
       title="Frequently Asked Questions"
-      subtitle="Answers regarding bespoke commissions, viewings, and atelier services."
+      subtitle="Answers regarding bespoke commissions and atelier services."
       sections={sections}
     />
   );

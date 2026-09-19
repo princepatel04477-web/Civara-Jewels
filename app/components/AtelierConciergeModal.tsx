@@ -12,7 +12,6 @@ interface AtelierConciergeModalProps {
   selectedMetal: string;
   selectedSize: string;
   metalRates?: MetalRates;
-  initialMode?: "enquire" | "viewing";
 }
 
 export function AtelierConciergeModal({

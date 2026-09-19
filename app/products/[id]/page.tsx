@@ -11,10 +11,9 @@ import { ProductGallery } from "../../components/product/ProductGallery";
 import { RingSizeSelector } from "../../components/product/RingSizeSelector";
 import { ProductSpecsAccordion } from "../../components/product/ProductSpecsAccordion";
 import { ProductDossierSection } from "../../components/product/ProductDossierSection";
-import { BookViewingDialog } from "../../components/header/BookViewingDialog";
 import { WhatsAppConcierge } from "../../components/floating/WhatsAppConcierge";
 import { extractPurityFromMetalOption } from "../../../lib/pricing/compute";
-import { MessageCircle, Calendar, Heart } from "lucide-react";
+import { MessageCircle, Heart } from "lucide-react";
 
 export default function ProductDetailPage() {
   const params = useParams();
@@ -48,7 +47,6 @@ export default function ProductDetailPage() {
   const [selectedSize, setSelectedSize] = useState(
     product.sizeOptions ? product.sizeOptions[0] : "3"
   );
-  const [isViewingOpen, setIsViewingOpen] = useState(false);
   const [isSaved, setIsSaved] = useState(() => isInWishlist(product.id));
 
   // Fetch live product from SQLite API
@@ -500,14 +498,6 @@ export default function ProductDetailPage() {
               <MessageCircle className="w-4 h-4" />
               Enquire on WhatsApp
             </button>
-            <button
-              type="button"
-              onClick={() => setIsViewingOpen(true)}
-              className="w-full border border-[#C9A961] text-[#9E7F3C] py-4 px-8 text-xs uppercase tracking-[0.2em] text-center font-medium rounded-full hover:bg-[#241F1B] hover:text-[#FBF7F0] hover:border-[#241F1B] transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98"
-            >
-              <Calendar className="w-4 h-4" />
-              Book a private viewing
-            </button>
           </div>
 
           {/* Jared-style Quick Service & Trust Badges */}
@@ -516,10 +506,7 @@ export default function ProductDetailPage() {
               <span className="text-base">🚚</span>
               <span><strong>Complimentary Insured Delivery</strong> — Dispatched within 7–10 days</span>
             </div>
-            <div className="flex items-center gap-2.5">
-              <span className="text-base">🏛️</span>
-              <span><strong>Free Surat Atelier Private Viewing</strong> — In-Person or 4K Virtual</span>
-            </div>
+
             <div className="flex items-center gap-2.5">
               <span className="text-base">💎</span>
               <span><strong>Expert Guidance & Care</strong> — Direct gemmologist consultation</span>
@@ -563,13 +550,6 @@ export default function ProductDetailPage() {
           </div>
         </div>
       </section>
-
-      {/* Book Viewing Dialog Modal */}
-      <BookViewingDialog
-        isOpen={isViewingOpen}
-        onClose={() => setIsViewingOpen(false)}
-        initialPiece={product.name}
-      />
 
       {/* Mobile Sticky WhatsApp Concierge */}
       <WhatsAppConcierge productName={product.name} />
