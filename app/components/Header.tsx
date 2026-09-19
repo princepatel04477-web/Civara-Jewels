@@ -4,7 +4,6 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { BookViewingDialog } from "./header/BookViewingDialog";
 import { Catalog } from "../../lib/catalog";
 import { getWishlistIds } from "../../lib/wishlist";
 import { Menu, X, Search, Heart, ChevronDown } from "lucide-react";
@@ -12,7 +11,6 @@ import { Menu, X, Search, Heart, ChevronDown } from "lucide-react";
 export const Header = () => {
   const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isViewingOpen, setIsViewingOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMegaMenuOpen, setIsMegaMenuOpen] = useState(false);
   const [savedCount, setSavedCount] = useState(0);
@@ -125,12 +123,6 @@ export const Header = () => {
             )}
           </Link>
 
-          <button
-            onClick={() => setIsViewingOpen(true)}
-            className="hidden sm:block border border-[#C9A961] text-[#9E7F3C] rounded-full px-5 py-2 text-xs tracking-[0.16em] uppercase hover:bg-[#241F1B] hover:text-[#FBF7F0] hover:border-[#241F1B] transition-all whitespace-nowrap"
-          >
-            Book a viewing
-          </button>
 
           {/* Mobile Menu Button */}
           <button
@@ -276,17 +268,6 @@ export const Header = () => {
 
             {/* Quick Actions Strip */}
             <div className="space-y-2.5 pt-2">
-              <button
-                type="button"
-                onClick={() => {
-                  setIsMobileMenuOpen(false);
-                  setIsViewingOpen(true);
-                }}
-                className="w-full bg-[#241F1B] text-[#C9A961] py-3.5 rounded-full text-xs uppercase tracking-[0.2em] font-medium shadow-md active:scale-98 transition-transform cursor-pointer"
-              >
-                Book Surat Private Viewing
-              </button>
-
               <a
                 href="https://wa.me/918866077237?text=Hello%20Civara%20Atelier%2C%20I%20would%20like%20to%20inquire%20about%20a%20bespoke%20piece"
                 target="_blank"
@@ -312,8 +293,6 @@ export const Header = () => {
         </div>
       )}
 
-      {/* Viewing Modal */}
-      <BookViewingDialog isOpen={isViewingOpen} onClose={() => setIsViewingOpen(false)} />
     </header>
   );
 };

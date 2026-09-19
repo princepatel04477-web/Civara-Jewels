@@ -6,7 +6,7 @@ import { Product } from "../../../lib/catalog";
 import { ProductCard } from "../ProductCard";
 import { FloatingCard } from "../motion/FloatingCard";
 import { CategoryInfo } from "../../../lib/taxonomy";
-import { Sparkles, MessageCircle, Calendar } from "lucide-react";
+import { Sparkles, MessageCircle } from "lucide-react";
 
 interface CategoryGridProps {
   products: Product[];
@@ -43,12 +43,6 @@ export function CategoryGrid({ products, category }: CategoryGridProps) {
             >
               <MessageCircle className="w-4 h-4" /> WhatsApp Enquiry
             </a>
-            <Link
-              href="/viewings"
-              className="border border-[#C9A961] text-[#9E7F3C] px-8 py-3.5 text-xs uppercase tracking-[0.2em] font-medium hover:bg-[#C9A961] hover:text-[#FBF7F0] transition-colors inline-flex items-center gap-2"
-            >
-              <Calendar className="w-4 h-4" /> Book Viewing
-            </Link>
           </div>
         </div>
       </div>

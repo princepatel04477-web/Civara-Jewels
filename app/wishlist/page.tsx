@@ -39,7 +39,7 @@ export default function WishlistPage() {
         const liveP = getLiveProductPrice ? getLiveProductPrice(p) : p.priceINR;
         return `${idx + 1}. ${p.name} (${formatPrice(liveP)})`;
       }).join("\n") +
-      `\n\nPlease advise on availability and private viewing options.`
+      `\n\nPlease advise on availability and how to proceed.`
   );
 
   return (

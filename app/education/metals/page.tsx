@@ -1,7 +1,7 @@
 import React from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { BookViewingButton } from "../../components/header/BookViewingButton";
+import { MessageCircle } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Precious Metals Guide: 18k Yellow, Rose, White Gold & Platinum",
@@ -65,10 +65,14 @@ export default function PreciousMetalsPage() {
       </section>
 
       <div className="text-center pb-20">
-        <BookViewingButton
-          label="Explore Custom Alloy Options"
-          className="bg-[#241F1B] text-[#C9A961] px-8 py-4 text-xs uppercase tracking-[0.2em] font-medium rounded-full hover:bg-[#181412] transition-colors"
-        />
+        <a
+          href="https://wa.me/918866077237?text=Hello%20Civara%20Atelier%2C%20I%20would%20like%20to%20explore%20custom%20alloy%20options."
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 bg-[#241F1B] text-[#C9A961] px-8 py-4 text-xs uppercase tracking-[0.2em] font-medium rounded-full hover:bg-[#181412] transition-colors"
+        >
+          <MessageCircle className="w-4 h-4" /> Explore Custom Alloy Options
+        </a>
       </div>
     </div>
   );

@@ -29,7 +29,7 @@ export const WhatsAppConcierge: React.FC<WhatsAppConciergeProps> = ({
       );
     }
     return encodeURIComponent(
-      `Hello Civara Jewels, I would like to enquire about scheduling a private viewing.`
+      `Hello Civara Jewels, I would like to enquire about a bespoke commission.`
     );
   };
 

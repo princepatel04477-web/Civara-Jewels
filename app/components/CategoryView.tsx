@@ -187,20 +187,14 @@ export const CategoryView: React.FC<CategoryViewProps> = ({ categorySlug }) => {
             className="font-serif text-3xl sm:text-4xl font-medium max-w-xl mx-auto leading-tight"
           />
           <p className="text-xs sm:text-sm font-light text-[#E6DFD3]/90 max-w-lg mx-auto leading-relaxed">
-            Every piece is crafted to order in hallmarked 18k gold and certified diamonds by master goldsmiths. Book a private viewing or speak with our concierge.
+            Every piece is crafted to order in hallmarked 18k gold and certified diamonds by master goldsmiths. Speak with our concierge to begin your commission.
           </p>
           <div className="flex flex-wrap justify-center gap-4 pt-2">
-            <Link
-              href="/viewings"
-              className="inline-flex items-center gap-2 bg-[#C9A961] text-[#241F1B] px-8 py-4 text-xs uppercase tracking-[0.22em] font-medium hover:bg-[#9E7F3C] hover:text-[#FBF7F0] transition-colors"
-            >
-              <Calendar className="w-4 h-4" /> Book a Private Viewing
-            </Link>
             <a
               href={`https://wa.me/918866077237?text=Hello%20Civara%20Jewels%2C%20I%20am%20interested%20in%20the%20${encodeURIComponent(categoryName)}%20collection.`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 border border-[#C9A961] text-[#C9A961] px-8 py-4 text-xs uppercase tracking-[0.22em] font-medium hover:bg-[#C9A961] hover:text-[#241F1B] transition-colors"
+              className="inline-flex items-center gap-2 bg-[#C9A961] text-[#241F1B] px-8 py-4 text-xs uppercase tracking-[0.22em] font-medium hover:bg-[#9E7F3C] hover:text-[#FBF7F0] transition-colors"
             >
               <MessageCircle className="w-4 h-4" /> Concierge WhatsApp
             </a>

@@ -130,7 +130,6 @@ export const Footer = () => {
             <li><Link href="/about" className="hover:text-[#C9A961] transition-colors">Our Philosophy</Link></li>
             <li><Link href="/craft" className="hover:text-[#C9A961] transition-colors">Craftsmanship</Link></li>
             <li><Link href="/bespoke" className="hover:text-[#C9A961] transition-colors">Bespoke Commissions</Link></li>
-            <li><Link href="/viewings" className="hover:text-[#C9A961] transition-colors">Private Viewings</Link></li>
             <li><Link href="/certification" className="hover:text-[#C9A961] transition-colors">Certification & Hallmarking</Link></li>
             <li><Link href="/journal" className="hover:text-[#C9A961] transition-colors">The Journal</Link></li>
             <li><Link href="/size-guide" className="hover:text-[#C9A961] transition-colors">Ring Size Guide</Link></li>

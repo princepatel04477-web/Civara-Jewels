@@ -2,8 +2,7 @@ import React from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
-import { Award, ShieldCheck, FileCheck, Compass, Sparkles, ArrowRight } from "lucide-react";
-import { BookViewingButton } from "../components/header/BookViewingButton";
+import { Award, ShieldCheck, FileCheck, Compass, Sparkles, ArrowRight, MessageCircle } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Craft & Material Provenance",
@@ -180,10 +179,14 @@ export default function CraftPage() {
         </div>
 
         <div className="pt-8">
-          <BookViewingButton
-            label="Schedule an Atelier Consultation"
-            className="bg-[#241F1B] text-[#C9A961] px-8 py-4 text-xs uppercase tracking-[0.2em] font-medium rounded-full hover:bg-[#181412] transition-colors"
-          />
+          <a
+            href="https://wa.me/918866077237?text=Hello%20Civara%20Atelier%2C%20I%20would%20like%20to%20schedule%20a%20consultation."
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 bg-[#241F1B] text-[#C9A961] px-8 py-4 text-xs uppercase tracking-[0.2em] font-medium rounded-full hover:bg-[#181412] transition-colors"
+          >
+            <MessageCircle className="w-4 h-4" /> Schedule a Consultation via WhatsApp
+          </a>
         </div>
       </section>
     </div>
