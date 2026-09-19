@@ -267,3 +267,67 @@ export async function getRatesFromCloud(): Promise<any[] | null> {
 
   return null;
 }
+
+/**
+ * Synchronously fetches latest metal rates from Vercel Blob on cold start.
+ */
+export function warmRatesFromBlobSync(): any[] | null {
+  if (!hasBlobToken()) return null;
+  const token = process.env.BLOB_READ_WRITE_TOKEN!;
+
+  try {
+    const { execFileSync } = require("child_process") as typeof import("child_process");
+
+    const listScript = `
+const https = require('https');
+const url = 'https://blob.vercel-storage.com?prefix=${encodeURIComponent(METAL_RATES_FILE)}&limit=1';
+const req = https.get(url, { headers: { Authorization: 'Bearer ${token}' } }, (res) => {
+  let d = '';
+  res.on('data', c => d += c);
+  res.on('end', () => process.stdout.write(d));
+});
+req.on('error', () => process.exit(1));
+req.setTimeout(4000, () => process.exit(1));
+`;
+
+    const listRaw = execFileSync(process.execPath, ["-e", listScript], {
+      timeout: 5000,
+      encoding: "utf-8",
+      stdio: ["ignore", "pipe", "ignore"],
+    }) as string;
+
+    if (!listRaw || !listRaw.trim()) return null;
+
+    const listData = JSON.parse(listRaw);
+    const blobs: Array<{ url: string }> = listData.blobs || [];
+    if (blobs.length === 0) return null;
+
+    const fileUrl = blobs[0].url;
+    const fetchScript = `
+const mod = require('${fileUrl.startsWith("https") ? "https" : "http"}');
+mod.get(${JSON.stringify(fileUrl)}, (res) => {
+  let d = '';
+  res.on('data', c => d += c);
+  res.on('end', () => process.stdout.write(d));
+}).on('error', () => process.exit(1)).setTimeout(4000, () => process.exit(1));
+`;
+
+    const fileRaw = execFileSync(process.execPath, ["-e", fetchScript], {
+      timeout: 5000,
+      encoding: "utf-8",
+      stdio: ["ignore", "pipe", "ignore"],
+    }) as string;
+
+    if (!fileRaw || !fileRaw.trim()) return null;
+
+    const rates = JSON.parse(fileRaw);
+    if (Array.isArray(rates)) {
+      console.log(`[CloudSync] Warmed ${rates.length} metal rates from Vercel Blob (sync).`);
+      return rates;
+    }
+  } catch (err) {
+    console.warn("[CloudSync] warmRatesFromBlobSync failed (non-fatal):", err);
+  }
+
+  return null;
+}

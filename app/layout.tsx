@@ -24,7 +24,7 @@ const jost = Jost({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://civara-jewels.vercel.app"),
+  metadataBase: new URL("https://civarajewels.com"),
   title: {
     default: "Civara Jewels — Fine Jewellery Atelier",
     template: "%s | Civara Jewels",
@@ -47,7 +47,7 @@ export const metadata: Metadata = {
     title: "Civara Jewels — Fine Jewellery Atelier",
     description:
       "Heirlooms in hallmarked 18k recycled gold and certified diamonds. Made to order. Bespoke concierge consultations in Surat and virtual HD worldwide.",
-    url: "https://civara-jewels.vercel.app",
+    url: "https://civarajewels.com",
     siteName: "Civara Jewels",
     locale: "en_IN",
     type: "website",
@@ -79,10 +79,10 @@ export default function RootLayout({
     "@graph": [
       {
         "@type": "Organization",
-        "@id": "https://civara-jewels.vercel.app/#organization",
+        "@id": "https://civarajewels.com/#organization",
         name: "Civara Jewels",
-        url: "https://civara-jewels.vercel.app",
-        logo: "https://civara-jewels.vercel.app/images/home-cc/Rings-cc.png",
+        url: "https://civarajewels.com",
+        logo: "https://civarajewels.com/images/home-cc/Rings-cc.png",
         description:
           "Made-to-order fine jewellery atelier crafting bespoke heirlooms in hallmarked 18K recycled gold and certified diamonds.",
         knowsAbout: [
@@ -102,11 +102,11 @@ export default function RootLayout({
       },
       {
         "@type": "WebSite",
-        "@id": "https://civara-jewels.vercel.app/#website",
-        url: "https://civara-jewels.vercel.app",
+        "@id": "https://civarajewels.com/#website",
+        url: "https://civarajewels.com",
         name: "Civara Jewels Atelier",
         publisher: {
-          "@id": "https://civara-jewels.vercel.app/#organization",
+          "@id": "https://civarajewels.com/#organization",
         },
       },
     ],

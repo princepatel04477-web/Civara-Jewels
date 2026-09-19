@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
+import { SITE_URL } from "../../../lib/site";
 
 export interface BreadcrumbItem {
   name: string;
@@ -21,7 +22,7 @@ export function BreadcrumbNav({ items }: BreadcrumbProps) {
       "@type": "ListItem",
       position: index + 1,
       name: item.name,
-      item: `https://civara-jewels.vercel.app${item.url}`,
+      item: `${SITE_URL}${item.url}`,
     })),
   };
 

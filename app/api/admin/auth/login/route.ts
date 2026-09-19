@@ -162,15 +162,6 @@ export async function POST(request: Request) {
       );
     }
 
-    if (portal === "seller" && !hasSellerAccess(request)) {
-      return NextResponse.json(
-        {
-          error: "Access Denied: Seller portal access is strictly restricted to authorized IP addresses.",
-        },
-        { status: 403 }
-      );
-    }
-
     // STRICT SECURITY GATE: If connecting from Seller Network or IP (192.168.1.4), Admin Login is FORBIDDEN
     const isFromSeller = isSellerRequest(request);
     if (isFromSeller && (portal === "admin" || role === "admin")) {

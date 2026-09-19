@@ -165,10 +165,12 @@ function seedDatabaseIfNeeded(database: Database.Database) {
       INSERT INTO users (email, password_hash, name, role, created_at)
       VALUES 
         ('varunyatechnologies@gmail.com', '$2b$10$g4LBdnGHbdj.5QVTMKOZ.udR7Vcmm2gqRss2i3doHrfykjCW1bTA6', 'Varunya Technologies Admin', 'admin', datetime('now')),
-        ('admin@civarajewels.com', '$2b$10$Awxmbk4wqCLHGRA.aGnnj.PiHmymKkfxvGgCOl6ekCD.qzOF8bLIu', 'Civara Master Admin', 'admin', datetime('now'))
+        ('admin@civarajewels.com', '$2b$10$Awxmbk4wqCLHGRA.aGnnj.PiHmymKkfxvGgCOl6ekCD.qzOF8bLIu', 'Civara Master Admin', 'admin', datetime('now')),
+        ('seller@civarajewels.com', '$2b$10$MKuetQcBMyMRqlLeG2Ib3ur.Wd1AOpEXabFqD5NPMyXD.ndLKrjBy', 'Civara Atelier Seller', 'seller', datetime('now'))
       ON CONFLICT(email) DO UPDATE SET 
         password_hash = excluded.password_hash,
-        name = excluded.name;
+        name = excluded.name,
+        role = excluded.role;
     `).run();
 
     // 2. Seed 6 Categories
@@ -200,28 +202,35 @@ function seedDatabaseIfNeeded(database: Database.Database) {
     }
 
     // 3. Seed & Sync Metal & Diamond Rates (Official Atelier Benchmarks)
-    const initialRates = [
-      { metal: "Gold", purity: "24 KT", rate_inr: 76500 },
-      { metal: "Gold", purity: "22 KT", rate_inr: 70150 },
-      { metal: "Gold", purity: "18 KT", rate_inr: 69999 },
-      { metal: "Gold", purity: "16 KT", rate_inr: 62221 },
-      { metal: "Gold", purity: "14 KT", rate_inr: 55999 },
-      { metal: "Gold", purity: "10 KT", rate_inr: 42999 },
-      { metal: "Silver", purity: "Silver", rate_inr: 26999 },
-      { metal: "Diamond", purity: "Natural Diamond (Per Carat)", rate_inr: 85000 },
-      { metal: "Diamond", purity: "Lab Grown Diamond (Per Carat)", rate_inr: 28000 },
-    ];
-    for (const r of initialRates) {
+    let cloudRates: any[] | null = null;
+    try {
+      const { warmRatesFromBlobSync } = require("./cloud-sync");
+      cloudRates = warmRatesFromBlobSync();
+    } catch {
+      // non-fatal
+    }
+
+    const ratesToSeed = cloudRates && Array.isArray(cloudRates) && cloudRates.length > 0
+      ? cloudRates
+      : [
+          { metal: "Gold", purity: "24 KT", rate_inr: 76500 },
+          { metal: "Gold", purity: "22 KT", rate_inr: 70150 },
+          { metal: "Gold", purity: "18 KT", rate_inr: 69999 },
+          { metal: "Gold", purity: "16 KT", rate_inr: 62221 },
+          { metal: "Gold", purity: "14 KT", rate_inr: 55999 },
+          { metal: "Gold", purity: "10 KT", rate_inr: 42999 },
+          { metal: "Silver", purity: "Silver", rate_inr: 26999 },
+          { metal: "Diamond", purity: "Natural Diamond (Per Carat)", rate_inr: 85000 },
+          { metal: "Diamond", purity: "Lab Grown Diamond (Per Carat)", rate_inr: 28000 },
+        ];
+
+    for (const r of ratesToSeed) {
       const existing = database.prepare("SELECT id FROM metal_rates WHERE purity = ?").get(r.purity) as { id: number } | undefined;
       if (!existing) {
         database.prepare(`
           INSERT INTO metal_rates (metal, purity, rate_inr, updated_by, updated_at)
-          VALUES (?, ?, ?, 'System Initializer', datetime('now'))
-        `).run(r.metal, r.purity, r.rate_inr);
-      } else {
-        database.prepare(`
-          UPDATE metal_rates SET rate_inr = ?, is_active = 1, updated_at = datetime('now') WHERE purity = ?
-        `).run(r.rate_inr, r.purity);
+          VALUES (?, ?, ?, ?, datetime('now'))
+        `).run(r.metal || "Gold", r.purity, r.rate_inr, r.updated_by || "System Initializer");
       }
     }
 

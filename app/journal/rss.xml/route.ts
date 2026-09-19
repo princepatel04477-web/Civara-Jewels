@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { Catalog } from "../../../lib/catalog";
+import { SITE_URL } from "../../../lib/site";
 
 export async function GET() {
-  const baseUrl = "https://civara-jewels.vercel.app";
+  const baseUrl = SITE_URL;
   const articles = Catalog.articles;
 
   const rssItems = articles

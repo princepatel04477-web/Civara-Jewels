@@ -51,41 +51,9 @@ export async function middleware(request: NextRequest) {
   const isAuthenticated = Boolean(session && session.isLoggedIn && session.userId);
   const userRole = session?.role || "admin";
 
-  // 1. STRICT SELLER PORTAL IP RESTRICTION:
-  // /seller, /seller/login, and /api/seller/* are ONLY available on authorized seller IP (or with seller pass)
-  if (isSellerPortal || pathname.startsWith("/api/seller/")) {
-    if (!hasSellerPass && !isAuthenticated) {
-      if (pathname.startsWith("/api/seller/")) {
-        return NextResponse.json(
-          { error: "Access Denied: Seller portal is restricted to authorized IP." },
-          { status: 403 }
-        );
-      }
-      // Redirect unauthorized public visitors to the store homepage so the seller portal is invisible
-      return NextResponse.redirect(new URL("/", request.url));
-    }
-  }
-
-  // 2. STRICT IP BOUNDARY FOR MASTER ADMIN:
-  // Only authorized admin IP (or owner emergency key) can see or access /admin and /api/admin/*
-  if (isAdminPortal || (pathname.startsWith("/api/admin/") && !isAuthApi)) {
-    if (isFromSeller || !hasAccessPass) {
-      if (isAdminPortal) {
-        if (isFromSeller) {
-          return NextResponse.redirect(new URL("/seller/login", request.url));
-        }
-        return NextResponse.redirect(new URL("/", request.url));
-      }
-      return NextResponse.json(
-        { error: "Forbidden: Master admin access restricted to authorized IP." },
-        { status: 403 }
-      );
-    }
-  }
-
-  // 2. Allow Login Pages & Auth APIs to load
-  if (isLoginPage) {
-    if (isAuthenticated) {
+  // 1. ALLOW LOGIN PAGES & AUTH APIs TO LOAD FREELY
+  if (isLoginPage || isAuthApi) {
+    if (isAuthenticated && isLoginPage) {
       // If already logged in, route to appropriate portal
       if (pathname === "/seller/login") {
         return NextResponse.redirect(new URL("/seller", request.url));
@@ -100,11 +68,29 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
-  if (isAuthApi) {
-    return response;
+  // 2. STRICT IP BOUNDARY FOR MASTER ADMIN PORTAL (/admin and /api/admin/*)
+  // Only authorized admin IP (or owner emergency key) can access /admin and /api/admin/*
+  if (isAdminPortal || pathname.startsWith("/api/admin/")) {
+    if (isFromSeller || !hasAccessPass) {
+      if (isAdminPortal) {
+        if (isFromSeller || userRole === "seller") {
+          return NextResponse.redirect(new URL("/seller", request.url));
+        }
+        return NextResponse.redirect(new URL("/", request.url));
+      }
+      return NextResponse.json(
+        { error: "Forbidden: Master admin access restricted to authorized IP." },
+        { status: 403 }
+      );
+    }
+
+    // Role Isolation: Seller accounts cannot access master admin
+    if (userRole === "seller") {
+      return NextResponse.redirect(new URL("/seller", request.url));
+    }
   }
 
-  // 3. Unauthenticated requests to protected portals MUST redirect to login
+  // 3. UNAUTHENTICATED REQUESTS TO PROTECTED PORTALS MUST REDIRECT TO LOGIN
   if (!isAuthenticated) {
     if (pathname.startsWith("/api/admin/") || pathname.startsWith("/api/seller/")) {
       return NextResponse.json(
@@ -130,12 +116,7 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // 4. Role Isolation: Seller accounts cannot access /admin
-  if (userRole === "seller" && isAdminPortal) {
-    return NextResponse.redirect(new URL("/seller", request.url));
-  }
-
-  // 5. CSRF Protection for Mutating API requests
+  // 4. CSRF Protection for Mutating API requests (Supporting Custom Domain & Vercel)
   if (
     (pathname.startsWith("/api/admin/") || pathname.startsWith("/api/seller/")) &&
     ["POST", "PATCH", "PUT", "DELETE"].includes(request.method)
@@ -147,8 +128,17 @@ export async function middleware(request: NextRequest) {
       const originDomain = origin.replace(/^https?:\/\//, "").split(":")[0].toLowerCase();
       const hostDomain = host.split(":")[0].toLowerCase();
 
+      // Normalize apex domains by stripping leading 'www.'
+      const cleanOrigin = originDomain.replace(/^www\./, "");
+      const cleanHost = hostDomain.replace(/^www\./, "");
+
       const isAllowed =
+        cleanOrigin === cleanHost ||
         originDomain === hostDomain ||
+        cleanOrigin === "civarajewels.com" ||
+        cleanHost === "civarajewels.com" ||
+        originDomain.endsWith(".civarajewels.com") ||
+        hostDomain.endsWith(".civarajewels.com") ||
         (originDomain.endsWith(".vercel.app") && hostDomain.endsWith(".vercel.app")) ||
         originDomain === "localhost" ||
         originDomain === "127.0.0.1";

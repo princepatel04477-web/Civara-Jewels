@@ -1,9 +1,10 @@
 import { MetadataRoute } from "next";
 import { Catalog } from "../lib/catalog";
 import { Taxonomy } from "../lib/taxonomy";
+import { SITE_URL } from "../lib/site";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = "https://civara-jewels.vercel.app";
+  const baseUrl = SITE_URL;
 
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: baseUrl, lastModified: new Date(), changeFrequency: "daily", priority: 1.0 },
