@@ -34,7 +34,7 @@ export async function GET(request: Request) {
       offset: offsetParam ? parseInt(offsetParam, 10) : undefined,
     };
 
-    const result = ProductRepo.listProducts(filter);
+    const result = await ProductRepo.listProducts(filter);
     return NextResponse.json(result, {
       headers: {
         "Cache-Control": "private, no-cache, no-store, must-revalidate",
@@ -62,12 +62,12 @@ export async function POST(request: Request) {
     }
 
     // Check slug uniqueness
-    const existing = ProductRepo.getProductBySlug(parsed.data.slug);
+    const existing = await ProductRepo.getProductBySlug(parsed.data.slug);
     if (existing) {
       return NextResponse.json({ error: "A product with this slug already exists" }, { status: 400 });
     }
 
-    const created = ProductRepo.createProduct(parsed.data, adminEmail, ip);
+    const created = await ProductRepo.createProduct(parsed.data, adminEmail, ip);
     return NextResponse.json({ success: true, product: created }, { status: 201 });
   } catch (error: any) {
     return NextResponse.json({ error: error.message || "Failed to create product" }, { status: 500 });

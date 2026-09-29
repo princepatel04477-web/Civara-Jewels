@@ -8,15 +8,14 @@ import { z } from "zod";
 
 export const dynamic = "force-dynamic";
 
+const updateRateItemSchema = z.object({
+  purity: z.string().min(1),
+  rate_inr: z.number().int().positive(),
+  metal: z.string().optional(),
+});
+
 const batchUpdateSchema = z.object({
-  rates: z.array(
-    z.object({
-      id: z.number().optional(),
-      metal: z.string().optional(),
-      purity: z.string().min(1),
-      rate_inr: z.number().int().positive(),
-    })
-  ),
+  rates: z.array(updateRateItemSchema).min(1),
 });
 
 export async function GET() {
@@ -26,14 +25,14 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    let rates = MetalRatesRepo.listRates(false);
+    let rates = await MetalRatesRepo.listRates(false);
 
     // Auto-seed diamond rates per carat if not present yet
     const hasNatural = rates.some((r) => r.purity === "Natural Diamond (Per Carat)");
     const hasLab = rates.some((r) => r.purity === "Lab Grown Diamond (Per Carat)");
 
     if (!hasNatural) {
-      MetalRatesRepo.createRate({
+      await MetalRatesRepo.createRate({
         metal: "Diamond",
         purity: "Natural Diamond (Per Carat)",
         rate_inr: 85000,
@@ -41,7 +40,7 @@ export async function GET() {
       });
     }
     if (!hasLab) {
-      MetalRatesRepo.createRate({
+      await MetalRatesRepo.createRate({
         metal: "Diamond",
         purity: "Lab Grown Diamond (Per Carat)",
         rate_inr: 28000,
@@ -50,10 +49,10 @@ export async function GET() {
     }
 
     if (!hasNatural || !hasLab) {
-      rates = MetalRatesRepo.listRates(false);
+      rates = await MetalRatesRepo.listRates(false);
     }
 
-    const history = MetalRatesRepo.listHistory(15);
+    const history = await MetalRatesRepo.listHistory(15);
 
     // Find the latest update info
     const lastUpdate = history.length > 0 ? history[0] : null;
@@ -107,16 +106,16 @@ export async function POST(request: Request) {
     const updatedRates: any[] = [];
 
     for (const item of parsed.data.rates) {
-      const existing = MetalRatesRepo.getRateByPurity(item.purity);
+      const existing = await MetalRatesRepo.getRateByPurity(item.purity);
       if (existing) {
-        const updated = MetalRatesRepo.updateRate(existing.id, {
+        const updated = await MetalRatesRepo.updateRate(existing.id, {
           rate_inr: item.rate_inr,
           updated_by: sellerEmail,
           ip_address: ip,
         });
         if (updated) updatedRates.push(updated);
       } else {
-        const created = MetalRatesRepo.createRate({
+        const created = await MetalRatesRepo.createRate({
           metal: item.metal || "Gold",
           purity: item.purity,
           rate_inr: item.rate_inr,
@@ -127,8 +126,8 @@ export async function POST(request: Request) {
       }
     }
 
-    const refreshedRates = MetalRatesRepo.listRates(false);
-    const refreshedHistory = MetalRatesRepo.listHistory(15);
+    const refreshedRates = await MetalRatesRepo.listRates(false);
+    const refreshedHistory = await MetalRatesRepo.listHistory(15);
 
     try {
       await saveRatesToCloud(refreshedRates);

@@ -21,10 +21,9 @@ export default function ProductDetailPage() {
 
   // Initial product from catalog as SSR fallback
   const initialProduct = Catalog.getProductById(productId);
-  const [product, setProduct] = useState<Product>(
-    initialProduct || Catalog.getProductById("elara-solitaire") || Catalog.products[0]
-  );
-  const [isNotFound, setIsNotFound] = useState(!initialProduct);
+  const [product, setProduct] = useState<Product | null>(initialProduct || null);
+  const [isNotFound, setIsNotFound] = useState(false);
+  const [isLoading, setIsLoading] = useState(!initialProduct);
   const [liveImages, setLiveImages] = useState<string[]>([]);
   
   // Benchmark Rates State
@@ -39,32 +38,36 @@ export default function ProductDetailPage() {
   const { formatPrice } = useCurrency();
 
   const [selectedMetal, setSelectedMetal] = useState(
-    product.metalOptions?.[0] || "18K Yellow Gold"
+    initialProduct?.metalOptions?.[0] || "18K Yellow Gold"
   );
   const [selectedDiamondType, setSelectedDiamondType] = useState<"Natural Diamond" | "Lab Grown Diamond">(
     "Natural Diamond"
   );
   const [selectedSize, setSelectedSize] = useState(
-    product.sizeOptions ? product.sizeOptions[0] : "3"
+    initialProduct?.sizeOptions ? initialProduct.sizeOptions[0] : "3"
   );
-  const [isSaved, setIsSaved] = useState(() => isInWishlist(product.id));
+  const [isSaved, setIsSaved] = useState(() => (initialProduct?.id ? isInWishlist(initialProduct.id) : false));
 
   // Fetch live product from SQLite API
   useEffect(() => {
+    setIsLoading(true);
     fetch(`/api/public/products/${productId}`)
       .then((res) => {
         if (!res.ok) {
           setIsNotFound(true);
+          setIsLoading(false);
           return null;
         }
         return res.json();
       })
       .then((data) => {
+        setIsLoading(false);
         if (data && data.product) {
           const dbP = data.product;
           const mapped = Catalog.mapDbProductToProduct(dbP);
           setProduct(mapped);
           setIsNotFound(false);
+          setIsSaved(isInWishlist(mapped.id));
 
           if (dbP.images && dbP.images.length > 0) {
             const allImgs = dbP.images.map((img: any) => img.path);
@@ -78,9 +81,14 @@ export default function ProductDetailPage() {
             const availableSizes = mapped.sizeOptions;
             setSelectedSize((prev) => availableSizes.includes(prev) ? prev : availableSizes[0]);
           }
+        } else {
+          setIsNotFound(true);
         }
       })
-      .catch(() => {});
+      .catch(() => {
+        setIsLoading(false);
+        setIsNotFound(true);
+      });
 
     // Fetch live metal rates
     fetch("/api/public/metal-rates", { cache: "no-store" })
@@ -125,6 +133,19 @@ export default function ProductDetailPage() {
 
   // Dynamic Price Computation
   const calculatedPricing = useMemo(() => {
+    if (!product) {
+      return {
+        totalPrice: 0,
+        metalAmount: 0,
+        diamondAmount: 0,
+        makingCharges: 0,
+        gstAmount: 0,
+        rateUsed: 0,
+        purityLabel: "Gold Rate:",
+        hallmarkString: "BIS Hallmarked Fine Metal",
+      };
+    }
+
     const netWeight = product.netWeightG || 3.4;
     const CATALOG_BASELINE_18K_RATE = 69999;
 
@@ -184,38 +205,42 @@ export default function ProductDetailPage() {
     };
   }, [product, activeRate, activePurity, selectedDiamondType]);
 
-  const related = Catalog.getRelatedProducts(product.id, 4);
+  const related = product ? Catalog.getRelatedProducts(product.id, 4) : [];
 
   // Gallery image array (supports 6 to 8 photos from database)
   const galleryImages = (
     liveImages.length > 0
       ? liveImages
-      : [
+      : product
+      ? [
           product.mainImage || "/images/elara-solitaire-main.jpg",
           product.altImage || "/images/home-cc/Rings-cc.png",
           ...(product.thumbnails || []),
         ]
+      : []
   ).filter((v, i, a) => a.indexOf(v) === i && Boolean(v));
 
   const handleToggleWishlist = () => {
+    if (!product) return;
     const updated = toggleWishlistId(product.id);
     setIsSaved(updated);
   };
 
   const handleEnquireWhatsApp = () => {
+    if (!product) return;
     const text = encodeURIComponent(
-      `*Civara Atelier Enquiry*\n\n` +
-      `I would like to enquire about ordering the *${product.name}*.\n\n` +
-      `*Metal:* ${selectedMetal} (${calculatedPricing.hallmarkString})\n` +
-      `*Diamond:* ${selectedDiamondType}\n` +
-      (product.sizeType === "ring" ? `*Ring Size:* ${selectedSize}\n` : "") +
-      `*Dynamic Atelier Value:* ₹${calculatedPricing.totalPrice.toLocaleString("en-IN")}\n\n` +
+      `*Civara Atelier Enquiry*\\n\\n` +
+      `I would like to enquire about ordering the *${product.name}*.\\n\\n` +
+      `*Metal:* ${selectedMetal} (${calculatedPricing.hallmarkString})\\n` +
+      `*Diamond:* ${selectedDiamondType}\\n` +
+      (product.sizeType === "ring" ? `*Ring Size:* ${selectedSize}\\n` : "") +
+      `*Dynamic Atelier Value:* ₹${calculatedPricing.totalPrice.toLocaleString("en-IN")}\\n\\n` +
       `Please connect me with an Atelier Private Client Advisor.`
     );
     window.open(`https://wa.me/918866077237?text=${text}`, "_blank", "noopener,noreferrer");
   };
 
-  const metalOptionList = product.metalOptions && product.metalOptions.length > 0 
+  const metalOptionList = product?.metalOptions && product.metalOptions.length > 0 
     ? product.metalOptions 
     : STANDARD_METAL_OPTIONS;
 
@@ -251,7 +276,20 @@ export default function ProductDetailPage() {
     return groups;
   }, [metalOptionList, ratesMap]);
 
-  if (isNotFound) {
+  if (isLoading && !product) {
+    return (
+      <div className="min-h-[70vh] flex flex-col items-center justify-center text-center px-6 py-20 bg-[#FBF7F0]">
+        <div className="text-[10px] uppercase tracking-[0.3em] text-[#9E7F3C] font-semibold mb-3">
+          Civara Atelier Surat
+        </div>
+        <p className="font-serif text-xl text-[#241F1B] animate-pulse">
+          Retrieving Atelier Creation...
+        </p>
+      </div>
+    );
+  }
+
+  if (isNotFound || !product) {
     return (
       <div className="min-h-[70vh] flex flex-col items-center justify-center text-center px-6 py-20 bg-[#FBF7F0]">
         <div className="text-[10px] uppercase tracking-[0.3em] text-[#9E7F3C] font-semibold mb-3">

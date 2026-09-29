@@ -3,7 +3,7 @@ import { Catalog } from "../lib/catalog";
 import { Taxonomy } from "../lib/taxonomy";
 import { SITE_URL } from "../lib/site";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = SITE_URL;
 
   const staticRoutes: MetadataRoute.Sitemap = [
@@ -45,23 +45,33 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.8,
   }));
 
-  let deletedSlugs = new Set<string>();
+  let dbProducts: any[] = [];
   try {
-    const { getDeletedSlugsSync } = require("../lib/db/cloud-sync");
-    deletedSlugs = getDeletedSlugsSync();
+    const { ProductRepo } = require("../lib/db/repo/products");
+    const res = await ProductRepo.listProducts({ published: 1 });
+    if (res && Array.isArray(res.products)) {
+      dbProducts = res.products;
+    }
   } catch {
     // ignore
   }
 
   // Individual Product routes
-  const productRoutes: MetadataRoute.Sitemap = Catalog.products
-    .filter((p) => !deletedSlugs.has(p.id.toLowerCase().trim()))
-    .map((p) => ({
-      url: `${baseUrl}/products/${p.id}`,
-      lastModified: new Date(),
-      changeFrequency: "daily",
-      priority: 0.9,
-    }));
+  const productRoutes: MetadataRoute.Sitemap = (
+    dbProducts.length > 0
+      ? dbProducts.map((p) => ({
+          url: `${baseUrl}/products/${p.slug || p.id}`,
+          lastModified: new Date(p.updated_at || Date.now()),
+          changeFrequency: "daily" as const,
+          priority: 0.9,
+        }))
+      : Catalog.products.map((p) => ({
+          url: `${baseUrl}/products/${p.id}`,
+          lastModified: new Date(),
+          changeFrequency: "daily" as const,
+          priority: 0.9,
+        }))
+  );
 
   // Journal article routes
   const journalRoutes: MetadataRoute.Sitemap = Catalog.articles.map((art) => ({

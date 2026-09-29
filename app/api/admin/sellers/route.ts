@@ -21,7 +21,7 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized: Master Admin only" }, { status: 403 });
     }
 
-    const sellers = UserRepo.listSellers();
+    const sellers = await UserRepo.listSellers();
     return NextResponse.json({ sellers });
   } catch (error: any) {
     return NextResponse.json({ error: error.message || "Failed to list sellers" }, { status: 500 });
@@ -47,7 +47,7 @@ export async function POST(request: Request) {
     const ip = getClientIP(request);
     const passwordHash = await hashPassword(parsed.data.password);
 
-    const user = UserRepo.upsertSeller({
+    const user = await UserRepo.upsertSeller({
       email: parsed.data.email,
       passwordHash,
       name: parsed.data.name || "Civara Seller",
@@ -94,7 +94,7 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: "Valid seller ID required" }, { status: 400 });
     }
 
-    const success = UserRepo.deleteUser(id);
+    const success = await UserRepo.deleteUser(id);
     return NextResponse.json({ success });
   } catch (error: any) {
     return NextResponse.json({ error: error.message || "Failed to delete seller" }, { status: 500 });

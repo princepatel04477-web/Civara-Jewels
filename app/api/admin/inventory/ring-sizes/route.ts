@@ -18,8 +18,8 @@ const updateRingConfigSchema = z.object({
 
 export async function GET() {
   try {
-    const config = RingSizesRepo.getConfig();
-    const sizes = RingSizesRepo.generateSizeList(config);
+    const config = await RingSizesRepo.getConfig();
+    const sizes = await RingSizesRepo.generateSizeList(config);
     return NextResponse.json({ config, sizes });
   } catch (error: any) {
     return NextResponse.json({ error: error.message || "Failed to fetch ring sizes config" }, { status: 500 });
@@ -68,17 +68,16 @@ export async function POST(request: Request) {
       }
     }
 
-    const updated = RingSizesRepo.updateConfig({
+    const updated = await RingSizesRepo.updateConfig({
       ...parsed.data,
       chart_image_url: chartUrl,
       adminEmail,
       ipAddress: ip,
     });
 
-    const sizes = RingSizesRepo.generateSizeList(updated);
+    const sizes = await RingSizesRepo.generateSizeList(updated);
     return NextResponse.json({ success: true, config: updated, sizes });
   } catch (error: any) {
     return NextResponse.json({ error: error.message || "Failed to update ring config" }, { status: 500 });
   }
 }
-

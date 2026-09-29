@@ -50,14 +50,14 @@ export function generateMetadata({ params, searchParams }: CategoryPageProps): M
   };
 }
 
-export default function CategoryLandingPage({ params, searchParams }: CategoryPageProps) {
+export default async function CategoryLandingPage({ params, searchParams }: CategoryPageProps) {
   const category = Taxonomy.getCategory(params.category);
   if (!category) {
     notFound();
   }
 
-  // Filter Catalog Products by category & facets (respects dynamic DB & deleted items)
-  let products = Catalog.getCategoryProducts(category.slug);
+  // Filter Catalog Products by category & facets (respects dynamic Turso DB)
+  let products = await Catalog.getCategoryProductsAsync(category.slug);
 
   if (searchParams.metal) {
     products = products.filter((p) =>

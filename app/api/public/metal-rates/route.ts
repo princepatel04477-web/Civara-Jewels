@@ -6,7 +6,7 @@ export const revalidate = 0;
 
 export async function GET() {
   try {
-    const rates = MetalRatesRepo.listRates(true);
+    const rates = await MetalRatesRepo.listRates(true);
     return NextResponse.json({ rates }, {
       headers: {
         "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0",

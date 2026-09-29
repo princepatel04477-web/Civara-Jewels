@@ -5,8 +5,8 @@ export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    const config = RingSizesRepo.getConfig();
-    const sizes = RingSizesRepo.generateSizeList(config);
+    const config = await RingSizesRepo.getConfig();
+    const sizes = await RingSizesRepo.generateSizeList(config);
     return NextResponse.json({ 
       config: {
         min_size: config.min_size,

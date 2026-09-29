@@ -16,7 +16,7 @@ export interface DbCollection {
 }
 
 export const CollectionRepo = {
-  listCollections(options: { activeOnly?: boolean; search?: string } = {}): DbCollection[] {
+  async listCollections(options: { activeOnly?: boolean; search?: string } = {}): Promise<DbCollection[]> {
     const whereClauses: string[] = [];
     const params: any[] = [];
 
@@ -41,51 +41,52 @@ export const CollectionRepo = {
       ORDER BY c.sort_order ASC, c.id ASC
     `;
 
-    return db.prepare(query).all(...params) as DbCollection[];
+    return await db.query<DbCollection>(query, params);
   },
 
-  getCollectionById(id: number): DbCollection | null {
-    const row = db.prepare(`
-      SELECT 
+  async getCollectionById(id: number): Promise<DbCollection | null> {
+    return await db.queryOne<DbCollection>(
+      `SELECT 
         c.*,
         (SELECT COUNT(*) FROM products p WHERE p.collection_id = c.id) as product_count
       FROM collections c
-      WHERE c.id = ?
-    `).get(id) as DbCollection | undefined;
-
-    return row || null;
+      WHERE c.id = ?`,
+      [id]
+    );
   },
 
-  getCollectionBySlug(slug: string): DbCollection | null {
-    const row = db.prepare(`
-      SELECT 
+  async getCollectionBySlug(slug: string): Promise<DbCollection | null> {
+    return await db.queryOne<DbCollection>(
+      `SELECT 
         c.*,
         (SELECT COUNT(*) FROM products p WHERE p.collection_id = c.id) as product_count
       FROM collections c
-      WHERE c.slug = ?
-    `).get(slug.toLowerCase().trim()) as DbCollection | undefined;
-
-    return row || null;
+      WHERE c.slug = ?`,
+      [slug.toLowerCase().trim()]
+    );
   },
 
-  createCollection(input: CreateCollectionInput, adminEmail?: string, ipAddress?: string | null): DbCollection {
-    const stmt = db.prepare(`
-      INSERT INTO collections (
+  async createCollection(
+    input: CreateCollectionInput,
+    adminEmail?: string,
+    ipAddress?: string | null
+  ): Promise<DbCollection> {
+    const result = await db.execute(
+      `INSERT INTO collections (
         slug, name, description, cover_image, sort_order, is_active,
         created_at, updated_at
       ) VALUES (
         ?, ?, ?, ?, ?, ?,
         datetime('now'), datetime('now')
-      )
-    `);
-
-    const result = stmt.run(
-      input.slug.toLowerCase().trim(),
-      input.name.trim(),
-      input.description ?? null,
-      input.cover_image ?? null,
-      input.sort_order ?? 0,
-      input.is_active ?? 1
+      )`,
+      [
+        input.slug.toLowerCase().trim(),
+        input.name.trim(),
+        input.description ?? null,
+        input.cover_image ?? null,
+        input.sort_order ?? 0,
+        input.is_active ?? 1,
+      ]
     );
 
     const newId = Number(result.lastInsertRowid);
@@ -99,33 +100,51 @@ export const CollectionRepo = {
       details: { name: input.name, slug: input.slug },
     });
 
-    return this.getCollectionById(newId)!;
+    return (await this.getCollectionById(newId))!;
   },
 
-  updateCollection(
+  async updateCollection(
     id: number,
     input: UpdateCollectionInput,
     adminEmail?: string,
     ipAddress?: string | null
-  ): DbCollection | null {
-    const existing = this.getCollectionById(id);
+  ): Promise<DbCollection | null> {
+    const existing = await this.getCollectionById(id);
     if (!existing) return null;
 
     const fields: string[] = [];
     const values: any[] = [];
 
-    if (input.slug !== undefined) { fields.push("slug = ?"); values.push(input.slug.toLowerCase().trim()); }
-    if (input.name !== undefined) { fields.push("name = ?"); values.push(input.name.trim()); }
-    if (input.description !== undefined) { fields.push("description = ?"); values.push(input.description); }
-    if (input.cover_image !== undefined) { fields.push("cover_image = ?"); values.push(input.cover_image); }
-    if (input.sort_order !== undefined) { fields.push("sort_order = ?"); values.push(input.sort_order); }
-    if (input.is_active !== undefined) { fields.push("is_active = ?"); values.push(input.is_active); }
+    if (input.slug !== undefined) {
+      fields.push("slug = ?");
+      values.push(input.slug.toLowerCase().trim());
+    }
+    if (input.name !== undefined) {
+      fields.push("name = ?");
+      values.push(input.name.trim());
+    }
+    if (input.description !== undefined) {
+      fields.push("description = ?");
+      values.push(input.description);
+    }
+    if (input.cover_image !== undefined) {
+      fields.push("cover_image = ?");
+      values.push(input.cover_image);
+    }
+    if (input.sort_order !== undefined) {
+      fields.push("sort_order = ?");
+      values.push(input.sort_order);
+    }
+    if (input.is_active !== undefined) {
+      fields.push("is_active = ?");
+      values.push(input.is_active);
+    }
 
     fields.push("updated_at = datetime('now')");
 
     if (fields.length > 1) {
       values.push(id);
-      db.prepare(`UPDATE collections SET ${fields.join(", ")} WHERE id = ?`).run(...values);
+      await db.execute(`UPDATE collections SET ${fields.join(", ")} WHERE id = ?`, values);
     }
 
     AuditRepo.log({
@@ -137,15 +156,15 @@ export const CollectionRepo = {
       details: { name: input.name || existing.name, isActive: input.is_active },
     });
 
-    return this.getCollectionById(id);
+    return await this.getCollectionById(id);
   },
 
-  deleteCollection(
+  async deleteCollection(
     id: number,
     adminEmail?: string,
     ipAddress?: string | null
-  ): { success: boolean; error?: string } {
-    const existing = this.getCollectionById(id);
+  ): Promise<{ success: boolean; error?: string }> {
+    const existing = await this.getCollectionById(id);
     if (!existing) return { success: false, error: "Category not found" };
 
     if (existing.product_count && existing.product_count > 0) {
@@ -155,7 +174,7 @@ export const CollectionRepo = {
       };
     }
 
-    const result = db.prepare("DELETE FROM collections WHERE id = ?").run(id);
+    const result = await db.execute("DELETE FROM collections WHERE id = ?", [id]);
 
     AuditRepo.log({
       action: "CATEGORY_DELETED",
@@ -169,13 +188,12 @@ export const CollectionRepo = {
     return { success: result.changes > 0 };
   },
 
-  reorderCollections(categoryIds: number[]): boolean {
-    const updateTx = db.transaction(() => {
-      categoryIds.forEach((id, index) => {
-        db.prepare("UPDATE collections SET sort_order = ? WHERE id = ?").run(index + 1, id);
-      });
-    });
-    updateTx();
+  async reorderCollections(categoryIds: number[]): Promise<boolean> {
+    const stmts = categoryIds.map((id, index) => ({
+      sql: "UPDATE collections SET sort_order = ? WHERE id = ?",
+      args: [index + 1, id],
+    }));
+    await db.batch(stmts);
     return true;
   },
 };

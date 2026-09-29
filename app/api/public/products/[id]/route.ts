@@ -12,8 +12,8 @@ export async function GET(
     const numericId = parseInt(rawId, 10);
 
     const product = !isNaN(numericId)
-      ? ProductRepo.getProductById(numericId)
-      : ProductRepo.getProductBySlug(rawId);
+      ? await ProductRepo.getProductById(numericId)
+      : await ProductRepo.getProductBySlug(rawId);
 
     if (!product || product.is_published !== 1) {
       return NextResponse.json({ error: "Product not found or not published" }, { status: 404 });

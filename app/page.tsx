@@ -1,9 +1,9 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Catalog } from "../lib/catalog";
+import { Catalog, Product } from "../lib/catalog";
 import { ProductCard } from "./components/ProductCard";
 import { GsapTextReveal } from "./components/motion/GsapTextReveal";
 import { RuleDraw } from "./components/motion/RuleDraw";
@@ -26,7 +26,21 @@ import {
 } from "lucide-react";
 
 export default function HomePage() {
-  const featuredProducts = Catalog.getFeaturedProducts(4);
+  const [featuredProducts, setFeaturedProducts] = useState<Product[]>(() => Catalog.getFeaturedProducts(4));
+
+  useEffect(() => {
+    fetch("/api/public/products?featured=1")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && Array.isArray(data.products)) {
+          const mapped = data.products
+            .map((p: any) => Catalog.mapDbProductToProduct(p))
+            .filter((p: any) => Boolean(p.mainImage));
+          setFeaturedProducts(mapped);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   return (
     <div className="w-full bg-[#FBF7F0]">

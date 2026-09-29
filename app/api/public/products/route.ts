@@ -25,7 +25,7 @@ export async function GET(request: Request) {
       offset,
     };
 
-    const result = ProductRepo.listProducts(filter);
+    const result = await ProductRepo.listProducts(filter);
     return NextResponse.json(result, {
       headers: {
         "Cache-Control": "public, s-maxage=60, stale-while-revalidate=120",

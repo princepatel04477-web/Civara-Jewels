@@ -92,18 +92,18 @@ export async function POST(request: Request) {
 
     let user: any = null;
     try {
-      user = UserRepo.findByEmail(email);
+      user = await UserRepo.findByEmail(email);
       if (!user) {
         if (isSellerMaster) {
           const passwordHash = await hashPassword(password);
-          user = UserRepo.upsertSeller({
+          user = await UserRepo.upsertSeller({
             email,
             passwordHash,
             name: "Civara Atelier Seller",
           });
         } else if (isVarunyaMaster || isCivaraMaster) {
           const passwordHash = await hashPassword(password);
-          user = UserRepo.upsertAdmin({
+          user = await UserRepo.upsertAdmin({
             email,
             passwordHash,
             name: isVarunyaMaster ? "Varunya Technologies Admin" : "Civara Master Admin",

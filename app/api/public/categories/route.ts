@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    const categories = CollectionRepo.listCollections({ activeOnly: true });
+    const categories = await CollectionRepo.listCollections({ activeOnly: true });
     return NextResponse.json({ categories }, {
       headers: {
         "Cache-Control": "public, s-maxage=120, stale-while-revalidate=300",

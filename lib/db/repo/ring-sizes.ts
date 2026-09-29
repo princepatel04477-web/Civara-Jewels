@@ -13,19 +13,21 @@ export interface DbRingSizeConfig {
 }
 
 export const RingSizesRepo = {
-  getConfig(): DbRingSizeConfig {
-    let row = db.prepare("SELECT * FROM ring_sizes WHERE is_active = 1 ORDER BY id DESC LIMIT 1").get() as
-      | DbRingSizeConfig
-      | undefined;
+  async getConfig(): Promise<DbRingSizeConfig> {
+    let row = await db.queryOne<DbRingSizeConfig>(
+      "SELECT * FROM ring_sizes WHERE is_active = 1 ORDER BY id DESC LIMIT 1"
+    );
 
     if (!row) {
       // Seed default config (3 to 15, step 0.5, SAME_PRICE, /images/Civaraa_Ring_size.png)
-      db.prepare(`
-        INSERT INTO ring_sizes (min_size, max_size, increment, pricing_mode, chart_image_url, is_active, updated_at)
-        VALUES (3.0, 15.0, 0.5, 'SAME_PRICE', '/images/Civaraa_Ring_size.png', 1, datetime('now'))
-      `).run();
+      await db.execute(
+        `INSERT INTO ring_sizes (min_size, max_size, increment, pricing_mode, chart_image_url, is_active, updated_at)
+         VALUES (3.0, 15.0, 0.5, 'SAME_PRICE', '/images/Civaraa_Ring_size.png', 1, datetime('now'))`
+      );
 
-      row = db.prepare("SELECT * FROM ring_sizes WHERE is_active = 1 ORDER BY id DESC LIMIT 1").get() as DbRingSizeConfig;
+      row = (await db.queryOne<DbRingSizeConfig>(
+        "SELECT * FROM ring_sizes WHERE is_active = 1 ORDER BY id DESC LIMIT 1"
+      ))!;
     }
 
     if (row && !row.chart_image_url) {
@@ -35,22 +37,21 @@ export const RingSizesRepo = {
     return row;
   },
 
-  generateSizeList(config?: DbRingSizeConfig): string[] {
-    const cfg = config || this.getConfig();
+  async generateSizeList(config?: DbRingSizeConfig): Promise<string[]> {
+    const cfg = config || (await this.getConfig());
     const sizes: string[] = [];
     const min = cfg.min_size || 3.0;
     const max = cfg.max_size || 15.0;
     const step = cfg.increment || 0.5;
 
     for (let s = min; s <= max + 0.0001; s += step) {
-      // Format cleanly: 3, 3.5, 4, 4.5
       const formatted = Number(s.toFixed(2)).toString();
       sizes.push(formatted);
     }
     return sizes;
   },
 
-  updateConfig(input: {
+  async updateConfig(input: {
     min_size: number;
     max_size: number;
     increment: number;
@@ -58,16 +59,20 @@ export const RingSizesRepo = {
     chart_image_url?: string | null;
     adminEmail?: string;
     ipAddress?: string | null;
-  }): DbRingSizeConfig {
-    const current = this.getConfig();
+  }): Promise<DbRingSizeConfig> {
+    const current = await this.getConfig();
     const pricingMode = input.pricing_mode || current.pricing_mode || "SAME_PRICE";
-    const chartImageUrl = input.chart_image_url !== undefined ? input.chart_image_url : (current.chart_image_url || "/images/Civaraa_Ring_size.png");
+    const chartImageUrl =
+      input.chart_image_url !== undefined
+        ? input.chart_image_url
+        : current.chart_image_url || "/images/Civaraa_Ring_size.png";
 
-    db.prepare(`
-      UPDATE ring_sizes 
-      SET min_size = ?, max_size = ?, increment = ?, pricing_mode = ?, chart_image_url = ?, updated_at = datetime('now')
-      WHERE id = ?
-    `).run(input.min_size, input.max_size, input.increment, pricingMode, chartImageUrl, current.id);
+    await db.execute(
+      `UPDATE ring_sizes 
+       SET min_size = ?, max_size = ?, increment = ?, pricing_mode = ?, chart_image_url = ?, updated_at = datetime('now')
+       WHERE id = ?`,
+      [input.min_size, input.max_size, input.increment, pricingMode, chartImageUrl, current.id]
+    );
 
     AuditRepo.log({
       action: "RING_SIZES_CONFIG_UPDATED",
@@ -75,9 +80,15 @@ export const RingSizesRepo = {
       entityId: current.id,
       adminEmail: input.adminEmail || "Admin",
       ipAddress: input.ipAddress || null,
-      details: { min_size: input.min_size, max_size: input.max_size, increment: input.increment, pricingMode, chartImageUrl },
+      details: {
+        min_size: input.min_size,
+        max_size: input.max_size,
+        increment: input.increment,
+        pricingMode,
+        chartImageUrl,
+      },
     });
 
-    return this.getConfig();
+    return await this.getConfig();
   },
 };

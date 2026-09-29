@@ -13,7 +13,7 @@ export async function GET(
     return NextResponse.json({ error: "Invalid category ID" }, { status: 400 });
   }
 
-  const collection = CollectionRepo.getCollectionById(id);
+  const collection = await CollectionRepo.getCollectionById(id);
   if (!collection) {
     return NextResponse.json({ error: "Category not found" }, { status: 404 });
   }
@@ -46,13 +46,13 @@ export async function PATCH(
     }
 
     if (parsed.data.slug) {
-      const existing = CollectionRepo.getCollectionBySlug(parsed.data.slug);
+      const existing = await CollectionRepo.getCollectionBySlug(parsed.data.slug);
       if (existing && existing.id !== id) {
         return NextResponse.json({ error: "A category with this slug already exists" }, { status: 400 });
       }
     }
 
-    const updated = CollectionRepo.updateCollection(id, parsed.data, adminEmail, ip);
+    const updated = await CollectionRepo.updateCollection(id, parsed.data, adminEmail, ip);
     if (!updated) {
       return NextResponse.json({ error: "Category not found" }, { status: 404 });
     }
@@ -76,7 +76,7 @@ export async function DELETE(
   const adminEmail = session.email || "Admin";
   const ip = getClientIP(request);
 
-  const res = CollectionRepo.deleteCollection(id, adminEmail, ip);
+  const res = await CollectionRepo.deleteCollection(id, adminEmail, ip);
   if (!res.success) {
     return NextResponse.json({ error: res.error || "Failed to delete category" }, { status: 400 });
   }

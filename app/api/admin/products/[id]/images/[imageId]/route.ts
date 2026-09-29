@@ -18,7 +18,7 @@ export async function DELETE(
   const adminEmail = session.email || "Admin";
   const ip = getClientIP(request);
 
-  const success = ProductRepo.removeProductImage(imageId, adminEmail, ip);
+  const success = await ProductRepo.removeProductImage(imageId, adminEmail, ip);
   if (!success) {
     return NextResponse.json({ error: "Image not found" }, { status: 404 });
   }
@@ -44,11 +44,11 @@ export async function PATCH(
   try {
     const body = await request.json().catch(() => ({}));
     if (body.alt !== undefined) {
-      db.prepare("UPDATE product_images SET alt = ? WHERE id = ? AND product_id = ?").run(body.alt, imageId, productId);
+      await db.execute("UPDATE product_images SET alt = ? WHERE id = ? AND product_id = ?", [body.alt, imageId, productId]);
     }
 
     if (body.is_primary === 1 || body.is_primary === true || body.setPrimary) {
-      ProductRepo.setPrimaryImage(productId, imageId);
+      await ProductRepo.setPrimaryImage(productId, imageId);
       AuditRepo.log({
         action: "IMAGE_SET_PRIMARY",
         entity: "ProductImage",
@@ -59,7 +59,8 @@ export async function PATCH(
       });
     }
 
-    return NextResponse.json({ success: true, images: ProductRepo.listProductImages(productId) });
+    const images = await ProductRepo.listProductImages(productId);
+    return NextResponse.json({ success: true, images });
   } catch (error: any) {
     return NextResponse.json({ error: error.message || "Failed to update image" }, { status: 500 });
   }

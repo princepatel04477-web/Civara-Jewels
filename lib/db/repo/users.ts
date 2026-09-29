@@ -10,76 +10,89 @@ export interface DbUser {
 }
 
 export const UserRepo = {
-  findByEmail(email: string): DbUser | null {
-    const row = db.prepare("SELECT * FROM users WHERE LOWER(email) = LOWER(?)").get(email.trim()) as DbUser | undefined;
-    return row || null;
+  async findByEmail(email: string): Promise<DbUser | null> {
+    return await db.queryOne<DbUser>(
+      "SELECT * FROM users WHERE LOWER(email) = LOWER(?)",
+      [email.trim()]
+    );
   },
 
-  findById(id: number): DbUser | null {
-    const row = db.prepare("SELECT * FROM users WHERE id = ?").get(id) as DbUser | undefined;
-    return row || null;
+  async findById(id: number): Promise<DbUser | null> {
+    return await db.queryOne<DbUser>("SELECT * FROM users WHERE id = ?", [id]);
   },
 
-  createUser(input: { email: string; passwordHash: string; name?: string | null; role?: string }): DbUser {
-    const stmt = db.prepare(`
-      INSERT INTO users (email, password_hash, name, role, created_at)
-      VALUES (LOWER(?), ?, ?, ?, datetime('now'))
-    `);
-    const result = stmt.run(
-      input.email.trim(),
-      input.passwordHash,
-      input.name ?? null,
-      input.role ?? "admin"
+  async createUser(input: {
+    email: string;
+    passwordHash: string;
+    name?: string | null;
+    role?: string;
+  }): Promise<DbUser> {
+    const result = await db.execute(
+      `INSERT INTO users (email, password_hash, name, role, created_at)
+       VALUES (LOWER(?), ?, ?, ?, datetime('now'))`,
+      [input.email.trim(), input.passwordHash, input.name ?? null, input.role ?? "admin"]
     );
 
-    return this.findById(Number(result.lastInsertRowid))!;
+    return (await this.findById(Number(result.lastInsertRowid)))!;
   },
 
-  upsertAdmin(input: { email: string; passwordHash: string; name?: string | null }): DbUser {
-    const existing = this.findByEmail(input.email);
+  async upsertAdmin(input: {
+    email: string;
+    passwordHash: string;
+    name?: string | null;
+  }): Promise<DbUser> {
+    const existing = await this.findByEmail(input.email);
     if (existing) {
-      db.prepare(`
-        UPDATE users 
-        SET password_hash = ?, name = COALESCE(?, name)
-        WHERE id = ?
-      `).run(input.passwordHash, input.name ?? null, existing.id);
-      return this.findById(existing.id)!;
+      await db.execute(
+        `UPDATE users 
+         SET password_hash = ?, name = COALESCE(?, name)
+         WHERE id = ?`,
+        [input.passwordHash, input.name ?? null, existing.id]
+      );
+      return (await this.findById(existing.id))!;
     } else {
-      return this.createUser(input);
+      return await this.createUser(input);
     }
   },
 
-  upsertSeller(input: { email: string; passwordHash: string; name?: string | null }): DbUser {
-    const existing = this.findByEmail(input.email);
+  async upsertSeller(input: {
+    email: string;
+    passwordHash: string;
+    name?: string | null;
+  }): Promise<DbUser> {
+    const existing = await this.findByEmail(input.email);
     if (existing) {
-      db.prepare(`
-        UPDATE users 
-        SET password_hash = ?, name = COALESCE(?, name), role = 'seller'
-        WHERE id = ?
-      `).run(input.passwordHash, input.name ?? null, existing.id);
-      return this.findById(existing.id)!;
+      await db.execute(
+        `UPDATE users 
+         SET password_hash = ?, name = COALESCE(?, name), role = 'seller'
+         WHERE id = ?`,
+        [input.passwordHash, input.name ?? null, existing.id]
+      );
+      return (await this.findById(existing.id))!;
     } else {
-      return this.createUser({ ...input, role: "seller" });
+      return await this.createUser({ ...input, role: "seller" });
     }
   },
 
-  listSellers(): Omit<DbUser, "password_hash">[] {
-    const rows = db.prepare("SELECT id, email, name, role, created_at FROM users WHERE role = 'seller' ORDER BY id ASC").all() as Omit<DbUser, "password_hash">[];
-    return rows;
+  async listSellers(): Promise<Omit<DbUser, "password_hash">[]> {
+    return await db.query<Omit<DbUser, "password_hash">>(
+      "SELECT id, email, name, role, created_at FROM users WHERE role = 'seller' ORDER BY id ASC"
+    );
   },
 
-  listAllUsers(): Omit<DbUser, "password_hash">[] {
-    const rows = db.prepare("SELECT id, email, name, role, created_at FROM users ORDER BY role ASC, id ASC").all() as Omit<DbUser, "password_hash">[];
-    return rows;
+  async listAllUsers(): Promise<Omit<DbUser, "password_hash">[]> {
+    return await db.query<Omit<DbUser, "password_hash">>(
+      "SELECT id, email, name, role, created_at FROM users ORDER BY role ASC, id ASC"
+    );
   },
 
-  deleteUser(id: number): boolean {
-    const res = db.prepare("DELETE FROM users WHERE id = ?").run(id);
+  async deleteUser(id: number): Promise<boolean> {
+    const res = await db.execute("DELETE FROM users WHERE id = ?", [id]);
     return res.changes > 0;
   },
 
-  countUsers(): number {
-    const row = db.prepare("SELECT COUNT(*) as c FROM users").get() as { c: number };
+  async countUsers(): Promise<number> {
+    const row = await db.queryOne<{ c: number }>("SELECT COUNT(*) as c FROM users");
     return row ? row.c : 0;
   },
 };

@@ -17,7 +17,7 @@ export async function POST(
     const adminEmail = session.email || "Admin";
     const ip = getClientIP(request);
 
-    const duplicated = ProductRepo.duplicateProduct(id, adminEmail, ip);
+    const duplicated = await ProductRepo.duplicateProduct(id, adminEmail, ip);
     if (!duplicated) {
       return NextResponse.json({ error: "Product not found to duplicate" }, { status: 404 });
     }

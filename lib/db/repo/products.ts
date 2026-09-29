@@ -1,7 +1,6 @@
 import db, { getDataDir } from "../client";
 import { CreateProductInput, UpdateProductInput } from "../schemas/product";
 import { AuditRepo } from "./audit";
-import { getDeletedSlugsSync, recordDeletedSlug } from "../cloud-sync";
 import fs from "fs";
 import path from "path";
 
@@ -67,7 +66,7 @@ export interface ListProductsFilter {
 }
 
 export const ProductRepo = {
-  listProducts(filter: ListProductsFilter = {}): { products: DbProduct[]; total: number } {
+  async listProducts(filter: ListProductsFilter = {}): Promise<{ products: DbProduct[]; total: number }> {
     const whereClauses: string[] = [];
     const params: any[] = [];
 
@@ -112,24 +111,15 @@ export const ProductRepo = {
       params.push(term, term, term, term);
     }
 
-    // Exclude permanently deleted products synchronized with cloud
-    const deletedSlugs = getDeletedSlugsSync();
-    if (deletedSlugs.size > 0) {
-      const slugsArray = Array.from(deletedSlugs);
-      const placeholders = slugsArray.map(() => "?").join(",");
-      whereClauses.push(`LOWER(p.slug) NOT IN (${placeholders})`);
-      params.push(...slugsArray);
-    }
-
     const whereSql = whereClauses.length > 0 ? `WHERE ${whereClauses.join(" AND ")}` : "";
 
     // Total count
-    const countRow = db.prepare(`
+    const countRow = await db.queryOne<{ count: number }>(`
       SELECT COUNT(*) as count 
       FROM products p 
       LEFT JOIN collections c ON p.collection_id = c.id
       ${whereSql}
-    `).get(...params) as { count: number };
+    `, params);
     const total = countRow ? countRow.count : 0;
 
     // Sorting
@@ -141,7 +131,6 @@ export const ProductRepo = {
     else if (filter.sortBy === "name-asc") orderSql = "ORDER BY p.name ASC";
     else if (filter.sortBy === "name-desc") orderSql = "ORDER BY p.name DESC";
 
-    // Fetch products
     let query = `
       SELECT 
         p.*, 
@@ -159,27 +148,28 @@ export const ProductRepo = {
       ${orderSql}
     `;
 
+    const queryParams = [...params];
     if (filter.limit !== undefined) {
       query += ` LIMIT ?`;
-      params.push(filter.limit);
+      queryParams.push(filter.limit);
       if (filter.offset !== undefined) {
         query += ` OFFSET ?`;
-        params.push(filter.offset);
+        queryParams.push(filter.offset);
       }
     }
 
-    const rows = db.prepare(query).all(...params) as DbProduct[];
+    const rows = await db.query<DbProduct>(query, queryParams);
 
     // Hydrate image galleries
     for (const r of rows) {
-      r.images = this.listProductImages(r.id);
+      r.images = await this.listProductImages(r.id);
     }
 
     return { products: rows, total };
   },
 
-  getProductById(id: number): DbProduct | null {
-    const row = db.prepare(`
+  async getProductById(id: number): Promise<DbProduct | null> {
+    const row = await db.queryOne<DbProduct>(`
       SELECT 
         p.*, 
         c.name as collection_name,
@@ -187,43 +177,39 @@ export const ProductRepo = {
       FROM products p
       LEFT JOIN collections c ON p.collection_id = c.id
       WHERE p.id = ?
-    `).get(id) as DbProduct | undefined;
+    `, [id]);
 
     if (!row) return null;
-    if (getDeletedSlugsSync().has(row.slug.toLowerCase().trim())) return null;
-
-    row.images = this.listProductImages(id);
+    row.images = await this.listProductImages(id);
     row.primary_image = row.images.find((img) => img.is_primary === 1)?.path || row.images[0]?.path;
     return row;
   },
 
-  getProductBySlug(slug: string): DbProduct | null {
-    if (getDeletedSlugsSync().has(slug.toLowerCase().trim())) return null;
-
-    const row = db.prepare(`
+  async getProductBySlug(slug: string): Promise<DbProduct | null> {
+    const row = await db.queryOne<DbProduct>(`
       SELECT 
         p.*, 
         c.name as collection_name,
         c.slug as collection_slug
       FROM products p
       LEFT JOIN collections c ON p.collection_id = c.id
-      WHERE p.slug = ?
-    `).get(slug) as DbProduct | undefined;
+      WHERE LOWER(p.slug) = LOWER(?)
+    `, [slug.trim()]);
 
     if (!row) return null;
-    row.images = this.listProductImages(row.id);
+    row.images = await this.listProductImages(row.id);
     row.primary_image = row.images.find((img) => img.is_primary === 1)?.path || row.images[0]?.path;
     return row;
   },
 
-  createProduct(input: CreateProductInput, adminEmail?: string, ipAddress?: string | null): DbProduct {
+  async createProduct(input: CreateProductInput, adminEmail?: string, ipAddress?: string | null): Promise<DbProduct> {
     const sizes = Array.isArray(input.available_sizes)
       ? JSON.stringify(input.available_sizes)
       : input.available_sizes || null;
 
     const sku = input.sku?.trim() || `CIV-${(input.slug || "DES").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 10)}`;
 
-    const stmt = db.prepare(`
+    const result = await db.execute(`
       INSERT INTO products (
         slug, sku, name, collection_id, description, short_description, lab_grown_description, price_inr, sale_price_inr, pricing_mode,
         metal, purity, metal_weight_g, stone_type, stone_weight_ct, diamond_carat, diamond_clarity, diamond_colour,
@@ -235,9 +221,7 @@ export const ProductRepo = {
         ?, ?, ?, ?, ?, ?, ?,
         ?, ?, ?, datetime('now'), datetime('now')
       )
-    `);
-
-    const result = stmt.run(
+    `, [
       input.slug,
       sku,
       input.name,
@@ -265,8 +249,8 @@ export const ProductRepo = {
       input.stock_status ?? "made-to-order",
       input.is_featured ?? 0,
       input.is_published ?? 0,
-      input.sort_order ?? 0
-    );
+      input.sort_order ?? 0,
+    ]);
 
     const newId = Number(result.lastInsertRowid);
 
@@ -279,16 +263,16 @@ export const ProductRepo = {
       details: { name: input.name, slug: input.slug, priceINR: input.price_inr / 100 },
     });
 
-    return this.getProductById(newId)!;
+    return (await this.getProductById(newId))!;
   },
 
-  updateProduct(
+  async updateProduct(
     id: number,
     input: UpdateProductInput,
     adminEmail?: string,
     ipAddress?: string | null
-  ): DbProduct | null {
-    const existing = this.getProductById(id);
+  ): Promise<DbProduct | null> {
+    const existing = await this.getProductById(id);
     if (!existing) return null;
 
     const fields: string[] = [];
@@ -333,7 +317,7 @@ export const ProductRepo = {
 
     if (fields.length > 1) {
       values.push(id);
-      db.prepare(`UPDATE products SET ${fields.join(", ")} WHERE id = ?`).run(...values);
+      await db.execute(`UPDATE products SET ${fields.join(", ")} WHERE id = ?`, values);
     }
 
     AuditRepo.log({
@@ -350,18 +334,18 @@ export const ProductRepo = {
       },
     });
 
-    return this.getProductById(id);
+    return await this.getProductById(id);
   },
 
-  duplicateProduct(id: number, adminEmail?: string, ipAddress?: string | null): DbProduct | null {
-    const orig = this.getProductById(id);
+  async duplicateProduct(id: number, adminEmail?: string, ipAddress?: string | null): Promise<DbProduct | null> {
+    const orig = await this.getProductById(id);
     if (!orig) return null;
 
     const newSlug = `${orig.slug}-copy-${Date.now().toString().slice(-4)}`;
     const newName = `${orig.name} (Copy)`;
     const newSku = orig.sku ? `${orig.sku}-C` : `CIV-CPY-${Date.now().toString().slice(-4)}`;
 
-    const newProduct = this.createProduct(
+    const newProduct = await this.createProduct(
       {
         slug: newSlug,
         sku: newSku,
@@ -388,7 +372,7 @@ export const ProductRepo = {
         stock_quantity: orig.stock_quantity,
         stock_status: orig.stock_status as any,
         is_featured: 0,
-        is_published: 0, // start as draft
+        is_published: 0,
         sort_order: (orig.sort_order || 0) + 1,
       },
       adminEmail,
@@ -398,7 +382,7 @@ export const ProductRepo = {
     // Clone images
     if (orig.images && orig.images.length > 0) {
       for (const img of orig.images) {
-        this.addProductImage(newProduct.id, img.path, img.alt, img.is_primary, img.sort_order);
+        await this.addProductImage(newProduct.id, img.path, img.alt, img.is_primary, img.sort_order);
       }
     }
 
@@ -411,41 +395,35 @@ export const ProductRepo = {
       details: { originalId: id, newId: newProduct.id, name: newName },
     });
 
-    return this.getProductById(newProduct.id);
+    return await this.getProductById(newProduct.id);
   },
 
-  deleteProduct(idOrSlug: number | string, adminEmail?: string, ipAddress?: string | null): boolean {
+  async deleteProduct(idOrSlug: number | string, adminEmail?: string, ipAddress?: string | null): Promise<boolean> {
     let existingRow: any = null;
     if (typeof idOrSlug === "number") {
-      existingRow = db.prepare("SELECT * FROM products WHERE id = ?").get(idOrSlug);
+      existingRow = await db.queryOne("SELECT * FROM products WHERE id = ?", [idOrSlug]);
     } else {
       const str = String(idOrSlug).trim();
       if (/^\d+$/.test(str)) {
-        existingRow = db.prepare("SELECT * FROM products WHERE id = ?").get(parseInt(str, 10));
+        existingRow = await db.queryOne("SELECT * FROM products WHERE id = ?", [parseInt(str, 10)]);
       }
       if (!existingRow) {
-        existingRow = db.prepare("SELECT * FROM products WHERE LOWER(slug) = ?").get(str.toLowerCase());
+        existingRow = await db.queryOne("SELECT * FROM products WHERE LOWER(slug) = LOWER(?)", [str]);
       }
     }
 
     if (!existingRow) {
-      if (typeof idOrSlug === "string" && !/^\d+$/.test(idOrSlug)) {
-        recordDeletedSlug(idOrSlug).catch(() => {});
-      }
       return false;
     }
 
     const targetId = existingRow.id;
-    const images = this.listProductImages(targetId);
+    const images = await this.listProductImages(targetId);
 
-    const deleteTx = db.transaction(() => {
-      // Explicitly delete child image records first to ensure foreign key safety
-      db.prepare("DELETE FROM product_images WHERE product_id = ?").run(targetId);
-      const res = db.prepare("DELETE FROM products WHERE id = ?").run(targetId);
-      return res.changes > 0;
-    });
-
-    const success = deleteTx();
+    // Atomic batch delete for foreign key safety
+    await db.batch([
+      { sql: "DELETE FROM product_images WHERE product_id = ?", args: [targetId] },
+      { sql: "DELETE FROM products WHERE id = ?", args: [targetId] },
+    ]);
 
     // Clean up local uploaded files if in /uploads/
     for (const img of images) {
@@ -470,56 +448,50 @@ export const ProductRepo = {
       details: { name: existingRow.name, slug: existingRow.slug },
     });
 
-    // Persist deleted slug to Vercel Blob cloud store so it never returns on cold start or refresh
-    recordDeletedSlug(existingRow.slug).catch((err) => {
-      console.error("[CloudSync] Error persisting deleted slug:", err);
-    });
-
-    return success;
+    return true;
   },
 
-  listProductImages(productId: number): DbProductImage[] {
-    return db.prepare(`
+  async listProductImages(productId: number): Promise<DbProductImage[]> {
+    return await db.query<DbProductImage>(`
       SELECT * FROM product_images 
       WHERE product_id = ? 
       ORDER BY is_primary DESC, sort_order ASC, id ASC
-    `).all(productId) as DbProductImage[];
+    `, [productId]);
   },
 
-  addProductImage(
+  async addProductImage(
     productId: number,
     path: string,
     alt: string | null = null,
     isPrimary: number = 0,
     sortOrder: number = 0
-  ): DbProductImage {
+  ): Promise<DbProductImage> {
     if (isPrimary === 1) {
-      db.prepare("UPDATE product_images SET is_primary = 0 WHERE product_id = ?").run(productId);
+      await db.execute("UPDATE product_images SET is_primary = 0 WHERE product_id = ?", [productId]);
     } else {
-      const count = db.prepare("SELECT COUNT(*) as c FROM product_images WHERE product_id = ?").get(productId) as { c: number };
-      if (count.c === 0) {
+      const count = await db.queryOne<{ c: number }>("SELECT COUNT(*) as c FROM product_images WHERE product_id = ?", [productId]);
+      if (!count || count.c === 0) {
         isPrimary = 1;
       }
     }
 
-    const stmt = db.prepare(`
+    const result = await db.execute(`
       INSERT INTO product_images (product_id, path, alt, is_primary, sort_order)
       VALUES (?, ?, ?, ?, ?)
-    `);
-    const result = stmt.run(productId, path, alt, isPrimary, sortOrder);
+    `, [productId, path, alt, isPrimary, sortOrder]);
 
-    return db.prepare("SELECT * FROM product_images WHERE id = ?").get(result.lastInsertRowid) as DbProductImage;
+    const newImgId = Number(result.lastInsertRowid);
+    return (await db.queryOne<DbProductImage>("SELECT * FROM product_images WHERE id = ?", [newImgId]))!;
   },
 
-  removeProductImage(imageId: number, adminEmail?: string, ipAddress?: string | null): boolean {
-    const img = db.prepare("SELECT * FROM product_images WHERE id = ?").get(imageId) as DbProductImage | undefined;
+  async removeProductImage(imageId: number, adminEmail?: string, ipAddress?: string | null): Promise<boolean> {
+    const img = await db.queryOne<DbProductImage>("SELECT * FROM product_images WHERE id = ?", [imageId]);
     if (!img) return false;
 
-    const result = db.prepare("DELETE FROM product_images WHERE id = ?").run(imageId);
+    const result = await db.execute("DELETE FROM product_images WHERE id = ?", [imageId]);
 
-    // If was primary, promote next available image
     if (img.is_primary === 1) {
-      db.prepare(`
+      await db.execute(`
         UPDATE product_images 
         SET is_primary = 1 
         WHERE id = (
@@ -528,10 +500,9 @@ export const ProductRepo = {
           ORDER BY sort_order ASC, id ASC 
           LIMIT 1
         )
-      `).run(img.product_id);
+      `, [img.product_id]);
     }
 
-    // Clean up file if local
     if (img.path && img.path.startsWith("/uploads/")) {
       const filePath = path.join(getDataDir(), img.path.replace(/^\//, ""));
       if (fs.existsSync(filePath)) {
@@ -555,22 +526,20 @@ export const ProductRepo = {
     return result.changes > 0;
   },
 
-  setPrimaryImage(productId: number, imageId: number): boolean {
-    const updateTx = db.transaction(() => {
-      db.prepare("UPDATE product_images SET is_primary = 0 WHERE product_id = ?").run(productId);
-      db.prepare("UPDATE product_images SET is_primary = 1 WHERE id = ? AND product_id = ?").run(imageId, productId);
-    });
-    updateTx();
+  async setPrimaryImage(productId: number, imageId: number): Promise<boolean> {
+    await db.batch([
+      { sql: "UPDATE product_images SET is_primary = 0 WHERE product_id = ?", args: [productId] },
+      { sql: "UPDATE product_images SET is_primary = 1 WHERE id = ? AND product_id = ?", args: [imageId, productId] },
+    ]);
     return true;
   },
 
-  reorderImages(productId: number, imageIds: number[]): boolean {
-    const updateTx = db.transaction(() => {
-      imageIds.forEach((id, index) => {
-        db.prepare("UPDATE product_images SET sort_order = ? WHERE id = ? AND product_id = ?").run(index, id, productId);
-      });
-    });
-    updateTx();
+  async reorderImages(productId: number, imageIds: number[]): Promise<boolean> {
+    const stmts = imageIds.map((id, index) => ({
+      sql: "UPDATE product_images SET sort_order = ? WHERE id = ? AND product_id = ?",
+      args: [index, id, productId],
+    }));
+    await db.batch(stmts);
     return true;
   },
 };

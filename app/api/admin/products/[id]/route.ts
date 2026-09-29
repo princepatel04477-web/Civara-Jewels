@@ -15,8 +15,8 @@ export async function GET(
   const rawId = params.id;
   const numId = parseInt(rawId, 10);
   const product = !isNaN(numId)
-    ? ProductRepo.getProductById(numId)
-    : ProductRepo.getProductBySlug(rawId);
+    ? await ProductRepo.getProductById(numId)
+    : await ProductRepo.getProductBySlug(rawId);
 
   if (!product) {
     return NextResponse.json({ error: "Product not found" }, { status: 404 });
@@ -32,8 +32,8 @@ export async function PATCH(
   const rawId = params.id;
   const numId = parseInt(rawId, 10);
   const existingProduct = !isNaN(numId)
-    ? ProductRepo.getProductById(numId)
-    : ProductRepo.getProductBySlug(rawId);
+    ? await ProductRepo.getProductById(numId)
+    : await ProductRepo.getProductBySlug(rawId);
 
   if (!existingProduct) {
     return NextResponse.json({ error: "Product not found" }, { status: 404 });
@@ -56,13 +56,13 @@ export async function PATCH(
     }
 
     if (parsed.data.slug) {
-      const existing = ProductRepo.getProductBySlug(parsed.data.slug);
+      const existing = await ProductRepo.getProductBySlug(parsed.data.slug);
       if (existing && existing.id !== id) {
         return NextResponse.json({ error: "A product with this slug already exists" }, { status: 400 });
       }
     }
 
-    const updated = ProductRepo.updateProduct(id, parsed.data, adminEmail, ip);
+    const updated = await ProductRepo.updateProduct(id, parsed.data, adminEmail, ip);
     if (!updated) {
       return NextResponse.json({ error: "Product not found" }, { status: 404 });
     }
@@ -94,16 +94,7 @@ export async function DELETE(
     const adminEmail = session.email || "Admin";
     const ip = getClientIP(request);
 
-    // Warm the deleted-slugs cache from Vercel Blob before running deletion
-    // so the in-memory cache is current on this lambda instance
-    try {
-      const { getDeletedSlugs } = await import("@/lib/db/cloud-sync");
-      await getDeletedSlugs();
-    } catch {
-      // non-fatal
-    }
-
-    const success = ProductRepo.deleteProduct(rawId, adminEmail, ip);
+    const success = await ProductRepo.deleteProduct(rawId, adminEmail, ip);
     if (!success) {
       return NextResponse.json({ error: "Product not found or already deleted" }, { status: 404 });
     }

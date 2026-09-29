@@ -20,34 +20,33 @@ export const AuditRepo = {
     ipAddress?: string | null;
     details?: string | Record<string, any> | null;
   }): void {
-    try {
-      const detailsStr =
-        typeof params.details === "object" && params.details !== null
-          ? JSON.stringify(params.details)
-          : params.details || null;
+    const detailsStr =
+      typeof params.details === "object" && params.details !== null
+        ? JSON.stringify(params.details)
+        : params.details || null;
 
-      const entityIdStr = params.entityId !== undefined && params.entityId !== null ? String(params.entityId) : null;
+    const entityIdStr = params.entityId !== undefined && params.entityId !== null ? String(params.entityId) : null;
 
-      db.prepare(`
-        INSERT INTO audit_logs (action, entity, entity_id, admin_email, ip_address, details, timestamp)
-        VALUES (?, ?, ?, ?, ?, ?, datetime('now'))
-      `).run(
+    db.execute(
+      `INSERT INTO audit_logs (action, entity, entity_id, admin_email, ip_address, details, timestamp)
+       VALUES (?, ?, ?, ?, ?, ?, datetime('now'))`,
+      [
         params.action,
         params.entity,
         entityIdStr,
         params.adminEmail || "System",
         params.ipAddress || null,
-        detailsStr
-      );
-    } catch (err) {
+        detailsStr,
+      ]
+    ).catch((err) => {
       console.error("[AuditLog Error]", err);
-    }
+    });
   },
 
-  listLogs(options: { limit?: number; offset?: number; entity?: string; action?: string } = {}): {
+  async listLogs(options: { limit?: number; offset?: number; entity?: string; action?: string } = {}): Promise<{
     logs: AuditLogEntry[];
     total: number;
-  } {
+  }> {
     const limit = options.limit || 50;
     const offset = options.offset || 0;
     const whereClauses: string[] = [];
@@ -64,17 +63,19 @@ export const AuditRepo = {
 
     const whereSql = whereClauses.length > 0 ? `WHERE ${whereClauses.join(" AND ")}` : "";
 
-    const countRow = db.prepare(`SELECT COUNT(*) as count FROM audit_logs ${whereSql}`).get(...params) as {
-      count: number;
-    };
+    const countRow = await db.queryOne<{ count: number }>(
+      `SELECT COUNT(*) as count FROM audit_logs ${whereSql}`,
+      params
+    );
     const total = countRow ? countRow.count : 0;
 
-    const rows = db.prepare(`
-      SELECT * FROM audit_logs 
-      ${whereSql}
-      ORDER BY id DESC
-      LIMIT ? OFFSET ?
-    `).all(...params, limit, offset) as AuditLogEntry[];
+    const rows = await db.query<AuditLogEntry>(
+      `SELECT * FROM audit_logs 
+       ${whereSql}
+       ORDER BY id DESC
+       LIMIT ? OFFSET ?`,
+      [...params, limit, offset]
+    );
 
     return { logs: rows, total };
   },

@@ -8,13 +8,13 @@ import path from "path";
 import crypto from "crypto";
 import { getUploadsDir } from "@/lib/db/client";
 
-function resolveProduct(idOrSlug: string) {
+async function resolveProduct(idOrSlug: string) {
   const numericId = parseInt(idOrSlug, 10);
   if (!isNaN(numericId)) {
-    const p = ProductRepo.getProductById(numericId);
+    const p = await ProductRepo.getProductById(numericId);
     if (p) return p;
   }
-  return ProductRepo.getProductBySlug(idOrSlug);
+  return await ProductRepo.getProductBySlug(idOrSlug);
 }
 
 function saveBufferToUploads(filename: string, buffer: Buffer): string {
@@ -50,12 +50,12 @@ export async function GET(
   request: Request,
   { params }: { params: { id: string } }
 ) {
-  const product = resolveProduct(params.id);
+  const product = await resolveProduct(params.id);
   if (!product) {
     return NextResponse.json({ error: "Product not found" }, { status: 404 });
   }
 
-  const images = ProductRepo.listProductImages(product.id);
+  const images = await ProductRepo.listProductImages(product.id);
   return NextResponse.json({ images });
 }
 
@@ -63,7 +63,7 @@ export async function POST(
   request: Request,
   { params }: { params: { id: string } }
 ) {
-  const product = resolveProduct(params.id);
+  const product = await resolveProduct(params.id);
   if (!product) {
     return NextResponse.json({ error: "Product not found" }, { status: 404 });
   }
@@ -75,7 +75,7 @@ export async function POST(
 
   try {
     const contentType = request.headers.get("content-type") || "";
-    const currentImages = ProductRepo.listProductImages(productId);
+    const currentImages = await ProductRepo.listProductImages(productId);
     const existingCount = currentImages.length;
     const savedImages = [];
 
@@ -104,7 +104,6 @@ export async function POST(
             try {
               imagePath = saveBufferToUploads(filename, buffer);
             } catch {
-              // fallback to storing dataUrl directly if disk write is constrained
               imagePath = item.dataUrl;
             }
           }
@@ -114,7 +113,7 @@ export async function POST(
           const isPrimary = existingCount === 0 && i === 0 ? 1 : 0;
           const sortOrder = existingCount + i;
           const alt = item.alt || `${product.name} — View ${existingCount + i + 1}`;
-          const newImg = ProductRepo.addProductImage(productId, imagePath, alt, isPrimary, sortOrder);
+          const newImg = await ProductRepo.addProductImage(productId, imagePath, alt, isPrimary, sortOrder);
           savedImages.push(newImg);
         }
       }
@@ -123,7 +122,6 @@ export async function POST(
       const formData = await request.formData();
       const files: File[] = [];
 
-      // Extract all file fields regardless of input naming
       for (const [, value] of formData.entries()) {
         if (value && typeof value === "object" && "arrayBuffer" in value && (value as File).size > 0) {
           files.push(value as File);
@@ -149,7 +147,6 @@ export async function POST(
         let outputBuffer: Buffer = buffer;
         let finalExt = ext;
 
-        // Try sharp optimization if available, otherwise preserve raw buffer
         try {
           const sharpModule = await import("sharp");
           const sharp = sharpModule.default || sharpModule;
@@ -167,7 +164,6 @@ export async function POST(
             .toBuffer();
           finalExt = ".webp";
         } catch {
-          // Keep raw outputBuffer and original extension
           outputBuffer = buffer;
           finalExt = ext;
         }
@@ -187,7 +183,7 @@ export async function POST(
         const sortOrder = existingCount + i;
         const alt = `${product.name} — View ${existingCount + i + 1}`;
 
-        const newImage = ProductRepo.addProductImage(productId, relativeWebPath, alt, isPrimary, sortOrder);
+        const newImage = await ProductRepo.addProductImage(productId, relativeWebPath, alt, isPrimary, sortOrder);
         savedImages.push(newImage);
       }
     }
@@ -205,10 +201,11 @@ export async function POST(
       // non-blocking
     }
 
+    const updatedImages = await ProductRepo.listProductImages(productId);
     return NextResponse.json(
       {
         success: true,
-        images: ProductRepo.listProductImages(productId),
+        images: updatedImages,
         uploadedCount: savedImages.length,
       },
       { status: 201 }
@@ -224,7 +221,7 @@ export async function PUT(
   request: Request,
   { params }: { params: { id: string } }
 ) {
-  const product = resolveProduct(params.id);
+  const product = await resolveProduct(params.id);
   if (!product) {
     return NextResponse.json({ error: "Product not found" }, { status: 404 });
   }
@@ -242,7 +239,7 @@ export async function PUT(
       return NextResponse.json({ error: "imageIds must be an array of image IDs" }, { status: 400 });
     }
 
-    ProductRepo.reorderImages(productId, imageIds);
+    await ProductRepo.reorderImages(productId, imageIds);
 
     try {
       AuditRepo.log({
@@ -257,9 +254,9 @@ export async function PUT(
       // non-blocking
     }
 
-    return NextResponse.json({ success: true, images: ProductRepo.listProductImages(productId) });
+    const images = await ProductRepo.listProductImages(productId);
+    return NextResponse.json({ success: true, images });
   } catch (error: any) {
     return NextResponse.json({ error: error.message || "Failed to reorder images" }, { status: 500 });
   }
 }
-

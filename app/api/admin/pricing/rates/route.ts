@@ -14,7 +14,7 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const activeOnly = searchParams.get("active") === "true";
-    const rates = MetalRatesRepo.listRates(activeOnly);
+    const rates = await MetalRatesRepo.listRates(activeOnly);
     return NextResponse.json({ rates });
   } catch (error: any) {
     return NextResponse.json({ error: error.message || "Failed to fetch metal rates" }, { status: 500 });
@@ -37,7 +37,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const created = MetalRatesRepo.createRate({
+    const created = await MetalRatesRepo.createRate({
       metal: parsed.data.metal,
       purity: parsed.data.purity,
       rate_inr: parsed.data.rate_inr,

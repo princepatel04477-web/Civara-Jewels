@@ -149,326 +149,7 @@ export class Catalog {
     },
   };
 
-  static products: Product[] = [
-    {
-      id: "aurelia-pave-solitaire-diamond-ring",
-      name: "Aurelia Pavé Solitaire Diamond Ring",
-      category: "rings",
-      categoryName: "Rings",
-      priceINR: 185000,
-      tagline: "A radiant solitaire perched above a delicate micropavé diamond band.",
-      description: "Handcrafted in luminous gold, this exquisite ring features a brilliant center diamond secured in an elevated four-prong basket, beautifully enhanced by shimmering French micropavé diamonds along the shank. Designed with timeless elegance and meticulous craftsmanship, it serves as a stunning engagement ring or refined luxury statement.",
-      metalOptions: STANDARD_METAL_OPTIONS,
-      sizeType: "ring",
-      sizeOptions: STANDARD_RING_SIZES,
-      stoneType: "Natural Diamond",
-      netWeightG: 3.40,
-      hallmark: "BIS Hallmarked (750 / 667 / 585 / 417)",
-      imagePlaceholder: "Aurelia Pavé Solitaire Diamond Ring — hero view",
-      mainImage: "/images/products/aurelia/aurelia-1.jpg",
-      altImage: "/images/products/aurelia/aurelia-2.jpg",
-      thumbnails: [
-        "/images/products/aurelia/aurelia-1.jpg",
-        "/images/products/aurelia/aurelia-2.jpg",
-        "/images/products/aurelia/aurelia-3.jpg",
-        "/images/products/aurelia/aurelia-4.jpg",
-        "/images/products/aurelia/aurelia-5.jpg",
-        "/images/products/aurelia/aurelia-6.jpg"
-      ],
-      details: {
-        materials: "Handcrafted in hallmarked gold with 3.40g net metal weight. Features a 1.25 CT VS1 / G-H brilliant diamond center stone with French micropavé diamond accents.",
-        craft: "Individually set by a master lapidary artisan over 2–3 weeks. Includes complimentary insured shipping across India.",
-        care: "Complimentary annual inspection, prong tightening, ultrasonic cleaning, and one complimentary resizing within the first year."
-      }
-    },
-    {
-      id: "elara-solitaire",
-      name: "Elara Solitaire Ring",
-      category: "rings",
-      categoryName: "Rings",
-      priceINR: 84500,
-      tagline: "The Solitaire Edit",
-      description: "A single certified stone, hand-set in hallmarked gold. The Elara is cut to catch the room rather than the camera — a quiet claw setting that lets light do the work.",
-      metalOptions: STANDARD_METAL_OPTIONS,
-      sizeType: "ring",
-      sizeOptions: STANDARD_RING_SIZES,
-      stoneType: "Natural Diamond",
-      imagePlaceholder: "Elara solitaire — hero shot",
-      mainImage: "/images/elara-solitaire-main.jpg",
-      altImage: "/images/home-cc/Rings-cc.png",
-      thumbnails: [
-        "/images/elara-solitaire-main.jpg",
-        "/images/home-cc/Rings-cc.png",
-        "/images/home-m-cc/Rings-m.png",
-        "/images/vela-pendant.jpg"
-      ],
-      details: {
-        materials: "Hallmarked gold. Centre stone certified by GIA/IGI, ethically sourced. Ships with certificate of authenticity.",
-        craft: "Hand-finished to order by a single master goldsmith over 2–3 weeks. Complimentary insured delivery across India.",
-        care: "Complimentary lifetime cleaning and inspection. One free resizing within the first year.",
-      },
-    },
-    {
-      id: "nira-stacking-band",
-      name: "Nira Stacking Band",
-      category: "rings",
-      categoryName: "Rings",
-      priceINR: 38400,
-      tagline: "The Sculpted Band Edit",
-      description: "A solid gold band featuring a gentle wave texture inspired by water ripples. Designed for solo wear or effortless stacking.",
-      metalOptions: STANDARD_METAL_OPTIONS,
-      sizeType: "ring",
-      sizeOptions: STANDARD_RING_SIZES,
-      stoneType: "Gold Only",
-      imagePlaceholder: "Nira sculpted stacking band",
-      mainImage: "/images/home-cc/Rings-cc.png",
-      altImage: "/images/home-m-cc/Rings-m.png",
-      thumbnails: ["/images/home-cc/Rings-cc.png", "/images/home-m-cc/Rings-m.png"],
-      details: {
-        materials: "Solid hallmarked gold with satined interior for comfort.",
-        craft: "Crafted in 10 business days by our master bench goldsmiths.",
-        care: "Resistant to daily wear; polish lightly with a soft chamois cloth.",
-      },
-    },
-    {
-      id: "aethel-emerald-ring",
-      name: "Aethel Emerald Cut Solitaire",
-      category: "rings",
-      categoryName: "Rings",
-      priceINR: 112000,
-      tagline: "The High Solitaire Edit",
-      description: "An architectonic emerald-cut diamond in a bezel setting. Bold yet understated geometry in fine gold.",
-      metalOptions: STANDARD_METAL_OPTIONS,
-      sizeType: "ring",
-      sizeOptions: STANDARD_RING_SIZES,
-      stoneType: "Natural Emerald Cut Diamond",
-      imagePlaceholder: "Aethel emerald cut ring",
-      mainImage: "/images/home-cc/Rings-cc.png",
-      altImage: "/images/elara-solitaire-main.jpg",
-      thumbnails: ["/images/home-cc/Rings-cc.png", "/images/elara-solitaire-main.jpg"],
-      details: {
-        materials: "Hallmarked gold with 1.2ct VVS GIA certified emerald cut diamond.",
-        craft: "Custom claw-less bezel setting requiring 3 weeks of master lapidary work.",
-        care: "Lifetime warrantied against stone movement; free annual checkup.",
-      },
-    },
-    {
-      id: "celeste-diamond-tennis-necklace",
-      name: "Celeste Diamond Tennis Necklace",
-      category: "necklaces",
-      categoryName: "Necklaces",
-      priceINR: 195000,
-      tagline: "The Riviera Edit",
-      description: "A continuous line of 84 claw-set brilliant diamonds floating seamlessly along the collarbone.",
-      metalOptions: STANDARD_METAL_OPTIONS,
-      sizeType: "chain",
-      sizeOptions: ["16 inch", "18 inch"],
-      stoneType: "Natural Round Diamonds",
-      imagePlaceholder: "Celeste diamond tennis necklace on collarbone",
-      mainImage: "/images/home-cc/Necklaces-cc.png",
-      altImage: "/images/home-m-cc/Necklaces-m.png",
-      thumbnails: ["/images/home-cc/Necklaces-cc.png", "/images/home-m-cc/Necklaces-m.png"],
-      details: {
-        materials: "Hallmarked gold with 4.5ct total weight certified diamonds.",
-        craft: "Articulated link assembly for maximum flexibility and liquid drape.",
-        care: "Store flat in velvet-lined box; clean with soft brush and warm water.",
-      },
-    },
-    {
-      id: "lyra-gold-choker",
-      name: "Lyra Sculptural Gold Collar",
-      category: "necklaces",
-      categoryName: "Necklaces",
-      priceINR: 128500,
-      tagline: "The Statement Edit",
-      description: "A hand-hammered gold collar choker that catches ambient light with soft luster. Fluid spring hinge opening.",
-      metalOptions: STANDARD_METAL_OPTIONS,
-      sizeType: "none",
-      stoneType: "Solid Gold",
-      imagePlaceholder: "Lyra gold collar choker on bust",
-      mainImage: "/images/home-cc/Necklaces-cc.png",
-      altImage: "/images/home-m-cc/Necklaces-m.png",
-      thumbnails: ["/images/home-cc/Necklaces-cc.png", "/images/home-m-cc/Necklaces-m.png"],
-      details: {
-        materials: "Solid hallmarked gold, hand-hammered finish.",
-        craft: "Custom formed to ergonomic contours over 18 hours of benchwork.",
-        care: "Wipe with gold polishing cloth after wearing.",
-      },
-    },
-    {
-      id: "ora-pearl-drops",
-      name: "Ora Pearl & Diamond Drops",
-      category: "earrings",
-      categoryName: "Earrings",
-      priceINR: 32900,
-      tagline: "The Pearl Edit",
-      description: "Luminous Australian South Sea pearls suspended from delicate gold diamond studs. Designed to sway gently with movement.",
-      metalOptions: STANDARD_METAL_OPTIONS,
-      sizeType: "none",
-      stoneType: "South Sea Pearl & Natural Diamonds",
-      imagePlaceholder: "Ora pearl drop earrings pair",
-      mainImage: "/images/home-cc/Earrings-cc.png",
-      altImage: "/images/home-m-cc/earrings-m.png",
-      thumbnails: ["/images/home-cc/Earrings-cc.png", "/images/home-m-cc/earrings-m.png"],
-      details: {
-        materials: "Hand-selected 10mm South Sea pearls and hallmarked gold.",
-        craft: "Selected for flawless luster and matching symmetry.",
-        care: "Apply perfume and hairspray before putting on pearl earrings.",
-      },
-    },
-    {
-      id: "solene-gold-hoops",
-      name: "Solene Sculptural Hoops",
-      category: "earrings",
-      categoryName: "Earrings",
-      priceINR: 42500,
-      tagline: "The Daily Luxe Edit",
-      description: "Substantial hollow-core gold hoops featuring a gentle oval contour. Ultra-lightweight for all-day elegance.",
-      metalOptions: STANDARD_METAL_OPTIONS,
-      sizeType: "none",
-      stoneType: "Solid Gold",
-      imagePlaceholder: "Solene sculptural gold hoops",
-      mainImage: "/images/home-cc/Earrings-cc.png",
-      altImage: "/images/home-m-cc/earrings-m.png",
-      thumbnails: ["/images/home-cc/Earrings-cc.png", "/images/home-m-cc/earrings-m.png"],
-      details: {
-        materials: "Hallmarked gold with secure click-latch closure.",
-        craft: "Precision tubing technology ensures featherlight comfort.",
-        care: "Store in cloth pouch to avoid friction marks.",
-      },
-    },
-    {
-      id: "sena-gold-bangle",
-      name: "Sena Gold Hinged Bangle",
-      category: "bracelets",
-      categoryName: "Bracelets",
-      priceINR: 58700,
-      tagline: "The Architectural Bangle",
-      description: "A clean, oval-profile bangle engineered in solid gold with a seamless hidden push-clasp and double safety latch.",
-      metalOptions: STANDARD_METAL_OPTIONS,
-      sizeType: "wrist",
-      sizeOptions: ["Small (6.0 in)", "Medium (6.5 in)", "Large (7.0 in)"],
-      stoneType: "Solid Gold",
-      imagePlaceholder: "Sena gold bangle on wrist",
-      mainImage: "/images/home-cc/Bracelets-cc.png",
-      altImage: "/images/home-m-cc/bracelets-m.png",
-      thumbnails: ["/images/home-cc/Bracelets-cc.png", "/images/home-m-cc/bracelets-m.png"],
-      details: {
-        materials: "Hallmarked gold with precision internal safety spring.",
-        craft: "Hand-buffed to mirror finish by Senior Atelier Craftsmen.",
-        care: "Clean with mild soap solution; avoid exposure to chlorine pools.",
-      },
-    },
-    {
-      id: "kaia-diamond-cuff",
-      name: "Kaia Open Diamond Cuff",
-      category: "bracelets",
-      categoryName: "Bracelets",
-      priceINR: 96000,
-      tagline: "The Open Cuff Edit",
-      description: "An open cuff terminating in two radiant pear-cut diamonds set in opposing directions. Modern grace on the wrist.",
-      metalOptions: STANDARD_METAL_OPTIONS,
-      sizeType: "wrist",
-      sizeOptions: ["Adjustable Standard"],
-      stoneType: "Pear Cut Diamonds",
-      imagePlaceholder: "Kaia open diamond cuff bracelet",
-      mainImage: "/images/home-cc/Bracelets-cc.png",
-      altImage: "/images/home-m-cc/bracelets-m.png",
-      thumbnails: ["/images/home-cc/Bracelets-cc.png", "/images/home-m-cc/bracelets-m.png"],
-      details: {
-        materials: "Fine gold with two 0.5ct pear cut certified diamonds.",
-        craft: "Tempered gold wire core provides flexible memory fit.",
-        care: "Store separately to prevent diamond edges touching other pieces.",
-      },
-    },
-    {
-      id: "aanya-bridal-choker-set",
-      name: "Aanya Royal Heritage Bridal Set",
-      category: "bridal",
-      categoryName: "Bridal",
-      priceINR: 485000,
-      tagline: "The Grand Ceremony Edit",
-      description: "A monumental 18k gold bridal necklace paired with chandelier earrings, featuring uncut diamonds and hand-strung pearl drops.",
-      metalOptions: ["18K Yellow Gold / Kundan Finish", "18K Yellow Gold", "14K Yellow Gold"],
-      sizeType: "none",
-      stoneType: "Certified Diamonds & Uncut Polki",
-      imagePlaceholder: "Aanya royal bridal necklace set on mannequin",
-      mainImage: "/images/home-cc/bridal-cc.png",
-      altImage: "/images/home-m-cc/bridal-m.png",
-      thumbnails: ["/images/home-cc/bridal-cc.png", "/images/home-m-cc/bridal-m.png"],
-      details: {
-        materials: "Hallmarked gold, certified diamonds, and AAA grade cultured pearls.",
-        craft: "Over 120 hours of master artisan handiwork in our royal bridal atelier.",
-        care: "Ships with custom mahogany presentation box and lifetime maintenance certificate.",
-      },
-    },
-    {
-      id: "meera-bridal-solitaire-duo",
-      name: "Meera Solitaire & Matching Band Set",
-      category: "bridal",
-      categoryName: "Bridal",
-      priceINR: 145000,
-      tagline: "The Engagement & Wedding Duo",
-      description: "A perfectly flush-fitting set comprising an oval solitaire engagement ring and a pavé diamond wedding band.",
-      metalOptions: STANDARD_METAL_OPTIONS,
-      sizeType: "ring",
-      sizeOptions: STANDARD_RING_SIZES,
-      stoneType: "Oval Diamond & Micro Pavé",
-      imagePlaceholder: "Meera bridal ring duo set",
-      mainImage: "/images/home-cc/bridal-cc.png",
-      altImage: "/images/home-cc/Rings-cc.png",
-      thumbnails: ["/images/home-cc/bridal-cc.png", "/images/home-cc/Rings-cc.png"],
-      details: {
-        materials: "Fine gold with 1.0ct oval center diamond and 0.3ct pavé accent diamonds.",
-        craft: "3D micro-engineered interlocking silhouette for seamless daily wear.",
-        care: "Includes complimentary ring inspection and re-polishing twice yearly.",
-      },
-    },
-    {
-      id: "vela-diamond-pendant",
-      name: "Vela Diamond Pendant",
-      category: "pendants",
-      categoryName: "Pendants",
-      priceINR: 46200,
-      tagline: "The Solitary Pendant Edit",
-      description: "A single round diamond suspended in a geometric gold cage that allows 360-degree light entry. Includes adjustable trace chain.",
-      metalOptions: STANDARD_METAL_OPTIONS,
-      sizeType: "chain",
-      sizeOptions: ["16 inch", "18 inch", "20 inch"],
-      stoneType: "Natural Round Diamond",
-      imagePlaceholder: "Vela diamond pendant on chain",
-      mainImage: "/images/vela-pendant.jpg",
-      altImage: "/images/home-cc/Pendants=cc.png",
-      thumbnails: ["/images/vela-pendant.jpg", "/images/home-cc/Pendants=cc.png", "/images/home-m-cc/pendants-m.png"],
-      details: {
-        materials: "Hallmarked gold and certified 0.35ct GIA diamond.",
-        craft: "Custom four-claw basket engineered for maximum sparkle.",
-        care: "Clean periodically with warm water and lint-free microfiber cloth.",
-      },
-    },
-    {
-      id: "aster-constellation-locket",
-      name: "Aster Diamond Constellation Locket",
-      category: "pendants",
-      categoryName: "Pendants",
-      priceINR: 62000,
-      tagline: "The Memory Locket Edit",
-      description: "An oval gold locket engraved with star motifs set with tiny brilliant diamonds. Opens to store two cherished photographs.",
-      metalOptions: STANDARD_METAL_OPTIONS,
-      sizeType: "chain",
-      sizeOptions: ["18 inch", "20 inch"],
-      stoneType: "Brilliant Micro Diamonds",
-      imagePlaceholder: "Aster constellation locket detail",
-      mainImage: "/images/home-cc/Pendants=cc.png",
-      altImage: "/images/home-m-cc/pendants-m.png",
-      thumbnails: ["/images/home-cc/Pendants=cc.png", "/images/home-m-cc/pendants-m.png"],
-      details: {
-        materials: "Hallmarked gold with snap-hinge enclosure.",
-        craft: "Includes photo-sizing template and custom fitting service.",
-        care: "Keep inner photo chamber dry and free of liquids.",
-      },
-    },
-  ];
+  static products: Product[] = [];
 
   static articles: JournalArticle[] = [
     {
@@ -614,15 +295,14 @@ export class Catalog {
     return this.collections[slug.toLowerCase()];
   }
 
-  static getProductsByCategory(categorySlug: string): Product[] {
-    // Try reading from SQLite DB if available
+  static async getProductsByCategoryAsync(categorySlug: string): Promise<Product[]> {
     try {
       if (typeof window === "undefined") {
-        const { ProductRepo } = require("./db/repo/products");
-        const { CollectionRepo } = require("./db/repo/collections");
-        const collection = CollectionRepo.getCollectionBySlug(categorySlug);
+        const { ProductRepo } = await import("./db/repo/products");
+        const { CollectionRepo } = await import("./db/repo/collections");
+        const collection = await CollectionRepo.getCollectionBySlug(categorySlug);
         if (collection) {
-          const { products } = ProductRepo.listProducts({
+          const { products } = await ProductRepo.listProducts({
             collectionId: collection.id,
             published: 1,
           });
@@ -634,38 +314,28 @@ export class Catalog {
         }
       }
     } catch {
-      // Fallback to static catalog
+      // Fallback
     }
-
     return this.products.filter(
       (p) => p.category.toLowerCase() === categorySlug.toLowerCase()
     );
   }
 
-  static getProductById(id: string): Product | undefined {
+  static getProductsByCategory(categorySlug: string): Product[] {
+    return this.products.filter(
+      (p) => p.category.toLowerCase() === categorySlug.toLowerCase()
+    );
+  }
+
+  static async getProductByIdAsync(id: string): Promise<Product | undefined> {
     if (!id) return undefined;
-    const cleanId = id.toLowerCase().trim();
-
-    // Check if deleted
     try {
       if (typeof window === "undefined") {
-        const { getDeletedSlugsSync } = require("./db/cloud-sync");
-        if (getDeletedSlugsSync().has(cleanId)) {
-          return undefined;
-        }
-      }
-    } catch {
-      // ignore
-    }
-
-    // Try reading from SQLite DB if available
-    try {
-      if (typeof window === "undefined") {
-        const { ProductRepo } = require("./db/repo/products");
+        const { ProductRepo } = await import("./db/repo/products");
         const isNumeric = /^\d+$/.test(id.trim());
         const dbProduct = isNumeric
-          ? ProductRepo.getProductById(parseInt(id, 10))
-          : ProductRepo.getProductBySlug(id);
+          ? await ProductRepo.getProductById(parseInt(id, 10))
+          : await ProductRepo.getProductBySlug(id);
 
         if (dbProduct && dbProduct.is_published === 1) {
           const mapped = this.mapDbProductToProduct(dbProduct);
@@ -675,28 +345,21 @@ export class Catalog {
     } catch {
       // Fallback
     }
+    return this.getProductById(id);
+  }
 
-    // Check again for static product fallback
-    try {
-      if (typeof window === "undefined") {
-        const { getDeletedSlugsSync } = require("./db/cloud-sync");
-        if (getDeletedSlugsSync().has(cleanId)) {
-          return undefined;
-        }
-      }
-    } catch {
-      // ignore
-    }
-
+  static getProductById(id: string): Product | undefined {
+    if (!id) return undefined;
+    const cleanId = id.toLowerCase().trim();
     return this.products.find((p) => p.id.toLowerCase() === cleanId);
   }
 
-  static getCategoryProducts(categorySlug: string): Product[] {
+  static async getCategoryProductsAsync(categorySlug: string): Promise<Product[]> {
     const cleanCat = categorySlug.toLowerCase().trim();
     try {
       if (typeof window === "undefined") {
-        const { ProductRepo } = require("./db/repo/products");
-        const { products } = ProductRepo.listProducts({
+        const { ProductRepo } = await import("./db/repo/products");
+        const { products } = await ProductRepo.listProducts({
           collectionSlug: cleanCat,
           published: 1,
         });
@@ -707,64 +370,44 @@ export class Catalog {
     } catch {
       // ignore
     }
+    return this.getCategoryProducts(categorySlug);
+  }
 
-    let deletedSlugs = new Set<string>();
-    try {
-      if (typeof window === "undefined") {
-        const { getDeletedSlugsSync } = require("./db/cloud-sync");
-        deletedSlugs = getDeletedSlugsSync();
-      }
-    } catch {
-      // ignore
-    }
-
+  static getCategoryProducts(categorySlug: string): Product[] {
+    const cleanCat = categorySlug.toLowerCase().trim();
     return this.products.filter(
-      (p) => p.category.toLowerCase() === cleanCat && !deletedSlugs.has(p.id.toLowerCase().trim())
+      (p) => p.category.toLowerCase() === cleanCat
     );
   }
 
-  static getFeaturedProducts(minCount = 4): Product[] {
-    let deletedSlugs = new Set<string>();
+  static async getFeaturedProductsAsync(minCount = 4): Promise<Product[]> {
     try {
       if (typeof window === "undefined") {
-        const { getDeletedSlugsSync } = require("./db/cloud-sync");
-        deletedSlugs = getDeletedSlugsSync();
-      }
-    } catch {
-      // ignore
-    }
-
-    try {
-      if (typeof window === "undefined") {
-        const { ProductRepo } = require("./db/repo/products");
-        const { products } = ProductRepo.listProducts({
+        const { ProductRepo } = await import("./db/repo/products");
+        const { products } = await ProductRepo.listProducts({
           featured: 1,
           published: 1,
         });
-        if (products && products.length >= minCount) {
+        if (products && products.length > 0) {
           const mapped = products
             .map((p: any) => this.mapDbProductToProduct(p))
-            .filter((p: any) => Boolean(p.mainImage) && !deletedSlugs.has(p.id.toLowerCase().trim()));
+            .filter((p: any) => Boolean(p.mainImage));
           if (mapped.length >= minCount) return mapped.slice(0, minCount);
+          return mapped;
         }
       }
     } catch {
       // Fallback
     }
+    return this.getFeaturedProducts(minCount);
+  }
 
+  static getFeaturedProducts(minCount = 4): Product[] {
     const valid = this.products.filter(
       (p) =>
-        !deletedSlugs.has(p.id.toLowerCase().trim()) &&
         Boolean(p.mainImage) &&
         (p.mainImage?.startsWith("/") || p.mainImage?.startsWith("http"))
     );
-
-    if (process.env.NODE_ENV === "development" && valid.length < minCount) {
-      console.warn(
-        `[Catalog Warning] Featured products count (${valid.length}) is below required minCount (${minCount}). Section will be gated.`
-      );
-    }
-
     return valid.length >= minCount ? valid.slice(0, minCount) : [];
   }
 

@@ -60,7 +60,7 @@ export function generateMetadata({ params, searchParams }: SubcategoryPageProps)
   };
 }
 
-export default function SubcategoryLandingPage({ params, searchParams }: SubcategoryPageProps) {
+export default async function SubcategoryLandingPage({ params, searchParams }: SubcategoryPageProps) {
   const result = Taxonomy.getSubcategory(params.category, params.subcategory);
   if (!result) {
     notFound();
@@ -68,8 +68,8 @@ export default function SubcategoryLandingPage({ params, searchParams }: Subcate
 
   const { category, subcategory } = result;
 
-  // Filter Catalog Products by category & subcategory (respects dynamic DB & deleted items)
-  let products = Catalog.getCategoryProducts(category.slug);
+  // Filter Catalog Products by category & subcategory (respects dynamic Turso DB)
+  let products = await Catalog.getCategoryProductsAsync(category.slug);
 
   if (searchParams.metal) {
     products = products.filter((p) =>

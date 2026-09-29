@@ -10,7 +10,7 @@ export async function GET(request: Request) {
     const search = searchParams.get("search") || undefined;
     const activeOnly = searchParams.get("active") === "true";
 
-    const collections = CollectionRepo.listCollections({ search, activeOnly });
+    const collections = await CollectionRepo.listCollections({ search, activeOnly });
     return NextResponse.json({ collections });
   } catch (error: any) {
     return NextResponse.json({ error: error.message || "Failed to fetch collections" }, { status: 500 });
@@ -33,12 +33,12 @@ export async function POST(request: Request) {
       );
     }
 
-    const existing = CollectionRepo.getCollectionBySlug(parsed.data.slug);
+    const existing = await CollectionRepo.getCollectionBySlug(parsed.data.slug);
     if (existing) {
       return NextResponse.json({ error: "A category with this slug already exists" }, { status: 400 });
     }
 
-    const created = CollectionRepo.createCollection(parsed.data, adminEmail, ip);
+    const created = await CollectionRepo.createCollection(parsed.data, adminEmail, ip);
     return NextResponse.json({ success: true, collection: created }, { status: 201 });
   } catch (error: any) {
     return NextResponse.json({ error: error.message || "Failed to create category" }, { status: 500 });
@@ -54,8 +54,9 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: "categoryIds must be an array of IDs" }, { status: 400 });
     }
 
-    CollectionRepo.reorderCollections(categoryIds);
-    return NextResponse.json({ success: true, collections: CollectionRepo.listCollections() });
+    await CollectionRepo.reorderCollections(categoryIds);
+    const collections = await CollectionRepo.listCollections();
+    return NextResponse.json({ success: true, collections });
   } catch (error: any) {
     return NextResponse.json({ error: error.message || "Failed to reorder categories" }, { status: 500 });
   }

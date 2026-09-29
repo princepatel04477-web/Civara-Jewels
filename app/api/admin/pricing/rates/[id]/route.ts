@@ -35,7 +35,7 @@ export async function PATCH(
       );
     }
 
-    const updated = MetalRatesRepo.updateRate(id, {
+    const updated = await MetalRatesRepo.updateRate(id, {
       ...parsed.data,
       updated_by: adminEmail,
       ip_address: ip,

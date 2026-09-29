@@ -29,7 +29,7 @@ export const CategoryView: React.FC<CategoryViewProps> = ({ categorySlug }) => {
     fetch(`/api/public/products?category=${encodeURIComponent(categorySlug)}`)
       .then((res) => res.json())
       .then((data) => {
-        if (data && Array.isArray(data.products) && data.products.length > 0) {
+        if (data && Array.isArray(data.products)) {
           const mapped = data.products.map((p: any) => Catalog.mapDbProductToProduct(p));
           setProducts(mapped);
         }
