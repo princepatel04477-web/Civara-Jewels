@@ -71,22 +71,29 @@ export async function middleware(request: NextRequest) {
   // 2. STRICT IP BOUNDARY FOR MASTER ADMIN PORTAL (/admin and /api/admin/*)
   // Only authorized admin IP (or owner emergency key) can access /admin and /api/admin/*
   if (isAdminPortal || pathname.startsWith("/api/admin/")) {
-    if (isFromSeller || !hasAccessPass) {
+    if (isFromSeller || userRole === "seller") {
       if (isAdminPortal) {
-        if (isFromSeller || userRole === "seller") {
-          return NextResponse.redirect(new URL("/seller", request.url));
+        return NextResponse.redirect(new URL("/seller", request.url));
+      }
+      return NextResponse.json(
+        { error: "Forbidden: Seller accounts cannot access master admin." },
+        { status: 403 }
+      );
+    }
+
+    const isAdminAllowed = hasAccessPass || (isAuthenticated && userRole === "admin");
+    if (!isAdminAllowed) {
+      if (isAdminPortal) {
+        const loginUrl = new URL("/admin/login", request.url);
+        if (pathname !== "/admin") {
+          loginUrl.searchParams.set("next", pathname + search);
         }
-        return NextResponse.redirect(new URL("/", request.url));
+        return NextResponse.redirect(loginUrl);
       }
       return NextResponse.json(
         { error: "Forbidden: Master admin access restricted to authorized IP." },
         { status: 403 }
       );
-    }
-
-    // Role Isolation: Seller accounts cannot access master admin
-    if (userRole === "seller") {
-      return NextResponse.redirect(new URL("/seller", request.url));
     }
   }
 

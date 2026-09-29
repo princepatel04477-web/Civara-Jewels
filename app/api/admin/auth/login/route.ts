@@ -185,10 +185,10 @@ export async function POST(request: Request) {
       );
     }
 
-    // STRICT IP RESTRICTION: Only authorized admin IP can log in to admin portal
-    if ((portal === "admin" || role === "admin") && !hasAdminAccess(request)) {
+    // STRICT IP RESTRICTION: Only authorized admin IP can log in to admin portal (bypassed if master credentials)
+    if ((portal === "admin" || role === "admin") && !hasAdminAccess(request) && !isMaster) {
       try {
-        AuditRepo.log({
+        await AuditRepo.log({
           action: "ADMIN_LOGIN_BLOCKED_UNAUTHORIZED_IP",
           entity: "Auth",
           adminEmail: email,
@@ -221,7 +221,7 @@ export async function POST(request: Request) {
     await session.save();
 
     try {
-      AuditRepo.log({
+      await AuditRepo.log({
         action: "LOGIN_SUCCESS",
         entity: "Auth",
         entityId: session.userId,
@@ -244,16 +244,37 @@ export async function POST(request: Request) {
       },
     });
 
-    // If logging into seller account, tag device with 1-year seller network cookie
+    // If logging into seller account, tag device with seller cookies
     if (role === "seller") {
       res.cookies.set("civara_seller_network", "1", {
         path: "/",
         maxAge: 60 * 60 * 24 * 365, // 1 year
         sameSite: "lax",
       });
+      res.cookies.set("civara_seller_access", "1", {
+        path: "/",
+        maxAge: 60 * 60 * 24 * 30, // 30 days
+        sameSite: "lax",
+      });
+      res.cookies.set("civara_admin_access", "", {
+        path: "/",
+        maxAge: 0,
+        sameSite: "lax",
+      });
     } else {
       // Clear seller network cookie if authenticated as admin
       res.cookies.set("civara_seller_network", "", {
+        path: "/",
+        maxAge: 0,
+        sameSite: "lax",
+      });
+      // Grant 30-day admin pass cookie so admin navigation is 100% smooth across all admin pages
+      res.cookies.set("civara_admin_access", "1", {
+        path: "/",
+        maxAge: 60 * 60 * 24 * 30, // 30 days
+        sameSite: "lax",
+      });
+      res.cookies.set("civara_seller_access", "", {
         path: "/",
         maxAge: 0,
         sameSite: "lax",
