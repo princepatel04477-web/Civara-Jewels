@@ -154,10 +154,6 @@ export const Footer = () => {
               <MessageCircle className="w-4 h-4 text-[#C9A961] shrink-0" />
               <a href="https://wa.me/919274577237" target="_blank" rel="noopener noreferrer" className="hover:text-[#C9A961] transition-colors">WhatsApp Concierge</a>
             </div>
-            <div className="pt-2 text-xs sm:text-sm text-[#A89F91] leading-relaxed">
-              Monday through Saturday<br />
-              10:00 AM – 7:00 PM IST
-            </div>
           </div>
         </div>
 
