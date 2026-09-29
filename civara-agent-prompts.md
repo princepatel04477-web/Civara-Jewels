@@ -146,7 +146,7 @@ GOAL     Ship complete Metadata objects on:
 DETAILS
          Root defaults:
            title:       "Civara Jewels — Fine Jewellery Atelier"
-           description: "Heirlooms in hallmarked 18k recycled gold and
+           description: "Heirlooms in hallmarked 18k gold and
                          certified diamonds. Made to order. Private
                          viewings in Surat and virtual HD worldwide."
            og:image:    /og/civara-og-default.jpg  (1200×630, warm cream,
@@ -322,7 +322,7 @@ ACCEPT   1. Every claim on the page is fact-checked against real
 ```
 TARGET   components/product/CertificationStrip.tsx  (new)
 GOAL     Directly below the price breakdown:
-           [BIS 750 hallmark icon]  Hallmarked 18k recycled gold
+           [BIS 750 hallmark icon]  Hallmarked 18k gold
            [GIA icon]               GIA-certified diamond · view cert →
            [Shield icon]            Lifetime service · view policy →
          Each row expands on tap to reveal a photograph of the actual
@@ -480,7 +480,7 @@ Find and replace across `content/` and JSX literals:
 | "Our AI Studio drafts…"                                           | "Civara Studio drafts…" (hide the AI word entirely, keep AI)    |
 | "AI STUDIO" (nav)                                                 | "STUDIO"                                                        |
 | "Launch AI Studio"                                                | "Enter the Studio"                                              |
-| "Every piece is created in recycled 18k gold and certified…"     | "Made in hallmarked 18k recycled gold. Set with certified diamonds." |
+| "Every piece is created in solid 18k gold and certified…"     | "Made in hallmarked 18k gold. Set with certified diamonds." |
 
 Luxury does not foreground its tooling. Let the AI be the invisible engine.
 

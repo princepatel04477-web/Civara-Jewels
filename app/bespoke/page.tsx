@@ -83,7 +83,7 @@ export default function BespokePage() {
       num: "04",
       title: "Wax Model & Casting",
       tagline: "Tactile Fit & Proportions",
-      desc: "Review a 1:1 scale wax model to test finger fit and profile height before lost-wax casting in 100% RJC-certified recycled gold.",
+      desc: "Review a 1:1 scale wax model to test finger fit and profile height before lost-wax casting in 100% RJC-certified 18k gold.",
       image: "/images/bespoke/bespoke-step-4.webp",
       alt: "Hand-Carved Green Jewelry Wax Model at Workbench",
     },

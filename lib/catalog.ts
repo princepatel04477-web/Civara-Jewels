@@ -188,7 +188,7 @@ export class Catalog {
       categoryName: "Rings",
       priceINR: 84500,
       tagline: "The Solitaire Edit",
-      description: "A single certified stone, hand-set in recycled hallmarked gold. The Elara is cut to catch the room rather than the camera — a quiet claw setting that lets light do the work.",
+      description: "A single certified stone, hand-set in hallmarked gold. The Elara is cut to catch the room rather than the camera — a quiet claw setting that lets light do the work.",
       metalOptions: STANDARD_METAL_OPTIONS,
       sizeType: "ring",
       sizeOptions: STANDARD_RING_SIZES,
@@ -203,7 +203,7 @@ export class Catalog {
         "/images/vela-pendant.jpg"
       ],
       details: {
-        materials: "Recycled hallmarked gold. Centre stone certified by GIA/IGI, ethically sourced. Ships with certificate of authenticity.",
+        materials: "Hallmarked gold. Centre stone certified by GIA/IGI, ethically sourced. Ships with certificate of authenticity.",
         craft: "Hand-finished to order by a single master goldsmith over 2–3 weeks. Complimentary insured delivery across India.",
         care: "Complimentary lifetime cleaning and inspection. One free resizing within the first year.",
       },
@@ -354,7 +354,7 @@ export class Catalog {
       altImage: "/images/home-m-cc/bracelets-m.png",
       thumbnails: ["/images/home-cc/Bracelets-cc.png", "/images/home-m-cc/bracelets-m.png"],
       details: {
-        materials: "Recycled hallmarked gold with precision internal safety spring.",
+        materials: "Hallmarked gold with precision internal safety spring.",
         craft: "Hand-buffed to mirror finish by Senior Atelier Craftsmen.",
         care: "Clean with mild soap solution; avoid exposure to chlorine pools.",
       },
@@ -489,7 +489,7 @@ export class Catalog {
       content: [
         "In a market crowded with oversized logos, exaggerated prong baskets, and synthetic urgency, fine jewellery has often traded timelessness for spectacle. We established Civara Jewels on a counter-intuitive premise: that the most powerful heirlooms are those crafted with supreme restraint.",
         "A solitaire ring resting on the hand is not meant to broadcast wealth to strangers across a restaurant; it is designed to catch ambient room light at dusk, to bring personal calm to the wearer during a quiet moment at a desk, and to sit flush and weightless against the finger for fifty years.",
-        "Our devotion to quiet luxury begins at the metallurgical level. Rather than using commercial yellow gold alloys that can appear brassy or harsh under direct daylight, we assay our 18-karat recycled gold with exact fractions of silver and copper. The resulting hue is a luminous honey tone that flatters olive and warm skin tones effortlessly.",
+        "Our devotion to quiet luxury begins at the metallurgical level. Rather than using commercial yellow gold alloys that can appear brassy or harsh under direct daylight, we assay our 18-karat gold with exact fractions of silver and copper. The resulting hue is a luminous honey tone that flatters olive and warm skin tones effortlessly.",
         "Similarly, in our lapidary stone curation, we refuse to sacrifice optical light return for nominal carat weight. A stone must possess internal life. When our master goldsmiths set a solitaire, they reduce claw mass to the absolute structural minimum, permitting photons to flood the pavilion from all 360 degrees.",
         "To own a Civara creation is to know that every milligram of precious metal is hallmarked BIS 750, every diamond is conflict-free and certified by GIA or IGI, and no middleman was paid to amplify artificial prestige. We make to order, quietly and thoroughly, for those who measure luxury by permanence rather than noise."
       ]
@@ -510,7 +510,7 @@ export class Catalog {
       excerpt: "Behind the fluid silhouette of the Elara Solitaire lies 18 hours of micro-lapidary benchwork, zero-porosity casting, and microscopic claw alignment.",
       pullQuote: "Every micron of gold removed during the polishing wheel must reveal the natural fire of the diamond, never compete with it.",
       content: [
-        "The journey of an Elara Solitaire begins with pure bullion grains of RJC-certified recycled 24-karat gold, copper, and fine silver, melted in a ceramic crucible at 1,064 degrees Celsius to forge our proprietary 18-karat alloy ingot.",
+        "The journey of an Elara Solitaire begins with pure bullion grains of RJC-certified 24-karat gold, copper, and fine silver, melted in a ceramic crucible at 1,064 degrees Celsius to forge our proprietary 18-karat alloy ingot.",
         "The alloy is drawn into an ergonomic ring profile through hardened steel rollers, ensuring internal grain density and complete elimination of microscopic casting porosity.",
         "Using hand-held gravers under 20x stereoscopic magnification, our master setter carves the four delicate talon claws that cradle the certified centre stone.",
         "The diamond is positioned with mathematical precision, ensuring the table facet sits exactly parallel to the finger surface for unobstructed light entry and return.",

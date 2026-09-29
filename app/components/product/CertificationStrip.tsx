@@ -30,7 +30,7 @@ export const CertificationStrip: React.FC<CertificationStripProps> = ({
         <div className="flex items-center gap-3">
           <Award className="w-4 h-4 text-[#9E7F3C] shrink-0" />
           <span className="font-serif text-sm font-medium text-[#241F1B]">
-            Hallmarked 18k Recycled Gold
+            Hallmarked 18k Gold
           </span>
           <span className="hidden sm:inline text-[11px] text-[#6E6459]">({hallmark})</span>
         </div>
@@ -99,7 +99,7 @@ export const CertificationStrip: React.FC<CertificationStripProps> = ({
                   BIS 750 Hallmark Standards
                 </h3>
                 <p className="text-xs font-light text-[#6E6459] leading-relaxed">
-                  Every creation is assayed and laser-inscribed by the Bureau of Indian Standards (BIS). The hallmark confirms exact 75.0% pure gold content (18-karat) crafted exclusively from RJC-certified recycled precious metals.
+                  Every creation is assayed and laser-inscribed by the Bureau of Indian Standards (BIS). The hallmark confirms exact 75.0% pure gold content (18-karat) crafted exclusively from RJC-certified precious metals.
                 </p>
                 <div className="border border-[#E6DFD3] bg-[#F4EDE2]/50 p-4 text-xs space-y-1">
                   <div className="font-medium text-[#241F1B]">Assay Inscription: BIS 750 · CIVARA · RJC</div>

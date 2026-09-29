@@ -7,14 +7,14 @@ import { Award, ShieldCheck, FileCheck, Compass, Sparkles, ArrowRight, MessageCi
 export const metadata: Metadata = {
   title: "Craft & Material Provenance",
   description:
-    "The truth about our materials: RJC-certified 18k recycled gold, GIA & IGI certified conflict-free diamonds, and master bench goldsmithing.",
+    "The truth about our materials: RJC-certified 18k gold, GIA & IGI certified conflict-free diamonds, and master bench goldsmithing.",
   alternates: {
     canonical: "/craft",
   },
   openGraph: {
     title: "Craft & Material Provenance | Civara Jewels",
     description:
-      "RJC-certified 18k recycled gold, GIA/IGI certified diamonds, and master bench goldsmithing.",
+      "RJC-certified 18k gold, GIA/IGI certified diamonds, and master bench goldsmithing.",
   },
 };
 
@@ -37,7 +37,7 @@ export default function CraftPage() {
         </div>
       </section>
 
-      {/* Section 1: RJC-Certified 18K Recycled Gold */}
+      {/* Section 1: RJC-Certified 18K Gold */}
       <section className="py-16 lg:py-24 px-6 lg:px-20 max-w-7xl mx-auto border-b border-[#E6DFD3]">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
           <div className="lg:col-span-6 space-y-5">
@@ -45,10 +45,10 @@ export default function CraftPage() {
               01 · Gold Sourcing
             </div>
             <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-medium text-[#241F1B]">
-              100% RJC-Certified Recycled Gold
+              100% RJC-Certified 18K Gold
             </h2>
             <p className="text-sm font-light leading-relaxed text-[#6E6459]">
-              Every gram of gold poured in our atelier originates from RJC (Responsible Jewellery Council) certified refineries in Surat and accredited bullion houses. By refining existing pre-owned fine jewellery and industrial recycled bullion, we avoid virgin gold mining footprint entirely.
+              Every gram of gold poured in our atelier originates from RJC (Responsible Jewellery Council) certified refineries in Surat and accredited bullion houses. Through stringent refining and ethical sourcing, we ensure pristine metallurgical integrity for every heirloom.
             </p>
             <div className="bg-[#F4EDE2] border border-[#E6DFD3] p-5 space-y-2 text-xs">
               <div className="font-medium text-[#241F1B]">Atelier Purity Guarantee:</div>
@@ -61,7 +61,7 @@ export default function CraftPage() {
           <div className="lg:col-span-6 relative aspect-[4/3] bg-white border border-[#E6DFD3] overflow-hidden">
             <Image
               src="/images/home-cc/Rings-cc.png"
-              alt="Molten 18k recycled gold alloy"
+              alt="Molten 18k gold alloy"
               fill
               sizes="(max-width: 1024px) 100vw, 50vw"
               className="object-cover object-center"

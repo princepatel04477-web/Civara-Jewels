@@ -30,10 +30,10 @@ export const metadata: Metadata = {
     template: "%s | Civara Jewels",
   },
   description:
-    "Heirlooms in hallmarked 18k recycled gold and certified diamonds. Made to order. Bespoke concierge consultations in Surat and virtual HD worldwide.",
+    "Heirlooms in hallmarked 18k gold and certified diamonds. Made to order. Bespoke concierge consultations in Surat and virtual HD worldwide.",
   keywords: [
     "fine jewellery",
-    "18k recycled gold",
+    "18k gold",
     "diamond solitaire",
     "custom bespoke ring",
     "BIS 750 hallmark",
@@ -46,7 +46,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Civara Jewels — Fine Jewellery Atelier",
     description:
-      "Heirlooms in hallmarked 18k recycled gold and certified diamonds. Made to order. Bespoke concierge consultations in Surat and virtual HD worldwide.",
+      "Heirlooms in hallmarked 18k gold and certified diamonds. Made to order. Bespoke concierge consultations in Surat and virtual HD worldwide.",
     url: "https://civarajewels.com",
     siteName: "Civara Jewels",
     locale: "en_IN",
@@ -64,7 +64,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Civara Jewels — Fine Jewellery Atelier",
     description:
-      "Heirlooms in hallmarked 18k recycled gold and certified diamonds. Made to order. Bespoke concierge consultations in Surat and virtual HD worldwide.",
+      "Heirlooms in hallmarked 18k gold and certified diamonds. Made to order. Bespoke concierge consultations in Surat and virtual HD worldwide.",
     images: ["/images/home-cc/Rings-cc.png"],
   },
 };
@@ -84,7 +84,7 @@ export default function RootLayout({
         url: "https://civarajewels.com",
         logo: "https://civarajewels.com/images/home-cc/Rings-cc.png",
         description:
-          "Made-to-order fine jewellery atelier crafting bespoke heirlooms in hallmarked 18K recycled gold and certified diamonds.",
+          "Made-to-order fine jewellery atelier crafting bespoke heirlooms in hallmarked 18K gold and certified diamonds.",
         knowsAbout: [
           "Fine Jewellery",
           "18K Gold",

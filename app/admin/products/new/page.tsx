@@ -232,7 +232,7 @@ export default function AdminNewProductPage() {
 
           <Textarea
             label="Natural Diamond Description (Default Editorial)"
-            placeholder="A single certified stone, hand-set in recycled 18-karat gold..."
+            placeholder="A single certified stone, hand-set in hallmarked 18-karat gold..."
             value={form.description}
             onChange={(e) => setForm({ ...form, description: e.target.value })}
           />
@@ -245,7 +245,7 @@ export default function AdminNewProductPage() {
               <button
                 type="button"
                 onClick={() => {
-                  const base = form.description || "Crafted to pristine gemmological standards, hand-set in recycled 18-karat gold.";
+                  const base = form.description || "Crafted to pristine gemmological standards, hand-set in hallmarked 18-karat gold.";
                   const labCopy = `${base} Specifically tailored with our conflict-free Type IIa lab-grown diamond, offering identical chemical brilliance, optical fire, and certified clarity with conscious modern luxury.`;
                   setForm({ ...form, lab_grown_description: labCopy });
                 }}

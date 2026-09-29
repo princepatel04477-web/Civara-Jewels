@@ -67,7 +67,7 @@ export default function AboutPage() {
               Civara Jewels was founded with a single conviction: fine jewellery should be measured not by weight or excessive ornamentation, but by balance, tactile grace, and emotional resonance.
             </p>
             <p className="text-sm lg:text-base font-light leading-relaxed text-[#6E6459]">
-              Every piece begins as a quiet conversation between form and metal. We work exclusively in recycled 18-karat gold and certified natural gemstones, ensuring every commission leaves our bench as a timeless heirloom.
+              Every piece begins as a quiet conversation between form and metal. We work exclusively in 18-karat gold and certified natural gemstones, ensuring every commission leaves our bench as a timeless heirloom.
             </p>
           </div>
         </div>
@@ -80,7 +80,7 @@ export default function AboutPage() {
             Materials & Integrity
           </div>
           <h2 className="font-serif text-3xl lg:text-4xl font-medium text-[#241F1B]">
-            Recycled gold & certified stones
+            Hallmarked gold & certified stones
           </h2>
           <p className="text-sm font-light leading-relaxed text-[#6E6459]">
             Uncompromised purity verified by independent hallmarking laboratories.
@@ -90,10 +90,10 @@ export default function AboutPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="bg-[#F4EDE2] p-8 border border-[#E6DFD3] space-y-4">
             <div className="font-serif text-2xl font-medium text-[#241F1B]">
-              18k Recycled Gold
+              18k Hallmarked Gold
             </div>
             <p className="text-xs font-light leading-relaxed text-[#6E6459]">
-              All gold used at Civara is 100% recycled and BIS hallmarked. Our custom alloy blend provides a warm, soft honey luster that flatters every skin tone.
+              All gold used at Civara is 100% BIS hallmarked. Our custom alloy blend provides a warm, soft honey luster that flatters every skin tone.
             </p>
           </div>
 

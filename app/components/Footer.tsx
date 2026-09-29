@@ -71,7 +71,7 @@ export const Footer = () => {
             </div>
           </Link>
           <p className="text-sm sm:text-base font-light leading-relaxed max-w-md text-[#E6DFD3]/90">
-            A fine jewellery atelier crafting heirlooms in hallmarked 18-karat recycled gold and certified diamonds. Made to order.
+            A fine jewellery atelier crafting heirlooms in hallmarked 18-karat gold and certified diamonds. Made to order.
           </p>
 
           {/* Physical Presence Badges (P2-7) */}
@@ -144,7 +144,7 @@ export const Footer = () => {
           <div className="space-y-3.5 text-sm sm:text-[15px] text-[#E6DFD3]/90 font-light">
             <div className="flex items-center gap-2.5">
               <Phone className="w-4 h-4 text-[#C9A961] shrink-0" />
-              <a href="tel:+918866077237" className="hover:text-[#C9A961] transition-colors">+91 88660 77237</a>
+              <a href="tel:+919274577237" className="hover:text-[#C9A961] transition-colors">+91 92745 77237</a>
             </div>
             <div className="flex items-center gap-2.5">
               <Mail className="w-4 h-4 text-[#C9A961] shrink-0" />
@@ -152,7 +152,7 @@ export const Footer = () => {
             </div>
             <div className="flex items-center gap-2.5">
               <MessageCircle className="w-4 h-4 text-[#C9A961] shrink-0" />
-              <a href="https://wa.me/918866077237" target="_blank" rel="noopener noreferrer" className="hover:text-[#C9A961] transition-colors">WhatsApp Concierge</a>
+              <a href="https://wa.me/919274577237" target="_blank" rel="noopener noreferrer" className="hover:text-[#C9A961] transition-colors">WhatsApp Concierge</a>
             </div>
             <div className="pt-2 text-xs sm:text-sm text-[#A89F91] leading-relaxed">
               Monday through Saturday<br />

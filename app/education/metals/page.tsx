@@ -5,14 +5,14 @@ import { MessageCircle } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Precious Metals Guide: 18k Yellow, Rose, White Gold & Platinum",
-  description: "Comparing 18-karat recycled gold alloys and 950 platinum metallurgy.",
+  description: "Comparing 18-karat gold alloys and 950 platinum metallurgy.",
   alternates: { canonical: "/education/metals" },
 };
 
 export default function PreciousMetalsPage() {
   const metals = [
     {
-      name: "18K Recycled Yellow Gold (BIS 750)",
+      name: "18K Yellow Gold (BIS 750)",
       composition: "75% Pure Gold · 12.5% Silver · 12.5% Copper",
       details: "Our proprietary honey-tone alloy provides a gentle warm glow without harsh brassiness. Durable for lifelong daily wear.",
     },

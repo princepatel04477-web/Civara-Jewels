@@ -52,7 +52,7 @@ export default function HomePage() {
           <RuleDraw color="gold" className="w-20 sm:w-28 mx-auto my-3 sm:my-4" delayMs={300} />
 
           <p className="text-xs sm:text-base font-light text-[#6E6459] max-w-2xl mx-auto leading-relaxed px-3">
-            Handcrafted to order in 18k recycled gold and certified natural diamonds. A single master goldsmith crafts each setting individually. Enquire, customize, own.
+            Handcrafted to order in 18k gold and certified natural diamonds. A single master goldsmith crafts each setting individually. Enquire, customize, own.
           </p>
 
           {/* Action CTAs */}
@@ -163,7 +163,7 @@ export default function HomePage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
               <div className="p-4 bg-[#FFFFFF] border border-[#E6DFD3] rounded-xs space-y-1">
-                <div className="text-xs font-serif font-semibold text-[#241F1B]">100% Recycled 18K Gold</div>
+                <div className="text-xs font-serif font-semibold text-[#241F1B]">Hallmarked 18K Gold</div>
                 <p className="text-[11px] text-[#6E6459]">RJC-certified ethical provenance with official BIS 750 laser hallmarking.</p>
               </div>
               <div className="p-4 bg-[#FFFFFF] border border-[#E6DFD3] rounded-xs space-y-1">
@@ -291,7 +291,7 @@ export default function HomePage() {
           <div className="space-y-2.5 p-6 sm:p-8 border border-[#6E6459]/40 bg-[#181412]/50">
             <Award className="w-7 h-7 sm:w-8 sm:h-8 text-[#C9A961] mx-auto stroke-1" />
             <div className="font-serif text-lg sm:text-xl font-medium text-[#FBF7F0]">
-              100% Recycled 18k Gold
+              Hallmarked 18k Gold
             </div>
             <p className="text-xs font-light text-[#E6DFD3]/80 leading-relaxed">
               Every creation is stamped with official BIS 750 hallmark purity standards.

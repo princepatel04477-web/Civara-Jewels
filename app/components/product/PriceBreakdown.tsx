@@ -20,7 +20,7 @@ interface PriceBreakdownProps {
 }
 
 export const PriceBreakdown: React.FC<PriceBreakdownProps> = ({
-  metalLabel = "Metal (18k Recycled Gold, 3.40g)",
+  metalLabel = "Metal (18k Gold, 3.40g)",
   metalAmount = 30450,
   diamondLabel = "Diamonds (1.25ct, G-H/VS1 Certified)",
   diamondAmount = 32000,

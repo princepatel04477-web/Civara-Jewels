@@ -21,7 +21,7 @@ const occasionsData: Record<string, OccasionData> = {
     title: "The Engagement Edit",
     subtitle: "Solitaires cut to catch the room rather than the camera.",
     description:
-      "Hand-set natural diamonds in 18-karat recycled gold claw and bezel mounts. Designed for daily intimacy and enduring quiet luxury.",
+      "Hand-set natural diamonds in 18-karat gold claw and bezel mounts. Designed for daily intimacy and enduring quiet luxury.",
     heroImage: "/images/home-cc/Rings-cc.png",
     curatedProductIds: [
       "elara-solitaire",

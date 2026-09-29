@@ -148,9 +148,11 @@ export const ProductSpecsAccordion: React.FC<ProductSpecsAccordionProps> = ({
         <button
           type="button"
           onClick={() => toggleSection("overview")}
-          className="w-full py-4 flex items-center justify-between text-left font-serif text-base sm:text-lg font-medium text-[#241F1B] hover:text-[#9E7F3C] transition-colors cursor-pointer"
+          className="w-full py-4 sm:py-5 flex items-center justify-between text-left group transition-colors cursor-pointer"
         >
-          <span>Overview</span>
+          <span className="font-serif text-[20px] sm:text-[22px] font-medium text-[#241F1B] group-hover:text-[#9E7F3C] transition-colors">
+            Overview
+          </span>
           <ChevronDown
             className={`w-5 h-5 text-[#241F1B] transition-transform duration-200 ${
               openSections.overview ? "rotate-180" : ""
@@ -186,15 +188,17 @@ export const ProductSpecsAccordion: React.FC<ProductSpecsAccordionProps> = ({
       </div>
 
       {/* ======================================================== */}
-      {/* 2. DETAILS ACCORDION (Matching Jared Video Exactly)      */}
+      {/* 2. PRODUCT DETAILS ACCORDION                            */}
       {/* ======================================================== */}
       <div className="py-1">
         <button
           type="button"
           onClick={() => toggleSection("details")}
-          className="w-full py-4 flex items-center justify-between text-left font-serif text-base sm:text-lg font-medium text-[#241F1B] hover:text-[#9E7F3C] transition-colors cursor-pointer"
+          className="w-full py-4 sm:py-5 flex items-center justify-between text-left group transition-colors cursor-pointer"
         >
-          <span>Details</span>
+          <span className="font-serif text-[20px] sm:text-[22px] font-medium text-[#241F1B] group-hover:text-[#9E7F3C] transition-colors">
+            Product Details
+          </span>
           <ChevronDown
             className={`w-5 h-5 text-[#241F1B] transition-transform duration-200 ${
               openSections.details ? "rotate-180" : ""
@@ -203,310 +207,160 @@ export const ProductSpecsAccordion: React.FC<ProductSpecsAccordionProps> = ({
         </button>
 
         {openSections.details && (
-          <div className="pb-6 space-y-6 text-xs sm:text-[13px] text-[#241F1B] animate-fadeIn">
-            
-            {/* 2A. STONE(S) SUBSECTION */}
-            <div className="space-y-2.5">
-              <h4 className="font-serif font-semibold text-sm sm:text-base text-[#241F1B]">
-                Stone(s)
-              </h4>
-              <ul className="space-y-2 pl-2 text-[#4A4238]">
-                <li className="flex items-center justify-between">
-                  <span className="flex items-center gap-2">
-                    <span className="text-[#241F1B] text-base leading-none">•</span>
-                    <span>Total Weight (CT. T.W.): <strong>{stoneWeightVal}</strong></span>
-                  </span>
-                  <button 
-                    type="button" 
-                    onClick={(e) => handleTooltip(e, "totalWeight")}
-                    className="text-[#6E6459] hover:text-[#241F1B] p-1 cursor-pointer"
-                  >
-                    <Info className="w-3.5 h-3.5" />
-                  </button>
-                </li>
-                {activeTooltip === "totalWeight" && (
-                  <div className="p-2.5 bg-[#FAF7F0] border border-[#C9A961]/60 text-xs text-[#241F1B] rounded-xs animate-fadeIn ml-4">
-                    {tooltips.totalWeight}
+          <div className="pb-8 pt-2 space-y-8 md:space-y-9 animate-fadeIn text-[#241F1B]">
+            {/* Helper spec row renderer */}
+            {(() => {
+              const renderSpecRow = (item: { label: string; value: React.ReactNode; tooltipKey?: string }) => {
+                const hasTooltip = Boolean(item.tooltipKey && tooltips[item.tooltipKey]);
+                const isTooltipOpen = Boolean(item.tooltipKey && activeTooltip === item.tooltipKey);
+
+                return (
+                  <div key={item.label} className="py-3 sm:py-3.5 border-b border-[#E6DFD3]/60 last:border-b-0 transition-colors">
+                    <div className="flex flex-col md:flex-row md:items-baseline md:justify-between gap-1 md:gap-6">
+                      <div className="text-[14px] md:text-[15px] font-sans text-[#6E6459] font-normal leading-relaxed flex items-center gap-1.5">
+                        <span>{item.label}</span>
+                        {hasTooltip && (
+                          <button
+                            type="button"
+                            onClick={(e) => handleTooltip(e, item.tooltipKey!)}
+                            className="text-[#9E7F3C]/80 hover:text-[#9E7F3C] p-0.5 rounded-full transition-colors cursor-pointer inline-flex items-center justify-center focus:outline-none"
+                            aria-label={`Learn more about ${item.label}`}
+                          >
+                            <Info className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
+                      <div className="text-[15px] md:text-[16px] font-sans text-[#241F1B] font-medium leading-relaxed md:text-right">
+                        {item.value}
+                      </div>
+                    </div>
+                    {isTooltipOpen && hasTooltip && (
+                      <div className="mt-2.5 p-3 bg-[#FAF7F0] border border-[#C9A961]/40 text-xs sm:text-[13px] text-[#4A4238] rounded-xs animate-fadeIn leading-relaxed">
+                        {tooltips[item.tooltipKey!]}
+                      </div>
+                    )}
                   </div>
-                )}
+                );
+              };
 
-                <li className="flex items-center justify-between">
-                  <span className="flex items-center gap-2">
-                    <span className="text-[#241F1B] text-base leading-none">•</span>
-                    <span>Color: <strong>F – G</strong></span>
-                  </span>
-                  <button 
-                    type="button" 
-                    onClick={(e) => handleTooltip(e, "color")}
-                    className="text-[#6E6459] hover:text-[#241F1B] p-1 cursor-pointer"
-                  >
-                    <Info className="w-3.5 h-3.5" />
-                  </button>
-                </li>
-                {activeTooltip === "color" && (
-                  <div className="p-2.5 bg-[#FAF7F0] border border-[#C9A961]/60 text-xs text-[#241F1B] rounded-xs animate-fadeIn ml-4">
-                    {tooltips.color}
+              // 1. Diamond Details
+              const diamondDetails = [
+                { label: "Total Weight (CT. T.W.)", value: stoneWeightVal, tooltipKey: "totalWeight" },
+                { label: "Color", value: "F – G", tooltipKey: "color" },
+                { label: "Clarity", value: "VVS – VS", tooltipKey: "clarity" },
+                { label: "Lifetime Diamond Commitment", value: "Yes", tooltipKey: "commitment" },
+                { 
+                  label: "Stone Type", 
+                  value: isLabGrown ? "Lab Grown Diamond (Type IIa CVD)" : "Natural Diamond", 
+                  tooltipKey: "stoneType" 
+                },
+                { label: "Stone Color", value: "White" },
+                { label: "Stone Shape", value: stoneShape, tooltipKey: "stoneShape" },
+                { label: "Stone Carat Range", value: "1 Ctw - Under 3 Ctw" },
+                { 
+                  label: "Stone Class", 
+                  value: isLabGrown ? "Lab-Created (Type IIa CVD/HPHT)" : "Natural Earth-Mined" 
+                },
+                { 
+                  label: "Stone Setting", 
+                  value: isRing ? "Talon Claw / Channel" : "Precision Bezel / Prong" 
+                },
+                { label: "Setting Only", value: "No" },
+              ];
+
+              // 2. Accent Diamond Details
+              const accentDiamondDetails = [
+                { 
+                  label: "Stone 2 Type", 
+                  value: isLabGrown ? "Lab Grown Diamond" : "Natural Diamond" 
+                },
+                { label: "Stone 2 Color", value: "White" },
+                { label: "Stone 2 Shape", value: "Round" },
+                { 
+                  label: "Stone 2 Class", 
+                  value: isLabGrown ? "Lab-Created" : "Natural" 
+                },
+                { label: "Stone 2 Diamond Clarity", value: "VS" },
+                { label: "Stone 2 Diamond Color", value: "F – G" },
+              ];
+
+              // 3. Metal Details
+              const metalDetails = [
+                { label: "Metal Type", value: "Gold", tooltipKey: "metalType" },
+                { label: "Metal Color", value: metalColor },
+                { label: "Metal Finish", value: isWhite ? "Rhodium" : "High Mirror Polish" },
+                { label: "Gold Karat", value: goldKarat, tooltipKey: "goldKarat" },
+                ...(isWhite ? [{ label: "Rhodium Color", value: "White" }] : []),
+              ];
+
+              // 4. Ring Details
+              const ringDetails = [
+                { 
+                  label: isRing ? "Ring Style" : "Style", 
+                  value: product.categoryName || "Rings" 
+                },
+                ...(isRing
+                  ? [{ label: "Standard Ring Size", value: selectedSize }]
+                  : isNecklace
+                  ? [{ label: "Chain Length", value: "18 Inches (Includes 2\" Extender)" }]
+                  : isBracelet
+                  ? [{ label: "Standard Wrist Size", value: "7.0 Inches" }]
+                  : []),
+                { 
+                  label: isRing ? "Height" : "Dimensions", 
+                  value: "10.2 mm" 
+                },
+                { 
+                  label: "Craft Origin", 
+                  value: "Surat Atelier, Gujarat", 
+                  tooltipKey: "origin" 
+                },
+              ];
+
+              return (
+                <>
+                  {/* Subsection 1: Diamond Details */}
+                  <div className="space-y-1">
+                    <h4 className="font-serif text-[17px] font-medium text-[#241F1B] pb-2 border-b border-[#E6DFD3] tracking-wide">
+                      Diamond Details
+                    </h4>
+                    <div>
+                      {diamondDetails.map(renderSpecRow)}
+                    </div>
                   </div>
-                )}
 
-                <li className="flex items-center justify-between">
-                  <span className="flex items-center gap-2">
-                    <span className="text-[#241F1B] text-base leading-none">•</span>
-                    <span>Clarity: <strong>VVS – VS</strong></span>
-                  </span>
-                  <button 
-                    type="button" 
-                    onClick={(e) => handleTooltip(e, "clarity")}
-                    className="text-[#6E6459] hover:text-[#241F1B] p-1 cursor-pointer"
-                  >
-                    <Info className="w-3.5 h-3.5" />
-                  </button>
-                </li>
-                {activeTooltip === "clarity" && (
-                  <div className="p-2.5 bg-[#FAF7F0] border border-[#C9A961]/60 text-xs text-[#241F1B] rounded-xs animate-fadeIn ml-4">
-                    {tooltips.clarity}
+                  {/* Subsection 2: Accent Diamond Details */}
+                  <div className="space-y-1">
+                    <h4 className="font-serif text-[17px] font-medium text-[#241F1B] pb-2 border-b border-[#E6DFD3] tracking-wide">
+                      Accent Diamond Details
+                    </h4>
+                    <div>
+                      {accentDiamondDetails.map(renderSpecRow)}
+                    </div>
                   </div>
-                )}
 
-                <li className="flex items-center justify-between">
-                  <span className="flex items-center gap-2">
-                    <span className="text-[#241F1B] text-base leading-none">•</span>
-                    <span>Lifetime Diamond Commitment: <strong>Yes</strong></span>
-                  </span>
-                  <button 
-                    type="button" 
-                    onClick={(e) => handleTooltip(e, "commitment")}
-                    className="text-[#6E6459] hover:text-[#241F1B] p-1 cursor-pointer"
-                  >
-                    <Info className="w-3.5 h-3.5" />
-                  </button>
-                </li>
-                {activeTooltip === "commitment" && (
-                  <div className="p-2.5 bg-[#FAF7F0] border border-[#C9A961]/60 text-xs text-[#241F1B] rounded-xs animate-fadeIn ml-4">
-                    {tooltips.commitment}
+                  {/* Subsection 3: Metal Details */}
+                  <div className="space-y-1">
+                    <h4 className="font-serif text-[17px] font-medium text-[#241F1B] pb-2 border-b border-[#E6DFD3] tracking-wide">
+                      Metal Details
+                    </h4>
+                    <div>
+                      {metalDetails.map(renderSpecRow)}
+                    </div>
                   </div>
-                )}
 
-                <li className="flex items-center justify-between">
-                  <span className="flex items-center gap-2">
-                    <span className="text-[#241F1B] text-base leading-none">•</span>
-                    <span>Stone Type: <strong>{isLabGrown ? "Lab Grown Diamond (Type IIa CVD)" : "Natural Diamond"}</strong></span>
-                  </span>
-                  <button 
-                    type="button" 
-                    onClick={(e) => handleTooltip(e, "stoneType")}
-                    className="text-[#6E6459] hover:text-[#241F1B] p-1 cursor-pointer"
-                  >
-                    <Info className="w-3.5 h-3.5" />
-                  </button>
-                </li>
-                {activeTooltip === "stoneType" && (
-                  <div className="p-2.5 bg-[#FAF7F0] border border-[#C9A961]/60 text-xs text-[#241F1B] rounded-xs animate-fadeIn ml-4">
-                    {tooltips.stoneType}
+                  {/* Subsection 4: Ring Details */}
+                  <div className="space-y-1">
+                    <h4 className="font-serif text-[17px] font-medium text-[#241F1B] pb-2 border-b border-[#E6DFD3] tracking-wide">
+                      {isRing ? "Ring Details" : isNecklace ? "Necklace Details" : isEarring ? "Earring Details" : isBracelet ? "Bracelet Details" : "Ring Details"}
+                    </h4>
+                    <div>
+                      {ringDetails.map(renderSpecRow)}
+                    </div>
                   </div>
-                )}
-
-                <li className="flex items-center gap-2">
-                  <span className="text-[#241F1B] text-base leading-none">•</span>
-                  <span>Stone Color: <strong>White</strong></span>
-                </li>
-
-                <li className="flex items-center justify-between">
-                  <span className="flex items-center gap-2">
-                    <span className="text-[#241F1B] text-base leading-none">•</span>
-                    <span>Stone Shape: <strong>{stoneShape}</strong></span>
-                  </span>
-                  <button 
-                    type="button" 
-                    onClick={(e) => handleTooltip(e, "stoneShape")}
-                    className="text-[#6E6459] hover:text-[#241F1B] p-1 cursor-pointer"
-                  >
-                    <Info className="w-3.5 h-3.5" />
-                  </button>
-                </li>
-                {activeTooltip === "stoneShape" && (
-                  <div className="p-2.5 bg-[#FAF7F0] border border-[#C9A961]/60 text-xs text-[#241F1B] rounded-xs animate-fadeIn ml-4">
-                    {tooltips.stoneShape}
-                  </div>
-                )}
-
-                <li className="flex items-center gap-2">
-                  <span className="text-[#241F1B] text-base leading-none">•</span>
-                  <span>Stone Carat Range: <strong>1 Ctw - Under 3 Ctw</strong></span>
-                </li>
-
-                <li className="flex items-center gap-2">
-                  <span className="text-[#241F1B] text-base leading-none">•</span>
-                  <span>Stone Class: <strong>{isLabGrown ? "Lab-Created (Type IIa CVD/HPHT)" : "Natural Earth-Mined"}</strong></span>
-                </li>
-
-                <li className="flex items-center gap-2">
-                  <span className="text-[#241F1B] text-base leading-none">•</span>
-                  <span>Stone 2 Type: <strong>{isLabGrown ? "Lab Grown Diamond" : "Natural Diamond"}</strong></span>
-                </li>
-
-                <li className="flex items-center gap-2">
-                  <span className="text-[#241F1B] text-base leading-none">•</span>
-                  <span>Stone 2 Color: <strong>White</strong></span>
-                </li>
-
-                <li className="flex items-center gap-2">
-                  <span className="text-[#241F1B] text-base leading-none">•</span>
-                  <span>Stone 2 Shape: <strong>Round</strong></span>
-                </li>
-
-                <li className="flex items-center gap-2">
-                  <span className="text-[#241F1B] text-base leading-none">•</span>
-                  <span>Stone 2 Class: <strong>{isLabGrown ? "Lab-Created" : "Natural"}</strong></span>
-                </li>
-
-                <li className="flex items-center gap-2">
-                  <span className="text-[#241F1B] text-base leading-none">•</span>
-                  <span>Stone Setting: <strong>{isRing ? "Talon Claw / Channel" : "Precision Bezel / Prong"}</strong></span>
-                </li>
-
-                <li className="flex items-center gap-2">
-                  <span className="text-[#241F1B] text-base leading-none">•</span>
-                  <span>Setting Only: <strong>No</strong></span>
-                </li>
-
-                <li className="flex items-center gap-2">
-                  <span className="text-[#241F1B] text-base leading-none">•</span>
-                  <span>Stone 2 Diamond Clarity: <strong>VS</strong></span>
-                </li>
-
-                <li className="flex items-center gap-2">
-                  <span className="text-[#241F1B] text-base leading-none">•</span>
-                  <span>Stone 2 Diamond Color: <strong>F – G</strong></span>
-                </li>
-              </ul>
-            </div>
-
-            {/* 2B. METAL(S) SUBSECTION */}
-            <div className="space-y-2.5 pt-2">
-              <h4 className="font-serif font-semibold text-sm sm:text-base text-[#241F1B]">
-                Metal(s)
-              </h4>
-              <ul className="space-y-2 pl-2 text-[#4A4238]">
-                <li className="flex items-center justify-between">
-                  <span className="flex items-center gap-2">
-                    <span className="text-[#241F1B] text-base leading-none">•</span>
-                    <span>Metal Type: <strong>Gold</strong></span>
-                  </span>
-                  <button 
-                    type="button" 
-                    onClick={(e) => handleTooltip(e, "metalType")}
-                    className="text-[#6E6459] hover:text-[#241F1B] p-1 cursor-pointer"
-                  >
-                    <Info className="w-3.5 h-3.5" />
-                  </button>
-                </li>
-                {activeTooltip === "metalType" && (
-                  <div className="p-2.5 bg-[#FAF7F0] border border-[#C9A961]/60 text-xs text-[#241F1B] rounded-xs animate-fadeIn ml-4">
-                    {tooltips.metalType}
-                  </div>
-                )}
-
-                <li className="flex items-center gap-2">
-                  <span className="text-[#241F1B] text-base leading-none">•</span>
-                  <span>Metal Color: <strong>{metalColor}</strong></span>
-                </li>
-
-                <li className="flex items-center gap-2">
-                  <span className="text-[#241F1B] text-base leading-none">•</span>
-                  <span>Metal Finish: <strong>{isWhite ? "Rhodium" : "High Mirror Polish"}</strong></span>
-                </li>
-
-                <li className="flex items-center justify-between">
-                  <span className="flex items-center gap-2">
-                    <span className="text-[#241F1B] text-base leading-none">•</span>
-                    <span>Gold Karat: <strong>{goldKarat}</strong></span>
-                  </span>
-                  <button 
-                    type="button" 
-                    onClick={(e) => handleTooltip(e, "goldKarat")}
-                    className="text-[#6E6459] hover:text-[#241F1B] p-1 cursor-pointer"
-                  >
-                    <Info className="w-3.5 h-3.5" />
-                  </button>
-                </li>
-                {activeTooltip === "goldKarat" && (
-                  <div className="p-2.5 bg-[#FAF7F0] border border-[#C9A961]/60 text-xs text-[#241F1B] rounded-xs animate-fadeIn ml-4">
-                    {tooltips.goldKarat}
-                  </div>
-                )}
-
-                {isWhite && (
-                  <li className="flex items-center gap-2">
-                    <span className="text-[#241F1B] text-base leading-none">•</span>
-                    <span>Rhodium Color: <strong>White</strong></span>
-                  </li>
-                )}
-              </ul>
-            </div>
-
-            {/* 2C. DESIGN & CATEGORY SPECIFIC SUBSECTION */}
-            <div className="space-y-2.5 pt-2">
-              <h4 className="font-serif font-semibold text-sm sm:text-base text-[#241F1B]">
-                {isRing ? "Ring Design" : isNecklace ? "Necklace & Pendant Design" : isEarring ? "Earring Design" : isBracelet ? "Bracelet Design" : "Jewellery Design"}
-              </h4>
-              <ul className="space-y-2 pl-2 text-[#4A4238]">
-                <li className="flex items-center gap-2">
-                  <span className="text-[#241F1B] text-base leading-none">•</span>
-                  <span>{isRing ? "Ring Style" : "Style"}: <strong>{product.categoryName || "Haute Joaillerie Fine Creation"}</strong></span>
-                </li>
-
-                {isRing ? (
-                  <li className="flex items-center gap-2">
-                    <span className="text-[#241F1B] text-base leading-none">•</span>
-                    <span>Standard Ring Size: <strong>{selectedSize}</strong></span>
-                  </li>
-                ) : isNecklace ? (
-                  <li className="flex items-center gap-2">
-                    <span className="text-[#241F1B] text-base leading-none">•</span>
-                    <span>Chain Length: <strong>18 Inches (Includes 2" Extender)</strong></span>
-                  </li>
-                ) : isBracelet ? (
-                  <li className="flex items-center gap-2">
-                    <span className="text-[#241F1B] text-base leading-none">•</span>
-                    <span>Standard Wrist Size: <strong>7.0 Inches</strong></span>
-                  </li>
-                ) : null}
-              </ul>
-            </div>
-
-            {/* 2D. PRODUCT DETAILS SUBSECTION */}
-            <div className="space-y-2.5 pt-2">
-              <h4 className="font-serif font-semibold text-sm sm:text-base text-[#241F1B]">
-                Product Details
-              </h4>
-              <ul className="space-y-2 pl-2 text-[#4A4238]">
-                <li className="flex items-center gap-2">
-                  <span className="text-[#241F1B] text-base leading-none">•</span>
-                  <span>{isRing ? "Height" : "Dimensions"}: <strong>10.2 mm</strong></span>
-                </li>
-
-                <li className="flex items-center justify-between">
-                  <span className="flex items-center gap-2">
-                    <span className="text-[#241F1B] text-base leading-none">•</span>
-                    <span>Craft Origin: <strong>Surat Atelier, Gujarat</strong></span>
-                  </span>
-                  <button 
-                    type="button" 
-                    onClick={(e) => handleTooltip(e, "origin")}
-                    className="text-[#6E6459] hover:text-[#241F1B] p-1 cursor-pointer"
-                  >
-                    <Info className="w-3.5 h-3.5" />
-                  </button>
-                </li>
-                {activeTooltip === "origin" && (
-                  <div className="p-2.5 bg-[#FAF7F0] border border-[#C9A961]/60 text-xs text-[#241F1B] rounded-xs animate-fadeIn ml-4">
-                    {tooltips.origin}
-                  </div>
-                )}
-              </ul>
-            </div>
-
+                </>
+              );
+            })()}
           </div>
         )}
       </div>
@@ -518,9 +372,11 @@ export const ProductSpecsAccordion: React.FC<ProductSpecsAccordionProps> = ({
         <button
           type="button"
           onClick={() => toggleSection("financing")}
-          className="w-full py-4 flex items-center justify-between text-left font-serif text-base sm:text-lg font-medium text-[#241F1B] hover:text-[#9E7F3C] transition-colors cursor-pointer"
+          className="w-full py-4 sm:py-5 flex items-center justify-between text-left group transition-colors cursor-pointer"
         >
-          <span>Financing</span>
+          <span className="font-serif text-[20px] sm:text-[22px] font-medium text-[#241F1B] group-hover:text-[#9E7F3C] transition-colors">
+            Financing
+          </span>
           <ChevronDown
             className={`w-5 h-5 text-[#241F1B] transition-transform duration-200 ${
               openSections.financing ? "rotate-180" : ""
@@ -547,9 +403,11 @@ export const ProductSpecsAccordion: React.FC<ProductSpecsAccordionProps> = ({
         <button
           type="button"
           onClick={() => toggleSection("shipping")}
-          className="w-full py-4 flex items-center justify-between text-left font-serif text-base sm:text-lg font-medium text-[#241F1B] hover:text-[#9E7F3C] transition-colors cursor-pointer"
+          className="w-full py-4 sm:py-5 flex items-center justify-between text-left group transition-colors cursor-pointer"
         >
-          <span>Shipping and Returns</span>
+          <span className="font-serif text-[20px] sm:text-[22px] font-medium text-[#241F1B] group-hover:text-[#9E7F3C] transition-colors">
+            Shipping and Returns
+          </span>
           <ChevronDown
             className={`w-5 h-5 text-[#241F1B] transition-transform duration-200 ${
               openSections.shipping ? "rotate-180" : ""
@@ -591,9 +449,11 @@ export const ProductSpecsAccordion: React.FC<ProductSpecsAccordionProps> = ({
         <button
           type="button"
           onClick={() => toggleSection("care")}
-          className="w-full py-4 flex items-center justify-between text-left font-serif text-base sm:text-lg font-medium text-[#241F1B] hover:text-[#9E7F3C] transition-colors cursor-pointer"
+          className="w-full py-4 sm:py-5 flex items-center justify-between text-left group transition-colors cursor-pointer"
         >
-          <span>Disclosures & Care</span>
+          <span className="font-serif text-[20px] sm:text-[22px] font-medium text-[#241F1B] group-hover:text-[#9E7F3C] transition-colors">
+            Disclosures & Care
+          </span>
           <ChevronDown
             className={`w-5 h-5 text-[#241F1B] transition-transform duration-200 ${
               openSections.care ? "rotate-180" : ""
