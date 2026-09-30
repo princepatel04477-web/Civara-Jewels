@@ -37,9 +37,8 @@ const occasionsData: Record<string, OccasionData> = {
     subtitle: "Heirloom gold and diamond suites crafted for the aisle and generations after.",
     description:
       "Grand statement sets, royal kundan chokers, and sculpted interlocking bands designed with architectural restraint.",
-    heroImage: "/images/home-cc/bridal-cc.png",
+    heroImage: "/images/home-cc/Rings-cc.png",
     curatedProductIds: [
-      "aanya-bridal-choker-set",
       "meera-bridal-solitaire-duo",
       "celeste-diamond-tennis-necklace",
       "kaia-diamond-cuff",

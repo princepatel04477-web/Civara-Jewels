@@ -96,12 +96,11 @@ export const Footer = () => {
             Collections
           </div>
           <ul className="space-y-3 font-light text-sm sm:text-[15px] text-[#E6DFD3]">
-            <li><Link href="/collections/rings" className="hover:text-[#C9A961] transition-colors">Solitaires & Rings</Link></li>
-            <li><Link href="/collections/necklaces" className="hover:text-[#C9A961] transition-colors">Chokers & Necklaces</Link></li>
-            <li><Link href="/collections/earrings" className="hover:text-[#C9A961] transition-colors">Sculptural Earrings</Link></li>
-            <li><Link href="/collections/bracelets" className="hover:text-[#C9A961] transition-colors">Bangles & Cuffs</Link></li>
-            <li><Link href="/collections/bridal" className="hover:text-[#C9A961] transition-colors">Bridal & Ceremony</Link></li>
-            <li><Link href="/occasions/engagement" className="hover:text-[#C9A961] transition-colors">Engagement Edit</Link></li>
+            <li><Link href="/collections/rings" className="hover:text-[#C9A961] transition-colors">Rings</Link></li>
+            <li><Link href="/collections/earrings" className="hover:text-[#C9A961] transition-colors">Earrings</Link></li>
+            <li><Link href="/collections/bracelets" className="hover:text-[#C9A961] transition-colors">Bracelets</Link></li>
+            <li><Link href="/collections/necklaces" className="hover:text-[#C9A961] transition-colors">Necklaces</Link></li>
+            <li><Link href="/collections/pendants" className="hover:text-[#C9A961] transition-colors">Pendants</Link></li>
           </ul>
         </div>
 
@@ -112,11 +111,10 @@ export const Footer = () => {
           </div>
           <ul className="space-y-3 text-sm sm:text-[15px] font-light text-[#E6DFD3]">
             <li><Link href="/collections/rings" className="hover:text-[#C9A961] transition-colors">Rings & Solitaires</Link></li>
+            <li><Link href="/collections/earrings" className="hover:text-[#C9A961] transition-colors">Earrings & Drops</Link></li>
             <li><Link href="/collections/bracelets" className="hover:text-[#C9A961] transition-colors">Bracelets & Cuffs</Link></li>
             <li><Link href="/collections/necklaces" className="hover:text-[#C9A961] transition-colors">Necklaces & Strands</Link></li>
             <li><Link href="/collections/pendants" className="hover:text-[#C9A961] transition-colors">Pendants & Lockets</Link></li>
-            <li><Link href="/collections/bridal" className="hover:text-[#C9A961] transition-colors">Bridal Suites</Link></li>
-            <li><Link href="/collections/earrings" className="hover:text-[#C9A961] transition-colors">Earrings & Drops</Link></li>
             <li><Link href="/collections" className="hover:text-[#C9A961] transition-colors font-medium text-[#C9A961]">Browse All Creations →</Link></li>
           </ul>
         </div>

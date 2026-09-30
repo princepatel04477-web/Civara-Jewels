@@ -8,11 +8,10 @@ import { Button, Input, Textarea, Select, Switch, ChipInput } from "../../../com
 
 const DEFAULT_COLLECTIONS = [
   { id: 1, name: "Rings", slug: "rings" },
-  { id: 2, name: "Bracelets", slug: "bracelets" },
-  { id: 3, name: "Necklaces", slug: "necklaces" },
-  { id: 4, name: "Pendants", slug: "pendants" },
-  { id: 5, name: "Bridal", slug: "bridal" },
-  { id: 6, name: "Earrings", slug: "earrings" },
+  { id: 3, name: "Earrings", slug: "earrings" },
+  { id: 4, name: "Bracelets", slug: "bracelets" },
+  { id: 2, name: "Necklaces", slug: "necklaces" },
+  { id: 6, name: "Pendants", slug: "pendants" },
 ];
 
 export default function AdminNewProductPage() {

@@ -39,9 +39,9 @@ export const ProductDossierSection: React.FC<ProductDossierSectionProps> = ({
 
   const categoryLower = (product.category || "").toLowerCase();
   const isRing = product.sizeType === "ring" || categoryLower.includes("ring");
-  const isNecklace = categoryLower.includes("necklace") || categoryLower.includes("pendant") || categoryLower.includes("mangalsutra");
+  const isNecklace = categoryLower.includes("necklace") || categoryLower.includes("pendant");
   const isEarring = categoryLower.includes("earring");
-  const isBracelet = categoryLower.includes("bracelet") || categoryLower.includes("bangle");
+  const isBracelet = categoryLower.includes("bracelet");
 
   const stoneWeightVal = product.stoneType?.includes("ct") 
     ? product.stoneType.replace(/ct/i, "").trim() 

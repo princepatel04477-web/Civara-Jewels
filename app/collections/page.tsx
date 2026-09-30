@@ -14,12 +14,6 @@ export default function CollectionsIndexPage() {
       alt: "Civara Handcrafted Solitaires & Stacking Rings",
     },
     {
-      image: "/images/collections-portfolio/Necklace-Collection-Cover.png",
-      label: "Necklaces",
-      link: "/collections/necklaces",
-      alt: "Civara Liquid Diamond Tennis Strands & Collars",
-    },
-    {
       image: "/images/collections-portfolio/Earrings-Collection-Cover.png",
       label: "Earrings",
       link: "/collections/earrings",
@@ -32,10 +26,10 @@ export default function CollectionsIndexPage() {
       alt: "Civara Hinged Bangles & Open Diamond Cuffs",
     },
     {
-      image: "/images/collections-portfolio/Bridal-Collection-Cover.png",
-      label: "Bridal",
-      link: "/collections/bridal",
-      alt: "Civara Heirloom Royal Bridal Suites & Kundan Chokers",
+      image: "/images/collections-portfolio/Necklace-Collection-Cover.png",
+      label: "Necklaces",
+      link: "/collections/necklaces",
+      alt: "Civara Liquid Diamond Tennis Strands & Collars",
     },
     {
       image: "/images/collections-portfolio/Pendant-Collection-Cover.png",

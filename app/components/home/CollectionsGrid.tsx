@@ -25,16 +25,7 @@ export const CollectionsGrid: React.FC = () => {
       count: collections.rings.count,
       image: "/images/collections-portfolio/Rings-Collection-Cover.png",
       mobileImage: "/images/collections-portfolio/Rings-Collection-Cover.png",
-      desktopSpan: "lg:col-span-2 lg:row-span-1",
-      tabletSpan: "md:col-span-1",
-    },
-    {
-      slug: collections.necklaces.slug,
-      name: collections.necklaces.name,
-      count: collections.necklaces.count,
-      image: "/images/collections-portfolio/Necklace-Collection-Cover.png",
-      mobileImage: "/images/collections-portfolio/Necklace-Collection-Cover.png",
-      desktopSpan: "lg:col-span-1 lg:row-span-1",
+      desktopSpan: "lg:col-span-3",
       tabletSpan: "md:col-span-1",
     },
     {
@@ -43,7 +34,7 @@ export const CollectionsGrid: React.FC = () => {
       count: collections.earrings.count,
       image: "/images/collections-portfolio/Earrings-Collection-Cover.png",
       mobileImage: "/images/collections-portfolio/Earrings-Collection-Cover.png",
-      desktopSpan: "lg:col-span-1 lg:row-span-1",
+      desktopSpan: "lg:col-span-3",
       tabletSpan: "md:col-span-1",
     },
     {
@@ -52,16 +43,16 @@ export const CollectionsGrid: React.FC = () => {
       count: collections.bracelets.count,
       image: "/images/collections-portfolio/Bracelets-Collection-Cover.png",
       mobileImage: "/images/collections-portfolio/Bracelets-Collection-Cover.png",
-      desktopSpan: "lg:col-span-2 lg:row-span-1",
+      desktopSpan: "lg:col-span-2",
       tabletSpan: "md:col-span-1",
     },
     {
-      slug: collections.bridal.slug,
-      name: collections.bridal.name,
-      count: collections.bridal.count,
-      image: "/images/collections-portfolio/Bridal-Collection-Cover.png",
-      mobileImage: "/images/collections-portfolio/Bridal-Collection-Cover.png",
-      desktopSpan: "lg:col-span-2 lg:row-span-1",
+      slug: collections.necklaces.slug,
+      name: collections.necklaces.name,
+      count: collections.necklaces.count,
+      image: "/images/collections-portfolio/Necklace-Collection-Cover.png",
+      mobileImage: "/images/collections-portfolio/Necklace-Collection-Cover.png",
+      desktopSpan: "lg:col-span-2",
       tabletSpan: "md:col-span-1",
     },
     {
@@ -70,15 +61,15 @@ export const CollectionsGrid: React.FC = () => {
       count: collections.pendants.count,
       image: "/images/collections-portfolio/Pendant-Collection-Cover.png",
       mobileImage: "/images/collections-portfolio/Pendant-Collection-Cover.png",
-      desktopSpan: "lg:col-span-1 lg:row-span-1",
-      tabletSpan: "md:col-span-1",
+      desktopSpan: "lg:col-span-2",
+      tabletSpan: "md:col-span-2",
     },
   ];
 
   return (
     <div className="w-full">
       {/* Editorial Bento Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 auto-rows-[minmax(280px,24vw)] max-w-7xl mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 sm:gap-6 auto-rows-[minmax(280px,24vw)] max-w-7xl mx-auto">
         {tiles.map((tile) => (
           <Link
             key={tile.slug}
@@ -93,7 +84,7 @@ export const CollectionsGrid: React.FC = () => {
                 fill
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 className="object-cover object-center transition-transform duration-600 ease-out group-hover:scale-[1.03]"
-                priority={tile.slug === "rings" || tile.slug === "bridal"}
+                priority={tile.slug === "rings" || tile.slug === "earrings"}
               />
             </div>
 

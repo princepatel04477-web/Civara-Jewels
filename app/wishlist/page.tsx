@@ -72,7 +72,7 @@ export default function WishlistPage() {
               Your wishlist awaits its first piece.
             </p>
             <p className="text-xs font-light text-[#6E6459] max-w-md mx-auto">
-              Explore our collections to save solitaire rings, tennis necklaces, and handcrafted bangles for future consideration.
+              Explore our collections to save solitaire rings, tennis necklaces, and handcrafted bracelets for future consideration.
             </p>
             <div className="pt-2">
               <Link

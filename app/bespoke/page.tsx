@@ -97,13 +97,12 @@ export default function BespokePage() {
     },
   ];
 
-  // 6 Official Categories
+  // 5 Official Categories
   const categories = [
     { id: "Rings", label: "Rings", sub: "Solitaires & Stacking Bands (Sizes 3–15)" },
-    { id: "Necklaces", label: "Necklaces", sub: "Tennis Collars & Chokers" },
     { id: "Earrings", label: "Earrings", sub: "Hoops, Drops & Studs" },
-    { id: "Bracelets", label: "Bracelets", sub: "Bangles, Cuffs & Tennis Chains" },
-    { id: "Bridal", label: "Bridal", sub: "Polki Suites & Ceremonial Sets" },
+    { id: "Bracelets", label: "Bracelets", sub: "Cuffs, Bangles & Tennis Chains" },
+    { id: "Necklaces", label: "Necklaces", sub: "Tennis Collars & Chokers" },
     { id: "Pendants", label: "Pendants", sub: "Medallions & Lockets" },
   ];
 

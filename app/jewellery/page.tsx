@@ -39,7 +39,7 @@ export default function JewelleryIndexPage() {
         <RuleDraw color="gold" className="w-24 mx-auto my-3" />
 
         <p className="text-xs sm:text-sm font-light text-[#6E6459] max-w-2xl mx-auto leading-relaxed">
-          Fourteen distinct categories of Indian high jewellery, handcrafted in hallmarked 18K/22K gold and GIA/IGI certified natural diamonds. Select a category to explore subcategories and atelier craft notes.
+          Five signature fine jewellery categories: Rings, Earrings, Bracelets, Necklaces, and Pendants, handcrafted in hallmarked 18K gold and GIA/IGI certified natural diamonds. Select a category to explore subcategories and atelier craft notes.
         </p>
       </section>
 

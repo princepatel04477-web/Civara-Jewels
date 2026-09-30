@@ -1,8 +1,5 @@
-"use client";
-
-import React from "react";
-import { CategoryView } from "../components/CategoryView";
+import { redirect } from "next/navigation";
 
 export default function BridalPage() {
-  return <CategoryView categorySlug="bridal" />;
+  redirect("/collections");
 }

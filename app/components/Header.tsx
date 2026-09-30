@@ -17,10 +17,9 @@ export const Header = () => {
 
   const megaMenuCategories = [
     { name: "Rings", href: "/collections/rings", image: "/images/home-m-cc/Rings-m.png" },
-    { name: "Necklaces", href: "/collections/necklaces", image: "/images/home-m-cc/Necklaces-m.png" },
     { name: "Earrings", href: "/collections/earrings", image: "/images/home-m-cc/earrings-m.png" },
     { name: "Bracelets", href: "/collections/bracelets", image: "/images/home-m-cc/bracelets-m.png" },
-    { name: "Bridal", href: "/collections/bridal", image: "/images/home-m-cc/bridal-m.png" },
+    { name: "Necklaces", href: "/collections/necklaces", image: "/images/home-m-cc/Necklaces-m.png" },
     { name: "Pendants", href: "/collections/pendants", image: "/images/home-m-cc/pendants-m.png" },
   ];
 
@@ -154,7 +153,7 @@ export const Header = () => {
                   View All Collections →
                 </Link>
               </div>
-              <div className="grid grid-cols-6 gap-3.5 xl:gap-4">
+              <div className="grid grid-cols-5 gap-3.5 xl:gap-4">
                 {megaMenuCategories.map((c) => (
                   <Link
                     key={c.name}
